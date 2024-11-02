@@ -35,10 +35,10 @@ export default function LandingPage() {
             <div className="flex flex-col space-y-4 md:w-1/2 w-full ">
               <div className="space-y-2">
                 <h1 className="text-2xl  tracking-tighter sm:text-3xl md:text-4xl lg:text-5xl/none">
-                  Saas Template with Supabase, Stripe, Databases
+                  Grow your conversions rate in one minute
                 </h1>
                 <p className=" text-muted-foreground md:text-xl">
-                  NextJS Boilerplate with everything required to build your next SAAS Product
+                  Social Proof has proven to be the number one driver of conversion rates. We make it easy for your web3 protocol.
                 </p>
               </div>
               <div className="space-x-4">

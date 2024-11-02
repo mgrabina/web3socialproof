@@ -1,0 +1,25 @@
+{
+  "name": "@web3socialproof/pixel",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "watch": "nodemon --watch src --ext ts,js,json  --exec 'yarn build'"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "nodemon": "^2.0.15",
+    "terser": "^5.10.0",
+    "terser-webpack-plugin": "^5.3.10",
+    "ts-loader": "^9.5.1",
+    "turbo": "^2.2.3",
+    "typescript": "5.6.2",
+    "webpack": "^5.96.1",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "@trpc/client": "^11.0.0-rc.608",
+    "@trpc/server": "^11.0.0-rc.608",
+    "zod": "^3.23.8"
+  }
+}

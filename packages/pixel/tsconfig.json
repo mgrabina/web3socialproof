@@ -1,0 +1,12 @@
+// tsconfig.json
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "target": "es2015",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "lib": ["esnext", "dom"] // Include esnext and dom libraries
+  },
+  "include": ["src/**/*"]
+}

@@ -16,6 +16,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script src="http://localhost:3001/static/script.min.js" async></script>
+      </head>
       {/* Required for pricing table */}
       <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
       <body className={inter.className}>{children}</body>
