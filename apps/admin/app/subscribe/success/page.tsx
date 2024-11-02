@@ -7,6 +7,8 @@ import ProviderSigninBlock from '@/components/ProviderSigninBlock'
 import LoginForm from "@/components/LoginForm"
 import { Button } from "@/components/ui/button"
 export default function SubscribeSuccess() {
+    // @todo : if local, trigger stripe webhook to update user plan, otherwise use supabase to update user plan
+
     return (
         <div className="flex items-center justify-center bg-muted min-h-screen">
             <Card className="w-[350px] mx-auto">

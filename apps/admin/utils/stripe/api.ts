@@ -7,6 +7,10 @@ const PUBLIC_URL = process.env.NEXT_PUBLIC_WEBSITE_URL ? process.env.NEXT_PUBLIC
 export async function getStripePlan(email: string) {
 
     const user = await db.select().from(usersTable).where(eq(usersTable.email, email))
+    if (user.length === 0) {
+        return "none"
+    }
+
     const subscription = await stripe.subscriptions.retrieve(
         user[0].plan
     );

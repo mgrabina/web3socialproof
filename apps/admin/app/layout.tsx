@@ -20,7 +20,7 @@ export default function RootLayout({
         <script src="http://localhost:3001/static/script.min.js" async></script>
       </head>
       {/* Required for pricing table */}
-      <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+      <script async src="https://js.stripe.com/v3/pricing-table.js" defer></script>
       <body className={inter.className}>{children}</body>
     </html>
   );

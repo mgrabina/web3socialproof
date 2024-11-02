@@ -14,6 +14,8 @@ import type { inferRouterOutputs } from "@trpc/server";
 // Uncomment bellow line if not importing tRPC API from npm package - https://github.com/mkosir/trpc-api-boilerplate#avoid-publishing-package
 // import { AppRouter } from '../api-types';
 
+// https://trpc.io/docs/client/vanilla/infer-types
+
 export const trpcApiClient = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
