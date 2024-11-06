@@ -19,9 +19,9 @@ import { PixelEnv } from "./constants";
 
 export const backendUrl = (env: PixelEnv) => {
   switch (env) {
-    case "test":
+    case "preview":
     case "production":
-      return "https://web3socialproof-production.up.railway.app:4000";
+      return "https://web3socialproof-production.up.railway.app";
     case "development":
       return "http://localhost:4000";
     default:
@@ -33,7 +33,7 @@ export const trpcApiClient = (env: PixelEnv) =>
   createTRPCClient<AppRouter>({
     links: [
       httpBatchLink({
-        url: "http://localhost:4000/trpc",
+        url: `${backendUrl(env)}/trpc`,
         // You can pass any HTTP headers you wish here
         // async headers() {
         //   return {

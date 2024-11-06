@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { env, getPixelServerByEnvironment } from "@/lib/constants";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SAAS Starter Kit",
-  description: "SAAS Starter Kit with Stripe, Supabase, Postgres",
+  title: "Talaria Protocol",
+  description: "The ultimate marketing tool to increase conversions in web3",
 };
 
 export default function RootLayout({
@@ -17,10 +18,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script src="http://localhost:3001/static/script.min.js?env=development" async></script>
+        <script
+          src={`${getPixelServerByEnvironment(env)}/static/script.min.js?env=${env}`}
+          async
+        ></script>
       </head>
       {/* Required for pricing table */}
-      <script async src="https://js.stripe.com/v3/pricing-table.js" defer></script>
+      <script
+        async
+        src="https://js.stripe.com/v3/pricing-table.js"
+        defer
+      ></script>
       <body className={inter.className}>{children}</body>
     </html>
   );

@@ -8,9 +8,9 @@ import { db, eq, usersTable } from "@web3socialproof/db";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SAAS Starter Kit",
-  description: "SAAS Starter Kit with Stripe, Supabase, Postgres",
-};
+    title: "Talaria Protocol",
+    description: "The ultimate marketing tool to increase conversions in web3",
+  };
 
 export default async function DashboardLayout({
   children,
