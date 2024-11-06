@@ -1,6 +1,7 @@
 // src/widget.ts
 
-import { trpcApiClient } from "./trpc";
+import { isPixelEnv, PixelEnv } from "./constants";
+import { backendUrl, trpcApiClient } from "./trpc";
 
 // Function to show a notification on the page
 function showNotification(
@@ -104,7 +105,20 @@ async function initializeWidget() {
 
     // Get the current script and extract the API key from the URL parameters
     const script = document.currentScript as HTMLScriptElement;
-    const apiKey = script ? new URL(script.src).searchParams.get("apiKey") : null;
+    const apiKeyParam = script
+      ? new URL(script.src).searchParams.get("apiKey")
+      : null;
+    const envParam = script
+      ? new URL(script.src).searchParams.get("env")
+      : null;
+    const env: PixelEnv = isPixelEnv(envParam) ? envParam : "production";
+
+    console.log(
+      "Pixel environment: ",
+      env,
+      " using backend: ",
+      backendUrl(env)
+    );
 
     // if (!apiKey) {
     //   console.error("API key is missing");
@@ -112,11 +126,15 @@ async function initializeWidget() {
     // }
 
     // Fetching data using trpcApiClient
-    const response = await trpcApiClient.util.test.query();
+    const response = await trpcApiClient(env).util.test.query();
 
     if (response) {
       console.log("Response: ", response);
-      showNotification(response ?? "Failed!", "Submessage!", "https://talaria.com");
+      showNotification(
+        response ?? "Failed!",
+        "Submessage!",
+        "https://talaria.com"
+      );
     } else {
       console.error("Error fetching data or empty response");
     }

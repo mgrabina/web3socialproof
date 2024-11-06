@@ -1,10 +1,11 @@
 {
-  "name": "my-widget-server",
+  "name": "@web3socialproof/pixel-server",
   "version": "1.0.0",
   "description": "A server to serve script.min.js from packages/pixel/dist",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "build": "tsc",
     "dev": "nodemon server.js",
     "watch": "node server.js",
     "docker-build": "docker build -t my-widget-server .",
