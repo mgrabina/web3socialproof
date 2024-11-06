@@ -1,6 +1,5 @@
-import { db } from '@/utils/db/db'
-import { usersTable } from '@/utils/db/schema'
-import { eq } from "drizzle-orm";
+import { db, eq, usersTable } from "@web3socialproof/db";
+
 export async function POST(request: Request) {
     console.log('Webhook received')
     try {

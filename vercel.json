@@ -1,0 +1,7 @@
+{
+  "build": {
+    "env": {
+      "YARN_VERSION": "4.0.2"
+    }
+  }
+}

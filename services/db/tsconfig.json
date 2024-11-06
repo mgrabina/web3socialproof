@@ -2,10 +2,9 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "outDir": "build",
-    "baseUrl": ".",
+    "baseUrl": "src",
     "paths": {
-      ".": ["."],
-      "@web3socialproof/db": ["../../services/db/index.ts"]
+      ".": ["."]
     },
     "allowJs": true,
     "strict": true,

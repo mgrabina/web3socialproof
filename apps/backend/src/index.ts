@@ -2,7 +2,7 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import cors from 'cors';
 import express from 'express';
 
-import { homePage } from 'utils';
+// import { homePage } from 'utils';
 
 import { createContext } from './trpc';
 import { appRouter } from './trpc/router';
@@ -19,9 +19,9 @@ app.use(
   }),
 );
 
-app.use('/', (_req, res) => {
-  return res.type('html').send(homePage);
-});
+// app.use('/', (_req, res) => {
+//   return res.type('html').send(homePage);
+// });
 
 const PORT = process.env.PORT ?? 4000;
 
