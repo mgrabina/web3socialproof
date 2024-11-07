@@ -20,10 +20,10 @@ export default async function DashboardHeaderProfileDropdown() {
     const billingPortalURL = await generateStripeBillingPortalLink(user!.email!)
     return (
         <nav className="flex items-center">
-            <Button variant="ghost" size="icon" className="mr-2">
+            {/* <Button variant="ghost" size="icon" className="mr-2">
                 <Bell className="h-4 w-4" />
                 <span className="sr-only">Notifications</span>
-            </Button>
+            </Button> */}
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
