@@ -9,17 +9,22 @@ import { appRouter } from "./trpc/router";
 
 const app = express();
 
-app.use(cors({ origin: "*", credentials: true }));
+// Allow any origin, any method, and any header with CORS
+app.use(
+  cors({
+    origin: "*", // Allow all origins
+    methods: "*", // Allow all methods (GET, POST, PUT, DELETE, etc.)
+    allowedHeaders: "*", // Allow all headers
+    credentials: true, // Allow cookies and authorization headers
+  })
+);
 
-// Manually set CORS headers for all responses
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET,OPTIONS,HEAD,PUT,PATCH,POST,DELETE');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200); // Respond OK to preflight requests
-  }
-  next();
+// Explicitly handle OPTIONS requests to ensure they return the correct CORS headers
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "*");
+  res.header("Access-Control-Allow-Headers", "*");
+  res.sendStatus(200);
 });
 
 app.use(
