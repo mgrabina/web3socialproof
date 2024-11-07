@@ -1,5 +1,6 @@
 import { Stripe } from "stripe";
-import { db, eq, usersTable } from "@web3socialproof/db";
+import { db, eq, protocolTable, usersTable } from "@web3socialproof/db";
+import { env } from "@/lib/constants";
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const PUBLIC_URL = process.env.NEXT_PUBLIC_WEBSITE_URL
   ? process.env.NEXT_PUBLIC_WEBSITE_URL
@@ -13,7 +14,21 @@ export async function getStripePlan(email: string) {
     return "none";
   }
 
-  const subscription = await stripe.subscriptions.retrieve(user[0].plan);
+  const protocol = await db
+    .select()
+    .from(protocolTable)
+    .where(eq(protocolTable.id, user[0].protocol_id!));
+
+  if (!protocol[0].stripe_id) {
+    return "none";
+  }
+  if (env === "development") {
+    return "free";
+  }
+
+  const subscription = await stripe.subscriptions.retrieve(
+    protocol[0].stripe_id
+  );
   const productId = subscription.items.data[0].plan.product as string;
   const product = await stripe.products.retrieve(productId);
   return product.name;
@@ -40,8 +55,16 @@ export async function createStripeCheckoutSession(email: string) {
     .select()
     .from(usersTable)
     .where(eq(usersTable.email, email));
+
+
+  const protocol = await db
+  .select()
+  .from(protocolTable)
+  .where(eq(protocolTable.id, user[0].protocol_id!));
+
+
   const customerSession = await stripe.customerSessions.create({
-    customer: user[0].stripe_id,
+    customer: protocol[0].stripe_id!,
     components: {
       pricing_table: {
         enabled: true,
@@ -56,8 +79,14 @@ export async function generateStripeBillingPortalLink(email: string) {
     .select()
     .from(usersTable)
     .where(eq(usersTable.email, email));
+
+  const protocol = await db
+    .select()
+    .from(protocolTable)
+    .where(eq(protocolTable.id, user[0].protocol_id!));
+
   const portalSession = await stripe.billingPortal.sessions.create({
-    customer: user[0].stripe_id,
+    customer: protocol[0].stripe_id!,
     return_url: `${PUBLIC_URL}/dashboard`,
   });
   return portalSession.url;

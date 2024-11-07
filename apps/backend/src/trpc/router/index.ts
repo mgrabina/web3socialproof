@@ -1,9 +1,9 @@
 import { router } from "..";
 
-import { utilRouter } from "./utilRouter";
+import { campaignsRouter } from "./campaignsRouter";
 
 export const appRouter = router({
-  util: utilRouter,
+  campaigns: campaignsRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   description: "The ultimate marketing tool to increase conversions in web3",
 };
 
+const apiKey = "sk_test_51hGXLs7gUOVBHKGjehbwK2kNo9BoJanNX";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -19,7 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <script
-          src={`${getPixelServerByEnvironment(env)}/static/script.min.js?env=${env}`}
+          src={`${getPixelServerByEnvironment(env)}/static/script.min.js?env=${env}&apiKey=${apiKey}`}
           async
         ></script>
       </head>

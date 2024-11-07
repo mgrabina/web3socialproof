@@ -66,11 +66,11 @@ export default function Campaigns() {
       </div>
 
       <Card>
-        <CardHeader>
+        {/* <CardHeader>
           <CardTitle>Active Campaigns</CardTitle>
-        </CardHeader>
+        </CardHeader> */}
         <CardContent>
-          <div className="flex justify-between mb-4">
+          <div className="flex justify-between mb-4 mt-8">
             <div className="relative w-64">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input placeholder="Search campaigns" className="pl-8" />

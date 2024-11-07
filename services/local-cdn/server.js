@@ -5,8 +5,14 @@ const path = require("path");
 const app = express();
 const distDir = path.join(__dirname, "../../packages/pixel/dist");
 
-// Serve static files from the dist directory
-app.use("/static", express.static(distDir));
+// Serve static files from the dist directory with no-cache headers
+app.use("/static", express.static(distDir, {
+  setHeaders: (res) => {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+  }
+}));
 
 const files = [];
 
@@ -27,9 +33,14 @@ const getFiles = (dirPath) => {
 
 getFiles(distDir);
 
-// Generate an index page with relative paths
+// Generate an index page with relative paths and no-cache headers
 try {
   app.get("/", (req, res) => {
+    // Set cache control headers for the index page
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+
     // Generate HTML content
     const htmlContent = `
       <!DOCTYPE html>

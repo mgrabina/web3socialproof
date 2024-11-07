@@ -34,7 +34,7 @@ export const trpcApiClient = (env: PixelEnv) =>
     links: [
       httpBatchLink({
         url: `${backendUrl(env)}/trpc`,
-        fetch(url: any, options: any) {
+        fetch(url: string | URL | Request, options: RequestInit | undefined) {
           return fetch(url, {
             ...options,
             mode: "cors",
@@ -43,17 +43,4 @@ export const trpcApiClient = (env: PixelEnv) =>
         transformer: superjson,
       }),
     ],
-
-    // links: [
-    //   httpBatchLink({
-    //     url: `${backendUrl(env)}/trpc`,
-    //     // You can pass any HTTP headers you wish here
-    //     // async headers() {
-    //     //   return {
-    //     //     authorization: getAuthCookie(),
-    //     //   };
-    //     // },
-    //     transformer: superjson,
-    //   }),
-    // ],
   });

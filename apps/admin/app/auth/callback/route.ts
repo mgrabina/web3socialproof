@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 // The client you created from the Server-Side Auth instructions
 import { createClient } from "@/utils/supabase/server";
 import { createStripeCustomer } from "@/utils/stripe/api";
-import { db, eq, usersTable } from "@web3socialproof/db";
+import { db, eq, protocolTable, usersTable } from "@web3socialproof/db";
+import { env } from "@/lib/constants";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -24,7 +25,11 @@ export async function GET(request: Request) {
         .from(usersTable)
         .where(eq(usersTable.email, user!.email!));
       const isUserInDB = checkUserInDB.length > 0 ? true : false;
+      const isLocalEnv = process.env.NODE_ENV === "development";
+
       if (!isUserInDB) {
+        // First create protocol
+        let protocolInDb;
         // create Stripe customers
         const stripeID = await createStripeCustomer(
           user!.id,
@@ -32,18 +37,22 @@ export async function GET(request: Request) {
           user!.user_metadata.full_name
         );
         // Create record in DB
-        await db
-          .insert(usersTable)
+        protocolInDb = await db
+          .insert(protocolTable)
           .values({
-            name: user!.user_metadata.full_name,
-            email: user!.email!,
             stripe_id: stripeID,
-            plan: "none",
-          });
+            plan: env == "development" ? "free" : "none",
+          })
+          .returning();
+
+        await db.insert(usersTable).values({
+          name: user!.user_metadata.full_name,
+          email: user!.email!,
+          protocol_id: protocolInDb[0].id,
+        });
       }
 
       const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer
-      const isLocalEnv = process.env.NODE_ENV === "development";
       if (isLocalEnv) {
         // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
         return NextResponse.redirect(`${origin}${next}`);

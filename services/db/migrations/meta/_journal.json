@@ -15,6 +15,27 @@
       "when": 1730907852868,
       "tag": "0001_chilly_sumo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1731003656807,
+      "tag": "0002_oval_nick_fury",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1731004083727,
+      "tag": "0003_giant_mentor",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1731021517424,
+      "tag": "0004_romantic_machine_man",
+      "breakpoints": true
     }
   ]
 }

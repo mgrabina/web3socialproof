@@ -6,7 +6,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Bell, ReceiptText, User, Settings, HelpCircle, LogOut } from "lucide-react"
+import { Bell, ReceiptText, User, Settings, HelpCircle, LogOut, Key } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { } from "@supabase/supabase-js"
@@ -34,16 +34,16 @@ export default async function DashboardHeaderProfileDropdown() {
                 <DropdownMenuContent align="end">
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <Link href="#">
+                    {/* <Link href="#">
                         <DropdownMenuItem>
                             <User className="mr-2 h-4 w-4" />
                             <span>Profile</span>
                         </DropdownMenuItem>
-                    </Link>
-                    <Link href="#">
+                    </Link> */}
+                    <Link href="/dashboard/api-keys">
                         <DropdownMenuItem>
-                            <Settings className="mr-2 h-4 w-4" />
-                            <span>Settings</span>
+                            <Key className="mr-2 h-4 w-4" />
+                            <span>Api Keys</span>
                         </DropdownMenuItem>
                     </Link>
                     <Link href="#">
@@ -52,12 +52,12 @@ export default async function DashboardHeaderProfileDropdown() {
                             <Link href={billingPortalURL}>Billing</Link>
                         </DropdownMenuItem>
                     </Link>
-                    <Link href="#">
+                    {/* <Link href="#">
                         <DropdownMenuItem>
                             <HelpCircle className="mr-2 h-4 w-4" />
                             <span>Help</span>
                         </DropdownMenuItem>
-                    </Link>
+                    </Link> */}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
                         <form action={logout} className="w-full">

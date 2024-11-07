@@ -3,7 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createStripeCustomer } from "@/utils/stripe/api";
-import { db, eq, usersTable } from "@web3socialproof/db";
+import { db, eq, protocolTable, usersTable } from "@web3socialproof/db";
 
 const PUBLIC_URL = process.env.NEXT_PUBLIC_WEBSITE_URL
   ? process.env.NEXT_PUBLIC_WEBSITE_URL
@@ -77,14 +77,23 @@ export async function signup(
   // create Stripe Customer Record
   const stripeID = await createStripeCustomer(user!.id, user!.email!, "");
   // Create record in DB
-  await db
-    .insert(usersTable)
+  const protocolInDb = await db
+    .insert(protocolTable)
     .values({
-      name: "",
-      email: user!.email!,
       stripe_id: stripeID,
       plan: "none",
-    });
+    })
+    .returning();
+
+  if (!protocolInDb.length) {
+    redirect("/error");
+  }
+
+  await db.insert(usersTable).values({
+    name: "",
+    email: user!.email!,
+    protocol_id: protocolInDb[0].id,
+  });
 
   revalidatePath("/", "layout");
   redirect("/subscribe");
