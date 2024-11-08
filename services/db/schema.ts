@@ -8,6 +8,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 
+// Protocol Table
 export const protocolTable = pgTable("protocol_table", {
   id: serial("id").primaryKey(),
   name: text("name"),
@@ -16,19 +17,18 @@ export const protocolTable = pgTable("protocol_table", {
   stripe_id: text("stripe_id"),
 });
 
+// Users Table with Relation to Protocol Table
 export const usersTable = pgTable("users_table", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  protocol_id: integer("protocol_id"),
+  protocol_id: integer("protocol_id").references(() => protocolTable.id), // Foreign key to protocol
 });
 
-export type InsertUser = typeof usersTable.$inferInsert;
-export type SelectUser = typeof usersTable.$inferSelect;
-
+// Campaigns Table with Relation to Protocol Table
 export const campaignsTable = pgTable("campaigns_table", {
   id: serial("id").primaryKey(),
-  protocol_id: integer("protocol_id"),
+  protocol_id: integer("protocol_id").references(() => protocolTable.id), // Foreign key to protocol
   name: text("name").notNull(),
   created_at: timestamp("created_at").notNull(),
   updated_at: timestamp("updated_at").notNull(),
@@ -38,17 +38,20 @@ export const campaignsTable = pgTable("campaigns_table", {
   styling: json("styling"),
 });
 
-export type InsertCampaign = typeof campaignsTable.$inferInsert;
-export type SelectCampaign = typeof campaignsTable.$inferSelect;
-
+// API Key Table with Relation to Protocol Table
 export const apiKeyTable = pgTable("api_key_table", {
   api_key: text("key").notNull().unique().primaryKey(),
-  protocol_id: integer("protocol_id").notNull(),
+  protocol_id: integer("protocol_id").references(() => protocolTable.id), // Foreign key to protocol
   name: text("name").default("Your API Key"),
   created_at: timestamp("created_at").notNull().defaultNow(),
   updated_at: timestamp("updated_at").notNull().defaultNow(),
   enabled: boolean("enabled").notNull().default(true),
 });
 
+// Types
+export type InsertUser = typeof usersTable.$inferInsert;
+export type SelectUser = typeof usersTable.$inferSelect;
+export type InsertCampaign = typeof campaignsTable.$inferInsert;
+export type SelectCampaign = typeof campaignsTable.$inferSelect;
 export type InsertApiKey = typeof apiKeyTable.$inferInsert;
 export type SelectApiKey = typeof apiKeyTable.$inferSelect;

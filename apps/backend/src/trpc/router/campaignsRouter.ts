@@ -17,7 +17,7 @@ export const campaignsRouter = router({
       // Todo: get user data to improve the notification (e.g. wallet, device, language, etc.)
 
       return decorateNotification(
-        getNotification({
+        await getNotification({
           hostname: ctx.req.hostname,
           apiKey: input.apiKey,
         })

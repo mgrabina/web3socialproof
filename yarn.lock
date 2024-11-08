@@ -2614,6 +2614,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@supabase/auth-helpers-nextjs@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "@supabase/auth-helpers-nextjs@npm:0.10.0"
+  dependencies:
+    "@supabase/auth-helpers-shared": "npm:0.7.0"
+    set-cookie-parser: "npm:^2.6.0"
+  peerDependencies:
+    "@supabase/supabase-js": ^2.39.8
+  checksum: b65c348eaec2e74f10cd03f42d85206177bbdfeb39ac347e635bbf851462df001b6379fd20d24bb5a8e2a73519cf9a600ece8769b1b363276be6772cb2f4e7a7
+  languageName: node
+  linkType: hard
+
+"@supabase/auth-helpers-shared@npm:0.7.0":
+  version: 0.7.0
+  resolution: "@supabase/auth-helpers-shared@npm:0.7.0"
+  dependencies:
+    jose: "npm:^4.14.4"
+  peerDependencies:
+    "@supabase/supabase-js": ^2.39.8
+  checksum: 691ff4547c19584c576f6e20f5c98e25fe38b88a768ac16491a46caad97cac6f881b7f66815ca31347e3de0cf8b668486f604b477d78f2c74742e0f8607b2b0a
+  languageName: node
+  linkType: hard
+
 "@supabase/auth-js@npm:2.65.1":
   version: 2.65.1
   resolution: "@supabase/auth-js@npm:2.65.1"
@@ -3216,6 +3239,7 @@ __metadata:
     "@radix-ui/react-select": "npm:^2.1.2"
     "@radix-ui/react-slot": "npm:^1.1.0"
     "@radix-ui/react-toast": "npm:^1.2.2"
+    "@supabase/auth-helpers-nextjs": "npm:^0.10.0"
     "@supabase/auth-ui-react": "npm:^0.4.7"
     "@supabase/auth-ui-shared": "npm:^0.1.8"
     "@supabase/ssr": "npm:^0.5.0"
@@ -7262,7 +7286,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"husky@npm:9.1.6":
+"husky@npm:9.1.6, husky@npm:^9.1.6":
   version: 9.1.6
   resolution: "husky@npm:9.1.6"
   bin:
@@ -7994,6 +8018,13 @@ __metadata:
   bin:
     jiti: bin/jiti.js
   checksum: 289b124cea411c130a14ffe88e3d38376ab44b6695616dfa0a1f32176a8f20ec90cdd6d2b9d81450fc6467cfa4d865f04f49b98452bff0f812bc400fd0ae78d6
+  languageName: node
+  linkType: hard
+
+"jose@npm:^4.14.4":
+  version: 4.15.9
+  resolution: "jose@npm:4.15.9"
+  checksum: 256234b6f85cdc080b1331f2d475bd58c8ccf459cb20f70ac5e4200b271bce10002b1c2f8e5b96dd975d83065ae5a586d52cdf89d28471d56de5d297992f9905
   languageName: node
   linkType: hard
 
@@ -11084,6 +11115,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"set-cookie-parser@npm:^2.6.0":
+  version: 2.7.1
+  resolution: "set-cookie-parser@npm:2.7.1"
+  checksum: c92b1130032693342bca13ea1b1bc93967ab37deec4387fcd8c2a843c0ef2fd9a9f3df25aea5bb3976cd05a91c2cf4632dd6164d6e1814208fb7d7e14edd42b4
+  languageName: node
+  linkType: hard
+
 "set-function-length@npm:^1.2.1":
   version: 1.2.2
   resolution: "set-function-length@npm:1.2.2"
@@ -12768,6 +12806,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "web3socialproof@workspace:."
   dependencies:
+    husky: "npm:^9.1.6"
     turbo: "npm:^2.2.3"
   languageName: unknown
   linkType: soft

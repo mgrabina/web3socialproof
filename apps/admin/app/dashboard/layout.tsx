@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { db, eq, usersTable } from "@web3socialproof/db";
+import { db, eq, protocolTable, usersTable } from "@web3socialproof/db";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,7 +29,13 @@ export default async function DashboardLayout({
     .select()
     .from(usersTable)
     .where(eq(usersTable.email, user!.email!));
-  if (checkUserInDB[0]?.plan === "none") {
+
+  const checkProtocolInDB = await db
+    .select()
+    .from(protocolTable)
+    .where(eq(protocolTable.id, checkUserInDB[0].protocol_id!));
+
+  if (checkProtocolInDB[0].plan === "none") {
     console.log("User has no plan selected");
     return redirect("/subscribe");
   }
