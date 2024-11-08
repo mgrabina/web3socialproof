@@ -95,15 +95,16 @@ function showNotification(
     notification.appendChild(iconContainer);
     notification.appendChild(textContainer);
 
-    document.addEventListener("DOMContentLoaded", () => {
-      // Place your notification code here
-      document.body.appendChild(notification);
-    });
+    // document.addEventListener("DOMContentLoaded", () => {
+    //   // Place your notification code here
+    // });
 
     // Optional: Remove the notification after 5 seconds
-    // setTimeout(() => {
-    //   document.body.removeChild(notification);
-    // }, 5000);
+    // Todo: replace timer for recognizing when DOM is really loaded
+    setTimeout(() => {
+      console.log("adding");
+      document.body.appendChild(notification);
+    }, 3000);
   } catch (error) {
     console.error("Error showing notification:", error);
   }
