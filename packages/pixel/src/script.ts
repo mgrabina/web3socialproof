@@ -4,6 +4,7 @@ import { inferRouterOutputs } from "@trpc/server";
 import { isPixelEnv, PixelEnv } from "./constants";
 import { backendUrl, trpcApiClient } from "./trpc";
 import { showNotification } from "./notification";
+import { getSessionId, getUserId } from "./session";
 
 // Main function to initialize the widget
 async function initializeWidget() {
@@ -23,14 +24,17 @@ async function initializeWidget() {
     }
 
     const notification = await trpcApiClient(
-      env
-    ).campaigns.getNotification.query({
-      apiKey,
+      env,
+      apiKey
+    ).campaigns.getNotification.query({});
+
+    await trpcApiClient(env, apiKey).campaigns.trackImpression.mutate({
+      campaignId: notification.campaign,
+      session: getSessionId(),
+      user: getUserId(),
     });
 
     showNotification(notification);
-
-    // TODO: Track the notification impression
   } catch (error) {
     console.error("Error while loading notification:", error);
   }

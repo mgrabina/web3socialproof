@@ -2720,6 +2720,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@supabase/ssr@npm:^0.5.2":
+  version: 0.5.2
+  resolution: "@supabase/ssr@npm:0.5.2"
+  dependencies:
+    "@types/cookie": "npm:^0.6.0"
+    cookie: "npm:^0.7.0"
+  peerDependencies:
+    "@supabase/supabase-js": ^2.43.4
+  checksum: 240804cacdea6a42faea5e89964656206beec42abed1651269efde68aed43b4af2aa7632a0f0482ef89941521cf21b0508fbf34047f69ab3a6ecba810c5e23da
+  languageName: node
+  linkType: hard
+
 "@supabase/storage-js@npm:2.7.1":
   version: 2.7.1
   resolution: "@supabase/storage-js@npm:2.7.1"
@@ -2729,7 +2741,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@supabase/supabase-js@npm:^2.45.1":
+"@supabase/supabase-js@npm:2.46.1, @supabase/supabase-js@npm:^2.45.1":
   version: 2.46.1
   resolution: "@supabase/supabase-js@npm:2.46.1"
   dependencies:
@@ -2835,6 +2847,13 @@ __metadata:
   version: 0.4.1
   resolution: "@types/cookie@npm:0.4.1"
   checksum: 427c9220217d3d74f3e5d53d68cd39502f3bbebdb1af4ecf0d05076bcbe9ddab299ad6369fe0f517389296ba4ca49ddf9a8c22f68e5e9eb8ae6d0076cfab90b2
+  languageName: node
+  linkType: hard
+
+"@types/cookie@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@types/cookie@npm:0.6.0"
+  checksum: b883348d5bf88695fbc2c2276b1c49859267a55cae3cf11ea1dccc1b3be15b466e637ce3242109ba27d616c77c6aa4efe521e3d557110b4fdd9bc332a12445c2
   languageName: node
   linkType: hard
 
@@ -3244,6 +3263,8 @@ __metadata:
     "@supabase/auth-ui-shared": "npm:^0.1.8"
     "@supabase/ssr": "npm:^0.5.0"
     "@supabase/supabase-js": "npm:^2.45.1"
+    "@trpc/client": "npm:^11.0.0-rc.608"
+    "@trpc/server": "npm:^11.0.0-rc.608"
     "@types/node": "npm:^20"
     "@types/react": "npm:^18"
     "@types/react-dom": "npm:^18"
@@ -3264,12 +3285,14 @@ __metadata:
     react-dom: "npm:^18"
     react-icons: "npm:^5.3.0"
     stripe: "npm:^16.9.0"
+    superjson: "npm:^2.2.1"
     tailwind-merge: "npm:^2.5.2"
     tailwindcss: "npm:^3.4.1"
     tailwindcss-animate: "npm:^1.0.7"
     turbo: "npm:^2.2.3"
     typescript: "npm:^5"
     webpack: "npm:^5.96.1"
+    zod: "npm:^3.23.8"
   languageName: unknown
   linkType: soft
 
@@ -3279,6 +3302,8 @@ __metadata:
   dependencies:
     "@commitlint/cli": "npm:19.5.0"
     "@commitlint/config-conventional": "npm:19.5.0"
+    "@supabase/ssr": "npm:^0.5.2"
+    "@supabase/supabase-js": "npm:2.46.1"
     "@trpc/server": "npm:^11.0.0-rc.608"
     "@types/cors": "npm:2.8.17"
     "@types/express": "npm:4.17.21"
@@ -4749,7 +4774,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookie@npm:~0.7.2":
+"cookie@npm:^0.7.0, cookie@npm:~0.7.2":
   version: 0.7.2
   resolution: "cookie@npm:0.7.2"
   checksum: 24b286c556420d4ba4e9bc09120c9d3db7d28ace2bd0f8ccee82422ce42322f73c8312441271e5eefafbead725980e5996cc02766dbb89a90ac7f5636ede608f

@@ -1,12 +1,13 @@
-// tsconfig.json
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "target": "es2015",
-    "module": "commonjs",
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "strict": true,
+    "strictNullChecks": true,
     "esModuleInterop": true,
-    "lib": ["esnext", "dom"] // Include esnext and dom libraries
+    "lib": ["esnext", "dom"]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "../../apps/backend/src/utils/types/process-env.ts"]
 }

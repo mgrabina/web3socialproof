@@ -25,6 +25,8 @@
     "semantic-release": "semantic-release --branches main"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "2.46.1",
     "@trpc/server": "^11.0.0-rc.608",
     "@web3socialproof/db": "workspace:*",
     "cors": "2.8.5",

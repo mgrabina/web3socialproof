@@ -23,6 +23,8 @@
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/ssr": "^0.5.0",
     "@supabase/supabase-js": "^2.45.1",
+    "@trpc/client": "^11.0.0-rc.608",
+    "@trpc/server": "^11.0.0-rc.608",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
@@ -33,8 +35,10 @@
     "react-dom": "^18",
     "react-icons": "^5.3.0",
     "stripe": "^16.9.0",
+    "superjson": "^2.2.1",
     "tailwind-merge": "^2.5.2",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20",

@@ -29,19 +29,25 @@ export const notificationStylingSchemaRequired = z.object({
 });
 
 // Type definitions
-export type NotificationStylingOptional = z.infer<typeof notificationStylingSchemaOptional>;
-export type NotificationStylingRequired = z.infer<typeof notificationStylingSchemaRequired>;
-
+export type NotificationStylingOptional = z.infer<
+  typeof notificationStylingSchemaOptional
+>;
+export type NotificationStylingRequired = z.infer<
+  typeof notificationStylingSchemaRequired
+>;
 
 export const notificationOptionsSchema = z.object({
+  campaign: z.number(),
   type: notificationTypeSchema,
   message: z.string(),
   subMessage: z.string(),
+  verificationLink: z.string(),
   styling: notificationStylingSchemaOptional,
 });
 export type NotificationOptions = z.infer<typeof notificationOptionsSchema>;
 
 export const notificationResponseSchema = z.object({
+  campaign: z.number(),
   type: notificationTypeSchema,
   icon: z.string(),
   message: z.string(),

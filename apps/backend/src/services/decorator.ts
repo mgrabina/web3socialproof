@@ -36,11 +36,12 @@ export const decorateNotification = (
   // Todo: add translation if needed
 
   return {
+    campaign: options.campaign,
     type: options.type,
-    icon: "🎉",
-    verificationLink: "https://talaria.com",
-    message: "Notification decorated in backend!",
-    subMessage: "This is a sub message",
+    icon: "https://static.thenounproject.com/png/1878140-200.png", // todo based on type
+    verificationLink: options.verificationLink,
+    message: options.message,
+    subMessage: options.subMessage,
     styling,
   };
 };

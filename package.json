@@ -10,7 +10,9 @@
     "services/*"
   ],
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "run": "turbo run watch",
+    "migrate-db": "yarn workspace @web3socialproof/db migrate"
   },
   "packageManager": "yarn@4.0.2",
   "engines": {

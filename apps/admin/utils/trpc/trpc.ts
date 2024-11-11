@@ -2,10 +2,11 @@ import superjson from "superjson";
 
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 
-import type { AppRouter } from "../../../apps/backend/src/trpc/router";
+import type { AppRouter } from "../../../backend/src/trpc/router";
 
 import type { inferRouterOutputs } from "@trpc/server";
-import { PixelEnv } from "./constants";
+import { Environment } from "@/lib/constants";
+import { createClient } from "../supabase/server";
 
 // Not using tRPC API as npm package - https://github.com/mkosir/trpc-api-boilerplate#avoid-publishing-package
 // import { AppRouter } from './api-types';
@@ -17,7 +18,7 @@ import { PixelEnv } from "./constants";
 
 // https://trpc.io/docs/client/vanilla/infer-types
 
-export const backendUrl = (env: PixelEnv) => {
+export const backendUrl = (env: Environment) => {
   switch (env) {
     case "preview":
     case "production":
@@ -29,8 +30,12 @@ export const backendUrl = (env: PixelEnv) => {
   }
 };
 
-export const trpcApiClient = (env: PixelEnv, apiKey: string) =>
-  createTRPCClient<AppRouter>({
+export const trpcApiClient = async (env: Environment) => {
+  const supabase = createClient();
+
+  const { data: session } = await supabase.auth.getSession();
+
+  return createTRPCClient<AppRouter>({
     links: [
       httpBatchLink({
         url: `${backendUrl(env)}/trpc`,
@@ -39,7 +44,7 @@ export const trpcApiClient = (env: PixelEnv, apiKey: string) =>
             ...options,
             headers: {
               ...options?.headers,
-              Authorization: `Api-Key ${apiKey}`,
+              Authorization: `Bearer ${session.session?.access_token}`,
             },
             mode: "cors",
           });
@@ -48,3 +53,4 @@ export const trpcApiClient = (env: PixelEnv, apiKey: string) =>
       }),
     ],
   });
+};

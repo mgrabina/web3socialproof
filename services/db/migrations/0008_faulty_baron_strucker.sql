@@ -1,0 +1,1 @@
+ALTER TABLE "impressions_table" ADD COLUMN "user_id" text NOT NULL;

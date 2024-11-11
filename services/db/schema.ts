@@ -48,6 +48,17 @@ export const apiKeyTable = pgTable("api_key_table", {
   enabled: boolean("enabled").notNull().default(true),
 });
 
+export const impressionsTable = pgTable("impressions_table", {
+  id: serial("id").primaryKey(),
+  campaign_id: integer("campaign_id")
+    .references(() => campaignsTable.id)
+    .notNull(), // Foreign key to campaign
+  session: text("session_id").notNull(),
+  user: text("user_id").notNull(),
+  address: text("address"),
+  timestamp: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Types
 export type InsertUser = typeof usersTable.$inferInsert;
 export type SelectUser = typeof usersTable.$inferSelect;
@@ -55,3 +66,7 @@ export type InsertCampaign = typeof campaignsTable.$inferInsert;
 export type SelectCampaign = typeof campaignsTable.$inferSelect;
 export type InsertApiKey = typeof apiKeyTable.$inferInsert;
 export type SelectApiKey = typeof apiKeyTable.$inferSelect;
+export type InsertImpression = typeof impressionsTable.$inferInsert;
+export type SelectImpression = typeof impressionsTable.$inferSelect;
+export type SelectProtocol = typeof protocolTable.$inferSelect;
+export type InsertProtocol = typeof protocolTable.$inferInsert;
