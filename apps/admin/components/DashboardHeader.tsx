@@ -34,6 +34,9 @@ export default async function DashboardHeader() {
                         <Link className="transition-colors hover:text-foreground/80 text-foreground" href="/dashboard/campaigns">
                             Campaigns
                         </Link>
+                        <Link className="transition-colors hover:text-foreground/80 text-foreground" href="/dashboard/metrics">
+                            Metrics
+                        </Link>
                     </nav>
                 </div>
                 <Button variant="outline" size="icon" className="mr-2 md:hidden">

@@ -14,7 +14,7 @@
     "prepare": "husky",
     "build": "shx rm -rf build && tsc -p tsconfig.json",
     "dev": "tsx watch src/index.ts",
-    "watch": "tsx watch src/index.ts",
+    "watch": "echo 'implement'",
     "start": "tsx src/index.ts",
     "lint": "eslint --report-unused-disable-directives --max-warnings 0 .",
     "lint-fix": "eslint --fix .",
