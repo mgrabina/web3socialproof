@@ -2,13 +2,13 @@ import { getUserProtocol } from "@/utils/database/users";
 import {
   db,
   metricsTable,
-  variablesTable,
+  logsTable,
   metricsVariablesTable,
   eq,
 } from "@web3socialproof/db";
 import {
   InsertMetric,
-  InsertVariable,
+  InsertLog,
   InsertMetricsVariable,
 } from "@web3socialproof/db";
 import { NextRequest, NextResponse } from "next/server";
@@ -81,27 +81,25 @@ export async function POST(req: NextRequest) {
       .returning();
 
     // Prepare variables for bulk insert
-    const variableRecords: InsertVariable[] = variables.map(
-      (variable: any) => ({
-        protocol_id: protocol.id,
-        chain_id: parseInt(variable.chain_id, 10),
-        contract_address: variable.contract_address,
-        event_name: variable.event_name,
-        topic_index:
-          variable.topic_index === "N/A"
-            ? null
-            : parseInt(variable.topic_index, 10),
-        data_key: variable.data_key,
-        start_block: variable.start_block,
-        enabled: true,
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
-    );
+    const variableRecords: InsertLog[] = variables.map((variable: any) => ({
+      protocol_id: protocol.id,
+      chain_id: parseInt(variable.chain_id, 10),
+      contract_address: variable.contract_address,
+      event_name: variable.event_name,
+      topic_index:
+        variable.topic_index === "N/A"
+          ? null
+          : parseInt(variable.topic_index, 10),
+      data_key: variable.data_key,
+      start_block: variable.start_block,
+      enabled: true,
+      created_at: new Date(),
+      updated_at: new Date(),
+    }));
 
     // Bulk insert variables and get inserted IDs
     const insertedVariables = await db
-      .insert(variablesTable)
+      .insert(logsTable)
       .values(variableRecords)
       .returning();
 

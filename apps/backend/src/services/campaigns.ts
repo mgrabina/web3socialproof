@@ -1,8 +1,10 @@
 import {
+  and,
   apiKeyTable,
   campaignsTable,
   db,
   eq,
+  isNotNull,
   protocolTable,
   SelectProtocol,
 } from "@web3socialproof/db";
@@ -26,7 +28,12 @@ export const getNotification = async ({
   const campaigns = await db
     .select()
     .from(campaignsTable)
-    .where(eq(campaignsTable.protocol_id, protocol.id));
+    .where(
+      and(
+        eq(campaignsTable.protocol_id, protocol.id),
+        isNotNull(campaignsTable.message)
+      )
+    );
   if (campaigns.length === 0) {
     throw new TRPCError({
       code: "NOT_FOUND",
@@ -40,8 +47,8 @@ export const getNotification = async ({
     verificationLink: "#",
     type: campaignToPrint.type as NotificationType,
     styling: campaignToPrint.styling as NotificationStylingOptional,
-    message: campaignToPrint.name,
-    subMessage: "This is a sub message",
+    message: campaignToPrint.message!,
+    subMessage: campaignToPrint.sub_message ?? "",
     campaign: campaignToPrint.id,
   };
 };

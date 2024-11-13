@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { InsertVariable } from "@web3socialproof/db";
+import { InsertLog } from "@web3socialproof/db";
 
 // List of supported Chain IDs from the given source
 const supportedChainIds = [
@@ -42,10 +42,11 @@ export default function MetricsCreation() {
     description: "",
     calculation_type: "count",
   });
-  const [variables, setVariables] = useState<InsertVariable[]>([]);
+  const [variables, setVariables] = useState<InsertLog[]>([]);
   const [currentVariable, setCurrentVariable] = useState<{
     chain_id: number;
     contract_address: string;
+    calculation_type: string;
     event_name: string;
     topic_index: number | undefined;
     data_key: string;
@@ -54,6 +55,7 @@ export default function MetricsCreation() {
     chain_id: 0,
     contract_address: "",
     event_name: "",
+    calculation_type: "count",
     topic_index: undefined,
     data_key: "",
     start_block: 0,
@@ -80,6 +82,7 @@ export default function MetricsCreation() {
       contract_address: "",
       event_name: "",
       topic_index: undefined,
+      calculation_type: "count",
       data_key: "",
       start_block: 0,
     });
@@ -160,9 +163,14 @@ export default function MetricsCreation() {
               <Label>Calculation Type</Label>
               <Select
                 value={formData.calculation_type}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, calculation_type: value })
-                }
+                onValueChange={(value) => {
+                  setFormData({ ...formData, calculation_type: value });
+
+                  setCurrentVariable({
+                    ...currentVariable,
+                    calculation_type: value,
+                  });
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select calculation type" />

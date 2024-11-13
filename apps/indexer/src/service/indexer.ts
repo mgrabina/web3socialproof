@@ -5,14 +5,17 @@ import {
 } from "@envio-dev/hypersync-client";
 import {
   db,
-  eventsTable,
+  desc,
+  eq,
   inArray,
-  InsertEvent,
-  variablesTable,
+  logsTable,
+  SelectLog,
 } from "@web3socialproof/db";
 import logger from "../utils/logger";
 import keccak256 from "keccak256";
 import { createClients } from "../utils/hypersync";
+import { get } from "http";
+import { ethers } from "ethers";
 
 if (!process.env.HYPERSYNC_BEARER_TOKEN) {
   throw new Error("HYPERSYNC_BEARER_TOKEN environment variable not set");
@@ -32,72 +35,137 @@ export async function fetchAndSaveNewEvents({
   const clients = await createClients();
 
   // Fetch variables from the database, optionally filtered by specific variable IDs
-  let variablesToTrack;
+  let logsToTrack;
   if (variableIds) {
-    variablesToTrack = await db
+    logsToTrack = await db
       .select()
-      .from(variablesTable)
-      .where(inArray(variablesTable.id, variableIds));
+      .from(logsTable)
+      .where(inArray(logsTable.id, variableIds));
   } else {
-    variablesToTrack = await db.select().from(variablesTable);
+    logsToTrack = await db.select().from(logsTable);
   }
 
-  for (const variable of variablesToTrack) {
-    const blockStart = startBlock ?? variable.start_block ?? 0;
-    const blockEnd = endBlock; // Replace "latest" with the max block if using integer values
+  for (const logToTrack of logsToTrack) {
+    const blockEnd = endBlock;
+    let blockStart = Math.max(
+      logToTrack.last_block_indexed ?? Math.max(logToTrack.start_block ?? 0, startBlock ?? 0),
+      0
+    );
+
+    const getEventTopic = (eventSignature: string) => {
+      return "0x" + keccak256(eventSignature).toString("hex");
+    };
+
+    logger.debug(
+      `Fetching block range: ${blockStart} - ${blockEnd ?? "latest"} for variable ID ${logToTrack.id}`
+    );
 
     const query = presetQueryLogsOfEvent(
-      variable.contract_address,
-      keccak256(variable.event_name).toString(),
+      logToTrack.contract_address,
+      getEventTopic(logToTrack.event_name),
       blockStart,
       blockEnd
     );
 
-    logger.debug(
-      `Processing event for variable ID ${variable.id}: ${JSON.stringify(variable)}`
-    );
-
-    const getValue = (log: Log): number => {
-      if (
-        variable.topic_index !== null &&
-        variable.topic_index !== undefined &&
-        variable.topic_index > 0
+    const getValue = (config: SelectLog, received: Log): bigint => {
+      if (config.topic_index === 0) {
+        return 1n; // Just counting the number of logs, not the value
+      } else if (
+        config.topic_index !== null &&
+        config.topic_index !== undefined &&
+        config.topic_index > 0
       ) {
-        return Number(log.topics[variable.topic_index]);
-      } else if (variable.data_key) {
-        return Number(log.data); // TODO: decode and select by key
+        return BigInt(received.topics[config.topic_index] ?? 0);
+      } else if (config.data_key) {
+        const schema = config.data_schema?.split(",") ?? [];
+        if (!schema || schema.length === 0) {
+          logger.error(`No schema found for variable ${config.id}`);
+          return 0n;
+        }
+        // Find the index of data_key within the schema
+        const keyIndex = schema.findIndex((key) => key === config.data_key);
+        if (keyIndex === -1) {
+          logger.error(
+            `data_key ${config.data_key} not found in schema for variable ${config.id}`
+          );
+          return 0n;
+        }
+        if (!received.data) {
+          logger.error(`No data found in log for variable ${config.id}`);
+          return 0n;
+        }
+
+        const decoder = ethers.AbiCoder.defaultAbiCoder();
+        const decodedData = decoder.decode(schema, received.data);
+        return BigInt(decodedData[keyIndex]);
       }
 
-      logger.error(`Could not get value from log: ${JSON.stringify(log)}`);
-      return 0;
+      logger.error(`Could not get value from log: ${JSON.stringify(received)}`);
+      return 0n;
     };
 
     try {
-      const queryResponse = await clients[variable.chain_id].get(query);
-
-      const eventsToInsert: InsertEvent[] = queryResponse.data.logs.map(
-        (log) => ({
-          chain_id: variable.chain_id,
-          variable_id: variable.id,
-          transaction_hash: log.transactionHash ?? "",
-          block_number: log.blockNumber ?? 0,
-          timestamp: new Date(1000), // replace with actual log timestamp if available
-          value: getValue(log),
-        })
+      logger.debug(
+        `Calling Envio API for chain ${logToTrack.chain_id} with query params: ${JSON.stringify(
+          {
+            contract_address: logToTrack.contract_address,
+            event_name: getEventTopic(logToTrack.event_name),
+            blockStart,
+            blockEnd,
+          },
+          null,
+          2
+        )}`
+      );
+      const queryResponse = await clients[logToTrack.chain_id].collect(query, {});
+      logger.debug(
+        `Query responded in ${queryResponse.totalExecutionTime}ms with ${queryResponse.data.logs.length} logs`
       );
 
-      logger.debug("Events to insert: ", eventsToInsert);
+      const newValues: bigint[] = queryResponse.data.logs.map((logFromResponse) =>
+        getValue(logToTrack, logFromResponse)
+      );
+      let newTotalValue: bigint;
+      if (logToTrack.calculation_type === "count") {
+        newTotalValue = BigInt(newValues.length);
+      } else if (logToTrack.calculation_type === "sum") {
+        newTotalValue = newValues.reduce((acc, value) => acc + value, 0n);
+      } else if (logToTrack.calculation_type === "count_unique") {
+        newTotalValue = BigInt(new Set(newValues).size);
+      } else {
+        logger.error(
+          `Unknown calculation type ${logToTrack.calculation_type} for variable ${logToTrack.id}`
+        );
+        continue;
+      }
 
-      const inserted = await db
-        .insert(eventsTable)
-        .values(eventsToInsert)
+      const lastBlockIndexed = queryResponse.data.logs.reduce(
+        (acc, log) => Math.max(acc, log.blockNumber ?? 0),
+        0
+      );
+
+      logger.debug(
+        `Added value for variable ${logToTrack.id}: ${newTotalValue} (from ${newValues.length} logs). Adding to current value ${logToTrack.current_result}, final value: ${(logToTrack.current_result ?? 0n) + newTotalValue}`
+      );
+
+      const updated = await db
+        .update(logsTable)
+        .set({
+          current_result: (logToTrack.current_result ?? 0n) + newTotalValue,
+          last_block_indexed: lastBlockIndexed,
+        })
+        .where(eq(logsTable.id, logToTrack.id))
         .returning();
 
-      if (!inserted.length) {
-        logger.error(`No events inserted for event ${variable.id}`);
+      if (!updated.length) {
+        logger.error(`No results updated for log ${logToTrack.id}`);
       }
+
+      logger.info(`Log ${logToTrack.id} updated successfully`);
     } catch (error) {
-      logger.error(`Error fetching events for variable ${variable.id}`, error);
+      logger.error(
+        `Error fetching events for variable ${logToTrack.id}: ${JSON.stringify(error, null, 2)}`
+      );
     }
   }
 

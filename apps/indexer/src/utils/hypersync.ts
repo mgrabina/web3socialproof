@@ -1,9 +1,9 @@
 import { HypersyncClient } from "@envio-dev/hypersync-client";
-import { db, variablesTable } from "@web3socialproof/db";
+import { db, logsTable } from "@web3socialproof/db";
 
 export const createClients = async () => {
   return (
-    await db.selectDistinctOn([variablesTable.chain_id]).from(variablesTable)
+    await db.selectDistinctOn([logsTable.chain_id]).from(logsTable)
   )
     .map((v) => v.chain_id)
     .map((chainId) => {

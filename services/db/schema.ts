@@ -31,6 +31,11 @@ export const campaignsTable = pgTable("campaigns_table", {
   id: serial("id").primaryKey(),
   protocol_id: integer("protocol_id").references(() => protocolTable.id), // Foreign key to protocol
   name: text("name").notNull(),
+
+  message: text("message"),
+  sub_message: text("sub_message"),
+  icon: text("icon"),
+
   created_at: timestamp("created_at").notNull(),
   updated_at: timestamp("updated_at").notNull(),
   enabled: boolean("enabled").notNull(),
@@ -60,7 +65,7 @@ export const impressionsTable = pgTable("impressions_table", {
   timestamp: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const variablesTable = pgTable("variables_table", {
+export const logsTable = pgTable("logs_table", {
   id: serial("id").primaryKey(),
   protocol_id: integer("protocol_id").references(() => protocolTable.id), // Foreign key to protocol
 
@@ -69,7 +74,12 @@ export const variablesTable = pgTable("variables_table", {
   event_name: text("event_name").notNull(),
   topic_index: integer("topic_index"), // 0-3 for 4 topics
   data_key: text("key"),
+  data_schema: text("data_schema"),
   start_block: integer("start_block"),
+
+  current_result: bigint({ mode: "bigint" }),
+  last_block_indexed: integer("last_block_indexed"),
+  calculation_type: text("calculation_type").notNull(),
 
   enabled: boolean("enabled").notNull().default(true),
   created_at: timestamp("created_at").notNull().defaultNow(),
@@ -101,27 +111,10 @@ export const metricsVariablesTable = pgTable("metrics_variables_table", {
     .notNull(), // Foreign key to metrics_table
 
   variable_id: integer("variable_id")
-    .references(() => variablesTable.id)
+    .references(() => logsTable.id)
     .notNull(), // Foreign key to variables_table
 
   created_at: timestamp("created_at").notNull().defaultNow(),
-});
-
-export const eventsTable = pgTable("events_table", {
-  id: serial("id").primaryKey(),
-  variable_id: integer("variable_id").references(() => variablesTable.id), // Foreign key to variables
-
-  chain_id: integer("chain_id").notNull(),
-  transaction_hash: text("transaction_hash").notNull(),
-  block_number: integer("block_number").notNull(),
-  timestamp: timestamp("timestamp").notNull(),
-
-  value: integer("value").notNull(),
-
-  data: json("data"),
-
-  created_at: timestamp("created_at").notNull().defaultNow(),
-  updated_at: timestamp("updated_at").notNull().defaultNow(),
 });
 
 // Types
@@ -135,10 +128,8 @@ export type InsertImpression = typeof impressionsTable.$inferInsert;
 export type SelectImpression = typeof impressionsTable.$inferSelect;
 export type SelectProtocol = typeof protocolTable.$inferSelect;
 export type InsertProtocol = typeof protocolTable.$inferInsert;
-export type InsertVariable = typeof variablesTable.$inferInsert;
-export type SelectVariable = typeof variablesTable.$inferSelect;
-export type InsertEvent = typeof eventsTable.$inferInsert;
-export type SelectEvent = typeof eventsTable.$inferSelect;
+export type InsertLog = typeof logsTable.$inferInsert;
+export type SelectLog = typeof logsTable.$inferSelect;
 export type InsertMetric = typeof metricsTable.$inferInsert;
 export type SelectMetric = typeof metricsTable.$inferSelect;
 export type InsertMetricsVariable = typeof metricsVariablesTable.$inferInsert;

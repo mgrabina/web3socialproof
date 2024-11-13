@@ -1,6 +1,6 @@
 // pages/api/campaigns/[id].ts
 import { NextApiRequest, NextApiResponse } from "next";
-import { db, campaignsTable, eq } from "@web3socialproof/db";
+import { db, campaignsTable, eq, impressionsTable } from "@web3socialproof/db";
 import { NextRequest, NextResponse } from "next/server";
 import { getUserProtocol } from "@/utils/database/users";
 
@@ -82,9 +82,13 @@ export async function DELETE(
   }
 
   try {
+    await db.delete(impressionsTable).where(eq(impressionsTable.campaign_id, Number(id)));
     await db.delete(campaignsTable).where(eq(campaignsTable.id, Number(id)));
-    return NextResponse.json({}, { status: 204 });
+    
+    return NextResponse.json({}, { status: 200 });
   } catch (error) {
+    console.error(error);
+
     return NextResponse.json(
       { error: "Failed to delete the campaign." },
       { status: 500 }

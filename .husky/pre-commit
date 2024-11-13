@@ -1,3 +1,4 @@
 yarn workspace @web3socialproof/admin build
 yarn workspace @web3socialproof/pixel build
 yarn workspace @web3socialproof/backend build
+yarn workspace @web3socialproof/indexer build

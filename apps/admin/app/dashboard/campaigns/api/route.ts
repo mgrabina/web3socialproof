@@ -19,8 +19,8 @@ export async function GET() {
       .select()
       .from(campaignsTable)
       .where(eq(campaignsTable.protocol_id, protocol.id));
-    
-      return NextResponse.json(campaigns, { status: 200 });
+
+    return NextResponse.json(campaigns, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch campaigns." },
@@ -30,7 +30,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { name, enabled, type } = await req.json();
+  const { name, enabled, type, mainText, subText } = await req.json();
 
   const protocol = await getUserProtocol();
 
@@ -53,6 +53,8 @@ export async function POST(req: NextRequest) {
 
   const newCampaign: InsertCampaign = {
     name,
+    message: mainText,
+    sub_message: subText,
     enabled: true,
     protocol_id: protocol.id,
     type,

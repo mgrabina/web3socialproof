@@ -19,6 +19,7 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "target": "ES2022",
+    "lib": ["dom", "es2022"],
     "moduleDetection": "force"
   },
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +16,7 @@ import {
 import { useRouter } from "next/navigation"; // To navigate back to the manager page
 import { Flame, Users, Wallet, BadgeCheck, ShieldCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { SelectMetric } from "@web3socialproof/db";
 
 export default function CampaignCreation() {
   const [formData, setFormData] = useState({
@@ -25,6 +26,48 @@ export default function CampaignCreation() {
     subText: "4504 in the last month",
   });
   const router = useRouter(); // To handle navigation after creation
+
+  const [metrics, setMetrics] = useState<SelectMetric[]>([]);
+  const [availableMetricNames, setAvailableMetricNames] = useState(new Set());
+
+  // Fetch available metrics from API
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const response = await fetch("/dashboard/metrics/api");
+        const data = await response.json();
+        setMetrics(data);
+        setAvailableMetricNames(
+          new Set(data.map((metric: SelectMetric) => metric.name))
+        );
+      } catch (error) {
+        console.error("Error fetching metrics:", error);
+      }
+    };
+    fetchMetrics();
+  }, []);
+
+  // Function to style {{METRIC}} placeholders
+  const renderTextWithMetricStyles = (text: string) => {
+    const regex = /{(.*?)}/g;
+    return text.split(regex).map((part, index) => {
+      if (index % 2 === 1) {
+        const isValidMetric = availableMetricNames.has(part);
+        return (
+          <span
+            key={index}
+            style={{
+              color: isValidMetric ? "#9EDF9C" : "#FA7070",
+              fontWeight: "bold",
+            }}
+          >
+            {`{${part}}`}
+          </span>
+        );
+      }
+      return part;
+    });
+  };
 
   const notificationTypes = [
     { value: "swaps", label: "Swaps", icon: Flame },
@@ -79,6 +122,28 @@ export default function CampaignCreation() {
                 }
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="mainText"
+                placeholder=""
+                value={formData.mainText}
+                onChange={(e) =>
+                  setFormData({ ...formData, mainText: e.target.value })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="name">Subtitle</Label>
+              <Input
+                id="subText"
+                placeholder=""
+                value={formData.subText}
+                onChange={(e) =>
+                  setFormData({ ...formData, subText: e.target.value })
+                }
+              />
+            </div>
 
             <div className="space-y-2">
               <Label>Notification Type</Label>
@@ -102,6 +167,24 @@ export default function CampaignCreation() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Available Metrics</Label>
+              <br />
+              <Label className="text-sm text-gray-500">
+                You can add them like this `{"{METRIC}"}` in the title or
+                subtitle.
+              </Label>
+              <div className="space-y-2">
+                {metrics.map((metric) => (
+                  <Badge key={metric.id} variant="outline" className="
+                    secondary
+                  ">
+                    {metric.name}
+                  </Badge>
+                ))}
+              </div>
             </div>
 
             <Button className="w-full" onClick={handleCreateCampaign}>
@@ -132,9 +215,9 @@ export default function CampaignCreation() {
                 </div>
                 <div className="flex-1">
                   <div className="text-xl font-semibold">
-                    {formData.mainText}
+                    {renderTextWithMetricStyles(formData.mainText)}
                   </div>
-                  <div className="text-gray-500">{formData.subText}</div>
+                  <div className="text-gray-500">{renderTextWithMetricStyles(formData.subText)}</div>
                   <div className="flex items-center gap-1 mt-1 text-blue-500">
                     <BadgeCheck className="h-4 w-4" />
                     <span className="text-sm">

@@ -2,30 +2,39 @@
 import express from "express";
 import { fetchAndSaveNewEvents } from "../service/indexer";
 import logger from "../utils/logger";
-import { db, eq, eventsTable, variablesTable } from "@web3socialproof/db";
+import { db, eq, logsTable } from "@web3socialproof/db";
 
 const app = express();
 app.use(express.json());
 
 let isPaused = false;
-let interval: NodeJS.Timeout | null = setInterval(() => {
-  if (!isPaused) {
-    fetchAndSaveNewEvents({});
-  }
-}, 60000); // Poll every minute
+let interval: NodeJS.Timeout | null = null;
 
-// Start indexer
-app.post("/indexer/run", async (req, res) => {
-  logger.info("Manual run of the indexer initiated");
-  try {
-    await fetchAndSaveNewEvents({});
-    res.json({ status: "Indexer run successfully" });
-    logger.info("Manual run of the indexer completed successfully");
-  } catch (error: any) {
-    logger.error(`Error running indexer manually: ${error?.message}`);
-    res.status(500).json({ error: "Indexer run failed" });
+// Function to start the indexer
+const startIndexer = () => {
+  if (!interval) {
+    // Run immediately the first time
+    fetchAndSaveNewEvents({});
+
+    // Set the interval to run subsequently
+    interval = setInterval(() => {
+      if (!isPaused) {
+        fetchAndSaveNewEvents({});
+      }
+    }, 1000 * 60 * 5); // Poll every 5 minutes
   }
-});
+};
+
+// Function to stop the indexer
+const stopIndexer = () => {
+  if (interval) {
+    clearInterval(interval);
+    interval = null;
+  }
+};
+
+// Start indexer at server start
+startIndexer();
 
 // Pause indexer
 app.post("/indexer/pause", (req, res) => {
@@ -87,22 +96,6 @@ app.post("/indexer/reindex", async (req: any, res: any) => {
   }
 });
 
-// Fetch indexer status
-app.get("/indexer/status", async (req, res) => {
-  logger.info("Fetching indexer status");
-  try {
-    const events = await db
-      .select()
-      .from(eventsTable)
-      .leftJoin(variablesTable, eq(eventsTable.variable_id, variablesTable.id));
-    res.json(events);
-    logger.info("Indexer status retrieved successfully");
-  } catch (error: any) {
-    logger.error(`Error fetching indexer status: ${error?.message}`);
-    res.status(500).json({ error: "Failed to retrieve status" });
-  }
-});
-
-app.listen(3000, () => {
-  logger.info("API server running on http://localhost:3000");
+app.listen(3002, () => {
+  logger.info("API server running on http://localhost:3002");
 });
