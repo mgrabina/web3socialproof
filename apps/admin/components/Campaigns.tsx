@@ -24,8 +24,6 @@ export default function CampaignManager() {
       setIsLoading(true);
       try {
         const response = await fetch("/dashboard/campaigns/api");
-        console.log(response);
-
         const data = await response.json();
         setCampaigns(data);
       } catch (error) {

@@ -1,19 +1,11 @@
 import {
+  defaultStyling,
   NotificationOptions,
   NotificationResponse,
   NotificationStylingRequired,
   NotificationType,
-} from "../constant/notification";
+} from "@web3socialproof/shared/constants/notification";
 import { getMetricValue } from "./metrics";
-
-export const defaultStyling: NotificationStylingRequired = {
-  fontFamily: "Arial, sans-serif",
-  titleColor: "#333",
-  subtitleColor: "#888",
-  borderRadius: "100px",
-  backgroundColor: "white",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-};
 
 const icons: Record<NotificationType, URL> = {
   walletsConnected: new URL(
@@ -44,7 +36,6 @@ const replaceMetricsInString = async (str: string) => {
 
   return result;
 };
-
 
 export const decorateNotification = async (
   options: NotificationOptions

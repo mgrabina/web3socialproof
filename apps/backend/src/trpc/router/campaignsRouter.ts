@@ -3,7 +3,7 @@ import { router, publicProcedure, pixelProcedure } from "..";
 import { db, usersTable } from "@web3socialproof/db";
 import { z } from "zod";
 import { decorateNotification } from "../../services/decorator";
-import { notificationResponseSchema } from "../../constant/notification";
+import { notificationResponseSchema } from "../../../../../packages/shared/src/constants/notification";
 import { trackImpression } from "../../services/impressions";
 
 export const campaignsRouter = router({

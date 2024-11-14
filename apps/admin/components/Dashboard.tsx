@@ -26,7 +26,7 @@ export default function Dashboard() {
             <div>
               <h1 className="text-3xl font-bold">Dashboard</h1>
               <p className="text-muted-foreground">
-                Monitor your Web3 conversion metrics with Talaria
+                Monitor your Web3 conversion metrics with Herd
               </p>
             </div>
           </div>
@@ -48,12 +48,12 @@ export default function Dashboard() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium">Talaria Increment</p>
+                  <p className="text-sm font-medium">Herd Increment</p>
                   <TrendingUp className="h-4 w-4 text-green-500" />
                 </div>
                 <p className="text-2xl font-bold">+32%</p>
                 <p className="text-xs text-muted-foreground">
-                  Improvement vs. not using Talaria
+                  Improvement vs. not using Herd
                 </p>
               </CardContent>
             </Card>

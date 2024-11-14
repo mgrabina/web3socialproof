@@ -22,14 +22,14 @@ export default async function DashboardHeader() {
             <div className="container flex h-14 max-w-screen-2xl items-center">
                 <div className="mr-4 hidden md:flex">
                     <Link className="mr-2 flex items-center space-x-2" href="">
-                        <Image src="/logo/header/horizontal.svg" alt="logo" width={200} height={100} />
+                        <Image src="/logo/horizontal.svg" alt="logo" className="p-6" width={150} height={150} />
                     </Link>
-                    <Suspense fallback={<Badge variant="outline" className="mr-2"><Skeleton className="w-[50px] h-[20px] rounded-full" /></Badge>}>
-                        <Badge variant="outline" className="mr-2">{stripePlan}</Badge>
-                    </Suspense>
+                    {/* <Suspense fallback={<Badge variant="outline" className="mr-2"><Skeleton className="w-[50px] h-[20px] rounded-full" /></Badge>}>
+                        <Badge variant="outline" className="mr-2 min-w-[60px]">{stripePlan}</Badge>
+                    </Suspense> */}
                     <nav className="flex items-center space-x-6 text-sm font-medium">
-                        <Link className="transition-colors hover:text-foreground/80 text-foreground" href="/dashboard">
-                            Home
+                        <Link className="cursor-default transition-colors hover:text-foreground/80 text-foreground opacity-85" href="">
+                            Dashboard <Badge variant="outline" className="ml-1">soon</Badge>
                         </Link>
                         <Link className="transition-colors hover:text-foreground/80 text-foreground" href="/dashboard/campaigns">
                             Campaigns

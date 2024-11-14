@@ -2,6 +2,7 @@
 const path = require("path");
 const TerserPlugin = require("terser-webpack-plugin");
 const webpack = require("webpack");
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 
 module.exports = {
   entry: "./src/script.ts", // Entry point for your TypeScript file
@@ -11,6 +12,7 @@ module.exports = {
   },
   resolve: {
     extensions: [".ts", ".js"], // Allow importing .ts and .js files without specifying extensions
+    plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })], // Add paths from tsconfig.json
   },
   module: {
     rules: [

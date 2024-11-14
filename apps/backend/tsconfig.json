@@ -4,7 +4,9 @@
     "outDir": "build",
     "baseUrl": ".",
     "paths": {
-      "@web3socialproof/db": ["../../services/db/index.ts"]
+      "@web3socialproof/db": ["../../services/db/index.ts"],
+      "@web3socialproof/shared/*": ["../../packages/shared/src/*"],
+      
     },
     "allowJs": true,
     "strict": true,
@@ -23,6 +25,11 @@
     "moduleDetection": "force"
   },
 
-  "include": ["src", ".eslintrc.cjs", ".commitlintrc.ts"],
+  "include": [
+    "src",
+    ".eslintrc.cjs",
+    ".commitlintrc.ts",
+    "../../packages/shared/src/constants"
+  ],
   "exclude": ["build", "node_modules"]
 }

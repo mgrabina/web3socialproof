@@ -5,8 +5,6 @@ export const env = (process.env.VERCEL_ENV ??
   process.env.NEXT_PUBLIC_VERCEL_ENV ??
   "development") as Environment;
 
-console.log("env", env);
-
 if (!environments.includes(env)) {
   console.error("Invalid env", env);
 

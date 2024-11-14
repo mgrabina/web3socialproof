@@ -30,7 +30,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { name, enabled, type, mainText, subText } = await req.json();
+  const { name, enabled, type, mainText, subText, styling } = await req.json();
 
   const protocol = await getUserProtocol();
 
@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
     enabled: true,
     protocol_id: protocol.id,
     type,
+    styling,
     created_at: new Date(),
     updated_at: new Date(),
   };

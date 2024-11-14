@@ -7,11 +7,7 @@
     "strict": true,
     "strictNullChecks": true,
     "esModuleInterop": true,
-    "lib": ["esnext", "dom"],
-    "paths": {
-      "@web3socialproof/shared": ["../shared/src/index.ts"],
-      "@web3socialproof/shared/*": ["../shared/src/*"]
-    }
+    "lib": ["esnext", "dom"]
   },
   "include": ["src/**/*", "../../apps/backend/src/utils/types/process-env.ts"]
 }

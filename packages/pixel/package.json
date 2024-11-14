@@ -20,7 +20,9 @@
   "dependencies": {
     "@trpc/client": "^11.0.0-rc.608",
     "@trpc/server": "^11.0.0-rc.608",
+    "@web3socialproof/shared": "workspace:*",
     "superjson": "^2.2.1",
+    "tsconfig-paths-webpack-plugin": "^4.1.0",
     "zod": "^3.23.8"
   }
 }

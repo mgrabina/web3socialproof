@@ -6,7 +6,7 @@ import { env, getPixelServerByEnvironment } from "@/lib/constants";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Talaria Protocol",
+  title: "Herd",
   description: "The ultimate marketing tool to increase conversions in web3",
 };
 
@@ -21,7 +21,9 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <script
-          src={`${getPixelServerByEnvironment(env)}/static/script.min.js?env=${env}&apiKey=${apiKey}`}
+          src={`${getPixelServerByEnvironment(
+            env
+          )}/static/script.min.js?env=${env}&apiKey=${apiKey}`}
           async
         ></script>
       </head>

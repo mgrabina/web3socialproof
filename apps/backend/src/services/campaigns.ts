@@ -12,7 +12,7 @@ import {
   NotificationOptions,
   NotificationStylingOptional,
   NotificationType,
-} from "../constant/notification";
+} from "../../../../packages/shared/src/constants/notification";
 import { TRPCError } from "@trpc/server";
 
 export const getNotification = async ({

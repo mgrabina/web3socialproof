@@ -1,3 +1,4 @@
+'use client'
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import {
@@ -10,12 +11,27 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { Star, Check, Coins, UserCheck, Database } from "lucide-react";
+import { useRouter } from "next/navigation"; // To navigate back to the manager page
+import { useEffect } from "react";
+
 export default function LandingPage() {
+  const router = useRouter(); // To handle navigation after creation
+
+  // Redirect to /dashboard/campaigns
+  useEffect(() => {
+    router.push("/dashboard/campaigns");
+  }, []);
+
   return (
     <div className="flex flex-col min-h-[100dvh]">
       <header className="px-4 lg:px-6 h-16 flex items-center  bg-white border-b fixed border-b-slate-200 w-full">
         <Link className="flex items-center justify-center" href="#">
-          <Image src="/logo/header/horizontal.svg" alt="logo" width={200} height={100} />
+          <Image
+            src="/logo/horizontal.svg"
+            alt="logo"
+            width={200}
+            height={100}
+          />
           <span className="sr-only">Acme Inc</span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6">
@@ -53,7 +69,7 @@ export default function LandingPage() {
             <div className="flex flex-col md:flex-row items-center">
               <div className="w-full md:w-1/2 space-y-4">
                 <h1 className="text-4xl font-bold md:text-5xl">
-                  Turn Engagement into Trust: Real-Time Social Proof for Web3
+                  Real-Time Social Proof for Web3
                 </h1>
                 <p className="text-muted-foreground md:text-xl">
                   Boost conversion rates and build credibility with live,
