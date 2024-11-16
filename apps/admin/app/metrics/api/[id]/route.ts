@@ -43,7 +43,7 @@ export async function PATCH(
         description,
         calculation_type,
         enabled,
-        updated_at: new Date(),
+        updated_at: new Date().toISOString(),
       })
       .where(eq(metricsTable.id, Number(id)));
 

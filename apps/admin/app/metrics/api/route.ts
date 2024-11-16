@@ -70,8 +70,8 @@ export async function POST(req: NextRequest) {
     calculation_type,
     enabled,
     protocol_id: protocol.id,
-    created_at: new Date(),
-    updated_at: new Date(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   };
 
   try {
@@ -93,8 +93,8 @@ export async function POST(req: NextRequest) {
       data_key: variable.data_key,
       start_block: variable.start_block,
       enabled: true,
-      created_at: new Date(),
-      updated_at: new Date(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }));
 
     // Bulk insert variables and get inserted IDs
@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
       (variable) => ({
         metric_id: insertedMetric.id,
         variable_id: variable.id,
-        created_at: new Date(),
+        created_at: new Date().toISOString(),
       })
     );
 

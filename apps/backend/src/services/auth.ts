@@ -27,8 +27,8 @@ export const createApiKey = async ({
     api_key: apiKey,
     protocol_id: protocol.id,
     name: "Generated",
-    created_at: new Date(),
-    updated_at: new Date(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
     enabled: true,
   });
 

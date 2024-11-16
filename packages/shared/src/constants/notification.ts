@@ -80,6 +80,19 @@ function renderTextWithMetricStyles(
   baseColor: string,
   availableMetricNames: Set<string>
 ): HTMLDivElement {
+  if (
+    !availableMetricNames.size ||
+    !text ||
+    !text.includes("{") ||
+    !text.includes("}")
+  ) {
+    const span = document.createElement("div");
+    span.textContent = text;
+    span.style.color = baseColor;
+
+    return span;
+  }
+
   const container = document.createElement("div");
   const regex = /{(.*?)}/g;
   const parts = text.split(regex);

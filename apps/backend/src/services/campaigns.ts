@@ -4,6 +4,7 @@ import {
   campaignsTable,
   db,
   eq,
+  inArray,
   isNotNull,
   protocolTable,
   SelectProtocol,
@@ -25,15 +26,23 @@ export const getNotification = async ({
   console.log("Notification for hostname: ", hostname);
 
   // Check if there are customizations
-  const campaigns = await db
+  let campaigns = await db
     .select()
     .from(campaignsTable)
     .where(
       and(
         eq(campaignsTable.protocol_id, protocol.id),
-        isNotNull(campaignsTable.message)
+        isNotNull(campaignsTable.message),
+        eq(campaignsTable.enabled, true),
+        isNotNull(campaignsTable.hostnames)
       )
     );
+
+  // Check hosts
+  campaigns = campaigns.filter((campaign) => {
+    return campaign.hostnames?.includes(hostname);
+  });
+
   if (campaigns.length === 0) {
     throw new TRPCError({
       code: "NOT_FOUND",

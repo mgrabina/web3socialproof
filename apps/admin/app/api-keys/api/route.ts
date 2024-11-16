@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
     api_key: generateRandomKey(),
     protocol_id,
     name,
-    created_at: new Date(),
-    updated_at: new Date(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
     enabled: true,
   };
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -11,13 +11,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RefreshCw, Trash2, Edit } from "lucide-react";
+import { RefreshCw, Trash2, Edit, Pause, Play } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { campaignsTable, SelectCampaign } from "@web3socialproof/db";
+import { useRouter } from "next/navigation";
 
 export default function CampaignManager() {
   const [campaigns, setCampaigns] = useState<SelectCampaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchCampaigns() {
@@ -49,6 +51,35 @@ export default function CampaignManager() {
       toast({
         title: "Error",
         description: "Failed to delete campaign.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleToggleCampaignStatus = async (campaign: SelectCampaign) => {
+    try {
+      const updatedCampaign = { ...campaign, enabled: !campaign.enabled };
+      await fetch(`/campaigns/api/${campaign.id}`, {
+        method: "PATCH",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedCampaign),
+      });
+      setCampaigns((prevCampaigns) =>
+        prevCampaigns.map((c) => (c.id === campaign.id ? updatedCampaign : c))
+      );
+      toast({
+        title: `Campaign ${campaign.enabled ? "Paused" : "Activated"}`,
+        description: `Campaign "${campaign.name}" has been ${
+          campaign.enabled ? "paused" : "activated"
+        }.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update campaign status.",
         variant: "destructive",
       });
     }
@@ -90,12 +121,30 @@ export default function CampaignManager() {
                     </TableCell>
                     <TableCell>{campaign.type}</TableCell>
                     <TableCell>
-                      {campaign.created_at.toLocaleString()}
+                      {new Date(campaign.created_at).toLocaleString()}
                     </TableCell>
-                    <TableCell className="text-right">
-                      {/* <Button variant="ghost" size="sm">
+                    <TableCell className="text-right flex space-x-2 justify-end">
+                      {/* Edit Button */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.push(`/campaigns/${campaign.id}`)}
+                      >
                         <Edit className="h-4 w-4" />
-                      </Button> */}
+                      </Button>
+                      {/* Pause/Resume Button */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleToggleCampaignStatus(campaign)}
+                      >
+                        {campaign.enabled ? (
+                          <Pause className="h-4 w-4" />
+                        ) : (
+                          <Play className="h-4 w-4" />
+                        )}
+                      </Button>
+                      {/* Delete Button */}
                       <Button
                         variant="ghost"
                         size="sm"

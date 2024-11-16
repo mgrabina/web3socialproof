@@ -13,7 +13,7 @@ import {
 export const protocolTable = pgTable("protocol_table", {
   id: serial("id").primaryKey(),
   name: text("name"),
-  created_at: timestamp("created_at").notNull().defaultNow(),
+  created_at: timestamp({ mode: "string" }).notNull().defaultNow(),
   plan: text("plan"),
   stripe_id: text("stripe_id"),
 });
@@ -32,15 +32,16 @@ export const campaignsTable = pgTable("campaigns_table", {
   protocol_id: integer("protocol_id").references(() => protocolTable.id), // Foreign key to protocol
   name: text("name").notNull(),
 
-  message: text("message"),
-  sub_message: text("sub_message"),
+  message: text("message").notNull(),
+  sub_message: text("sub_message").notNull(),
   icon: text("icon"),
 
-  created_at: timestamp("created_at").notNull(),
-  updated_at: timestamp("updated_at").notNull(),
+  created_at: timestamp({ mode: "string" }).notNull(),
+  updated_at: timestamp({ mode: "string" }).notNull(),
   enabled: boolean("enabled").notNull(),
   type: text("type").notNull(),
   addresses: text("addresses"),
+  hostnames: text("hostnames").array(),
   styling: json("styling"),
 });
 
@@ -49,8 +50,8 @@ export const apiKeyTable = pgTable("api_key_table", {
   api_key: text("key").notNull().unique().primaryKey(),
   protocol_id: integer("protocol_id").references(() => protocolTable.id), // Foreign key to protocol
   name: text("name").default("Your API Key"),
-  created_at: timestamp("created_at").notNull().defaultNow(),
-  updated_at: timestamp("updated_at").notNull().defaultNow(),
+  created_at: timestamp({ mode: "string" }).notNull().defaultNow(),
+  updated_at: timestamp({ mode: "string" }).notNull().defaultNow(),
   enabled: boolean("enabled").notNull().default(true),
 });
 
@@ -62,7 +63,7 @@ export const impressionsTable = pgTable("impressions_table", {
   session: text("session_id").notNull(),
   user: text("user_id").notNull(),
   address: text("address"),
-  timestamp: timestamp("created_at").notNull().defaultNow(),
+  timestamp: timestamp({ mode: "string" }).notNull().defaultNow(),
 });
 
 export const logsTable = pgTable("logs_table", {
@@ -82,8 +83,8 @@ export const logsTable = pgTable("logs_table", {
   calculation_type: text("calculation_type").notNull(),
 
   enabled: boolean("enabled").notNull().default(true),
-  created_at: timestamp("created_at").notNull().defaultNow(),
-  updated_at: timestamp("updated_at").notNull().defaultNow(),
+  created_at: timestamp({ mode: "string" }).notNull().defaultNow(),
+  updated_at: timestamp({ mode: "string" }).notNull().defaultNow(),
 });
 
 export const metricsTable = pgTable("metrics_table", {
@@ -99,8 +100,8 @@ export const metricsTable = pgTable("metrics_table", {
   last_calculated: timestamp("last_calculated"),
 
   enabled: boolean("enabled").notNull().default(true),
-  created_at: timestamp("created_at").notNull().defaultNow(),
-  updated_at: timestamp("updated_at").notNull().defaultNow(),
+  created_at: timestamp({ mode: "string" }).notNull().defaultNow(),
+  updated_at: timestamp({ mode: "string" }).notNull().defaultNow(),
 });
 
 export const metricsVariablesTable = pgTable("metrics_variables_table", {
@@ -114,7 +115,7 @@ export const metricsVariablesTable = pgTable("metrics_variables_table", {
     .references(() => logsTable.id)
     .notNull(), // Foreign key to variables_table
 
-  created_at: timestamp("created_at").notNull().defaultNow(),
+  created_at: timestamp({ mode: "string" }).notNull().defaultNow(),
 });
 
 // Types

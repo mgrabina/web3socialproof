@@ -1,0 +1,1 @@
+ALTER TABLE "impressions_table" RENAME COLUMN "created_at" TO "timestamp";

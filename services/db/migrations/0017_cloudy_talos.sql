@@ -1,0 +1,1 @@
+ALTER TABLE "campaigns_table" ADD COLUMN "hosts" text;
