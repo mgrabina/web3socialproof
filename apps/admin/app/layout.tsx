@@ -36,7 +36,7 @@ async function isUserLogged() {
   } = await supabase.auth.getUser();
 
   if (!user?.email) {
-    return false;
+    redirect("/login");
   }
 
   // Check user in the database
@@ -46,7 +46,7 @@ async function isUserLogged() {
     .where(eq(usersTable.email, user.email));
 
   if (userInDB.length === 0) {
-    return false;
+    redirect("/login");
   }
 
   // Check the user's protocol and plan
@@ -56,7 +56,7 @@ async function isUserLogged() {
     .where(eq(protocolTable.id, userInDB[0].protocol_id!));
 
   if (protocol.length === 0 || protocol[0].plan === "none") {
-    return false;
+    redirect("/subscribe");
   }
 
   return true;
