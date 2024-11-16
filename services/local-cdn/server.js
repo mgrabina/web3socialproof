@@ -6,13 +6,24 @@ const app = express();
 const distDir = path.join(__dirname, "../../packages/pixel/dist");
 
 // Serve static files from the dist directory with no-cache headers
-app.use("/static", express.static(distDir, {
-  setHeaders: (res) => {
-    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-    res.setHeader("Pragma", "no-cache");
-    res.setHeader("Expires", "0");
-  }
-}));
+app.use(
+  "/static",
+  express.static(distDir, {
+    setHeaders: (res) => {
+      res.setHeader(
+        "Cache-Control",
+        "no-store, no-cache, must-revalidate, proxy-revalidate"
+      );
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
+    },
+  })
+);
+
+// "/" to be an alias of /static/script.min.js if exists, same headers, everything.
+app.get("/", (req, res) => {
+  res.sendFile(path.join(distDir, "script.min.js"));
+});
 
 const files = [];
 
@@ -35,9 +46,12 @@ getFiles(distDir);
 
 // Generate an index page with relative paths and no-cache headers
 try {
-  app.get("/", (req, res) => {
+  app.get("/index", (req, res) => {
     // Set cache control headers for the index page
-    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate"
+    );
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
 

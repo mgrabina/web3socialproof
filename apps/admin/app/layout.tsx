@@ -75,7 +75,7 @@ export default async function RootLayout({
         <script
           src={`${getPixelServerByEnvironment(
             env
-          )}/static/script.min.js?env=${env}&apiKey=${apiKey}`}
+          )}?env=${env}&apiKey=${apiKey}`}
           async
         ></script>
         <script
