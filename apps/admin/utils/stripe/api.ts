@@ -56,12 +56,10 @@ export async function createStripeCheckoutSession(email: string) {
     .from(usersTable)
     .where(eq(usersTable.email, email));
 
-
   const protocol = await db
-  .select()
-  .from(protocolTable)
-  .where(eq(protocolTable.id, user[0].protocol_id!));
-
+    .select()
+    .from(protocolTable)
+    .where(eq(protocolTable.id, user[0].protocol_id!));
 
   const customerSession = await stripe.customerSessions.create({
     customer: protocol[0].stripe_id!,
@@ -87,7 +85,7 @@ export async function generateStripeBillingPortalLink(email: string) {
 
   const portalSession = await stripe.billingPortal.sessions.create({
     customer: protocol[0].stripe_id!,
-    return_url: `${PUBLIC_URL}/dashboard`,
+    return_url: `${PUBLIC_URL}`,
   });
   return portalSession.url;
 }

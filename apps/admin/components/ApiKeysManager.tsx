@@ -37,7 +37,7 @@ export default function SaasApiKeyManager() {
   useEffect(() => {
     async function fetchApiKeys() {
       setIsLoading(true); // Start loading
-      const response = await fetch("/dashboard/api-keys/api");
+      const response = await fetch("/api-keys/api");
       const keys = await response.json();
       setApiKeys(keys);
       setIsLoading(false); // End loading
@@ -56,7 +56,7 @@ export default function SaasApiKeyManager() {
     }
     setIsCreatingKey(true);
     try {
-      const response = await fetch("/dashboard/api-keys/api", {
+      const response = await fetch("/api-keys/api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newKeyName, protocol_id: 1 }), // Replace protocol_id as needed
@@ -81,7 +81,7 @@ export default function SaasApiKeyManager() {
 
   const handleDeleteKey = async (key: SelectApiKey) => {
     try {
-      await fetch(`/dashboard/api-keys/api/${key.api_key}`, {
+      await fetch(`/api-keys/api/${key.api_key}`, {
         method: "DELETE",
       });
       setApiKeys(apiKeys.filter((k) => k.api_key !== key.api_key));

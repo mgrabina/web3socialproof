@@ -51,7 +51,7 @@ export default function CampaignCreation() {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const response = await fetch("/dashboard/metrics/api");
+        const response = await fetch("/metrics/api");
         const data = await response.json();
         setMetrics(data);
         setAvailableMetricNames(
@@ -74,13 +74,13 @@ export default function CampaignCreation() {
   const handleCreateCampaign = async () => {
     console.log(stylingOptions);
     try {
-      const creationResponse = await fetch("/dashboard/campaigns/api", {
+      const creationResponse = await fetch("/campaigns/api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, styling: stylingOptions }),
       });
       if (creationResponse.ok) {
-        router.push("/dashboard/campaigns");
+        router.push("/campaigns");
       } else {
         throw new Error("Failed to create campaign.");
       }

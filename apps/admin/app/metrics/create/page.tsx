@@ -98,7 +98,7 @@ export default function MetricsCreation() {
 
   const handleCreateMetric = async () => {
     try {
-      const response = await fetch("/dashboard/metrics/api", {
+      const response = await fetch("/metrics/api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, variables }),
@@ -112,7 +112,7 @@ export default function MetricsCreation() {
         title: "Metric Created",
         description: "Metric created successfully.",
       });
-      router.push("/dashboard/metrics"); // Redirect to Metrics Manager
+      router.push("/metrics"); // Redirect to Metrics Manager
     } catch (error) {
       console.error("Error creating metric:", error);
       toast({

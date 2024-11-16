@@ -23,7 +23,7 @@ export default function CampaignManager() {
     async function fetchCampaigns() {
       setIsLoading(true);
       try {
-        const response = await fetch("/dashboard/campaigns/api");
+        const response = await fetch("/campaigns/api");
         const data = await response.json();
         setCampaigns(data);
       } catch (error) {
@@ -37,7 +37,7 @@ export default function CampaignManager() {
 
   const handleDeleteCampaign = async (campaignId: number) => {
     try {
-      await fetch(`/dashboard/campaigns/api/${campaignId}`, {
+      await fetch(`/campaigns/api/${campaignId}`, {
         method: "DELETE",
       });
       setCampaigns(campaigns.filter((c) => c.id !== campaignId));
@@ -58,7 +58,7 @@ export default function CampaignManager() {
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Campaigns</h1>
-        <a href="/dashboard/campaigns/create">
+        <a href="/campaigns/create">
           <Button className="gap-2">Create Campaign</Button>
         </a>
       </div>
@@ -85,9 +85,13 @@ export default function CampaignManager() {
                 {campaigns.map((campaign) => (
                   <TableRow key={campaign.id}>
                     <TableCell>{campaign.name}</TableCell>
-                    <TableCell>{campaign.enabled ? "Active" : "Paused"}</TableCell>
+                    <TableCell>
+                      {campaign.enabled ? "Active" : "Paused"}
+                    </TableCell>
                     <TableCell>{campaign.type}</TableCell>
-                    <TableCell>{campaign.created_at.toLocaleString()}</TableCell>
+                    <TableCell>
+                      {campaign.created_at.toLocaleString()}
+                    </TableCell>
                     <TableCell className="text-right">
                       {/* <Button variant="ghost" size="sm">
                         <Edit className="h-4 w-4" />

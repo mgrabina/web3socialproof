@@ -23,7 +23,7 @@ export default function MetricsManager() {
     async function fetchMetrics() {
       setIsLoading(true);
       try {
-        const response = await fetch("/dashboard/metrics/api");
+        const response = await fetch("/metrics/api");
         const data = await response.json();
         setMetrics(data);
       } catch (error) {
@@ -37,7 +37,7 @@ export default function MetricsManager() {
 
   const handleDeleteMetric = async (metricId: number) => {
     try {
-      await fetch(`/dashboard/metrics/api/${metricId}`, {
+      await fetch(`/metrics/api/${metricId}`, {
         method: "DELETE",
       });
       setMetrics(metrics.filter((m) => m.id !== metricId));
@@ -58,7 +58,7 @@ export default function MetricsManager() {
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Metrics</h1>
-        <a href="/dashboard/metrics/create">
+        <a href="/metrics/create">
           <Button className="gap-2">Create Metric</Button>
         </a>
       </div>
@@ -87,7 +87,9 @@ export default function MetricsManager() {
                     <TableCell>{metric.name}</TableCell>
                     <TableCell>{metric.description}</TableCell>
                     <TableCell>{metric.calculation_type}</TableCell>
-                    <TableCell>{metric.enabled ? "Active" : "Paused"}</TableCell>
+                    <TableCell>
+                      {metric.enabled ? "Active" : "Paused"}
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"

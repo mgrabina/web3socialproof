@@ -1,7 +1,14 @@
+import DashboardHeader from "@/components/DashboardHeader";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { createClient } from "@/utils/supabase/server";
+import { redirect, usePathname, useRouter } from "next/navigation";
+import { db, eq, protocolTable, usersTable } from "@web3socialproof/db";
+
 import "./globals.css";
 import { env, getPixelServerByEnvironment } from "@/lib/constants";
+import { headers } from "next/headers";
+import { cp } from "fs";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,11 +19,58 @@ export const metadata: Metadata = {
 
 const apiKey = "sk_test_51hGXLs7gUOVBHKGjehbwK2kNo9BoJanNX";
 
-export default function RootLayout({
+async function isUserLogged() {
+  const headersList = headers();
+  const header_url = headersList.get("x-url") || "";
+
+  const supabase = createClient();
+
+  console.log("header_url", header_url);
+  if (header_url.includes("login") || header_url.includes("subscribe")) {
+    return false;
+  }
+
+  // Fetch authenticated user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user?.email) {
+    return false;
+  }
+
+  // Check user in the database
+  const userInDB = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.email, user.email));
+
+  if (userInDB.length === 0) {
+    return false;
+  }
+
+  // Check the user's protocol and plan
+  const protocol = await db
+    .select()
+    .from(protocolTable)
+    .where(eq(protocolTable.id, userInDB[0].protocol_id!));
+
+  if (protocol.length === 0 || protocol[0].plan === "none") {
+    return false;
+  }
+
+  return true;
+}
+
+export default async function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const isLogged = await isUserLogged();
+
+  console.log("isLogged", isLogged);
+
   return (
     <html lang="en">
       <head>
@@ -26,14 +80,16 @@ export default function RootLayout({
           )}/static/script.min.js?env=${env}&apiKey=${apiKey}`}
           async
         ></script>
+        <script
+          async
+          src="https://js.stripe.com/v3/pricing-table.js"
+          defer
+        ></script>
       </head>
-      {/* Required for pricing table */}
-      <script
-        async
-        src="https://js.stripe.com/v3/pricing-table.js"
-        defer
-      ></script>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        {isLogged && <DashboardHeader />}
+        {children}
+      </body>
     </html>
   );
 }

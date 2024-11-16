@@ -117,7 +117,7 @@ export async function loginUser(
   }
 
   revalidatePath("/", "layout");
-  redirect("/dashboard/campaigns");
+  redirect("/");
 }
 
 export async function logout() {

@@ -3528,6 +3528,8 @@ __metadata:
     class-variance-authority: "npm:^0.7.0"
     clsx: "npm:^2.1.1"
     dotenv: "npm:^16.4.5"
+    embla-carousel-autoplay: "npm:^8.3.1"
+    embla-carousel-react: "npm:^8.3.1"
     eslint: "npm:^8"
     eslint-config-next: "npm:14.2.5"
     lucide-react: "npm:^0.428.0"
@@ -5652,6 +5654,43 @@ __metadata:
   version: 1.5.52
   resolution: "electron-to-chromium@npm:1.5.52"
   checksum: 464ea25529a901fcfcf69c5cf5d39d31607a4ea34d98012c18e22b32154280c90f830b8ac6acbad047b13f2966852ef7d5b78f49396548401757d9a9b025f028
+  languageName: node
+  linkType: hard
+
+"embla-carousel-autoplay@npm:^8.3.1":
+  version: 8.3.1
+  resolution: "embla-carousel-autoplay@npm:8.3.1"
+  peerDependencies:
+    embla-carousel: 8.3.1
+  checksum: 205069c76ac08b4b04aab1992502649c895ee23affab2d382946b88fdcc0d997d89a3dab692ad6ce4ae368e822fc43f4afe23bf6dcb132f50d9b81c7e143de46
+  languageName: node
+  linkType: hard
+
+"embla-carousel-react@npm:^8.3.1":
+  version: 8.3.1
+  resolution: "embla-carousel-react@npm:8.3.1"
+  dependencies:
+    embla-carousel: "npm:8.3.1"
+    embla-carousel-reactive-utils: "npm:8.3.1"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.1 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+  checksum: 24e1bed7298d458d0bb61b9f1f6f2e7645be85816861d3a3598ce6af4961fee2a61f45bb1d3fc78fca95a16518c2dd139b6de9c25bf9c13ab435af646715f595
+  languageName: node
+  linkType: hard
+
+"embla-carousel-reactive-utils@npm:8.3.1":
+  version: 8.3.1
+  resolution: "embla-carousel-reactive-utils@npm:8.3.1"
+  peerDependencies:
+    embla-carousel: 8.3.1
+  checksum: 279c6ea265fd34acc524036985e36cc869e9500f4a557fa13a3a354c78ecc55cf0e0b814ce40a035bcc78bfce0aa049bf965675cb0cafb18aad72049615363e2
+  languageName: node
+  linkType: hard
+
+"embla-carousel@npm:8.3.1":
+  version: 8.3.1
+  resolution: "embla-carousel@npm:8.3.1"
+  checksum: fd5e0960563909012428fb0e562773a56c40209e94b9adf2d8823dad04154c620d400232c89a8b4fdaebed1b81976b81a1f7227233e539a9552bdba86473a7b5
   languageName: node
   linkType: hard
 
