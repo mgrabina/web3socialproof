@@ -9,7 +9,8 @@ import "./globals.css";
 import { env, getPixelServerByEnvironment } from "@/lib/constants";
 import { headers } from "next/headers";
 import { cp } from "fs";
-import StatusBarWrapper from "@/components/StatusBar";
+import StatusBar from "@/components/StatusBar";
+import StatusBarWrapper from "@/components/StatusBarWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
