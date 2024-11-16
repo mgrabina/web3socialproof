@@ -41,9 +41,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  console.log("Name: ", name);
-  console.log("Type: ", type);
-  console.log(req.body);
   if (!name || !type) {
     return NextResponse.json(
       { error: "Name and type are required." },

@@ -28,7 +28,6 @@ export default async function DashboardHeaderProfileDropdown() {
     data: { user },
     error,
   } = await supabase.auth.getUser();
-  console.log("User: ", user);
   const billingPortalURL = await generateStripeBillingPortalLink(user!.email!);
   return (
     <nav className="flex items-center">

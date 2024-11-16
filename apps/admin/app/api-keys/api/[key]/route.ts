@@ -9,8 +9,6 @@ export async function DELETE(
 ) {
   const { key } = params; // Get the key from the URL path parameter
 
-  console.log("key", key);
-
   if (!key) {
     return NextResponse.json(
       { error: "API key ID is required" },

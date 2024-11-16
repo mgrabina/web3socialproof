@@ -58,7 +58,7 @@ export const verifyApiKey = async (apiKey: string) => {
   const protocol = await getProtocol(key.protocol_id);
 
   const plan = protocol.plan;
-  console.log("Plan: ", plan); // Todo: check credits once pricing is decided
+  // Todo: check credits once pricing is decided
 
   return {
     protocol,

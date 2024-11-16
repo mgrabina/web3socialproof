@@ -17,8 +17,6 @@ export default function StripePricingTable({ checkoutSessionSecret }: { checkout
         throw new Error("Missing Stripe Pricing Table ID")
     }
 
-    console.log("Publishable key", process.env.STRIPE_PUBLISHABLE_KEY)
-
     return (
         <stripe-pricing-table
             pricing-table-id={process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID}

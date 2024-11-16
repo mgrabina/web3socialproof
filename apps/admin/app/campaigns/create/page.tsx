@@ -72,7 +72,6 @@ export default function CampaignCreation() {
   };
 
   const handleCreateCampaign = async () => {
-    console.log(stylingOptions);
     try {
       const creationResponse = await fetch("/campaigns/api", {
         method: "POST",

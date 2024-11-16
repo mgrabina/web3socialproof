@@ -26,7 +26,6 @@ async function isUserLogged() {
 
   const supabase = createClient();
 
-  console.log("header_url", header_url);
   if (header_url.includes("login") || header_url.includes("subscribe")) {
     return false;
   }
@@ -69,8 +68,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const isLogged = await isUserLogged();
-
-  console.log("isLogged", isLogged);
 
   return (
     <html lang="en">
