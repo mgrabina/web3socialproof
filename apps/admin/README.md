@@ -18,7 +18,7 @@ This is the ultimate [Next.js](https://nextjs.org/) SAAS starter kit that includ
 
 ## Getting Started
 
-As we will be setting up both dev and prod environments, simply use `.env.local` to develop locally and `.env` for production environments
+As we will be setting up both dev and prod environments, simply use `.env.local` to develop locally and `.env` for production environments.
 
 ### Setup Supabase
 
