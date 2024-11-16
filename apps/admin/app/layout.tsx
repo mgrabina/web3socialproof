@@ -36,7 +36,7 @@ async function isUserLogged() {
   } = await supabase.auth.getUser();
 
   if (!user?.email) {
-    redirect("/login");
+    return false;
   }
 
   // Check user in the database
@@ -46,7 +46,7 @@ async function isUserLogged() {
     .where(eq(usersTable.email, user.email));
 
   if (userInDB.length === 0) {
-    redirect("/login");
+    return false;
   }
 
   // Check the user's protocol and plan
@@ -56,7 +56,7 @@ async function isUserLogged() {
     .where(eq(protocolTable.id, userInDB[0].protocol_id!));
 
   if (protocol.length === 0 || protocol[0].plan === "none") {
-    redirect("/subscribe");
+    return false;
   }
 
   return true;
@@ -87,9 +87,8 @@ export default async function RootLayout({
       <body className={inter.className}>
         {isLogged && (
           <>
-          
             <DashboardHeader />
-            <StatusBarWrapper />  
+            <StatusBarWrapper />
           </>
         )}
         {children}
