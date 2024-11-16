@@ -9,6 +9,7 @@ import "./globals.css";
 import { env, getPixelServerByEnvironment } from "@/lib/constants";
 import { headers } from "next/headers";
 import { cp } from "fs";
+import StatusBarWrapper from "@/components/StatusBar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -87,7 +88,13 @@ export default async function RootLayout({
         ></script>
       </head>
       <body className={inter.className}>
-        {isLogged && <DashboardHeader />}
+        {isLogged && (
+          <>
+          
+            <DashboardHeader />
+            <StatusBarWrapper />  
+          </>
+        )}
         {children}
       </body>
     </html>

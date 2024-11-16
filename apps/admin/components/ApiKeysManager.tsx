@@ -1,10 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Trash2, Copy, RefreshCw, Plus } from "lucide-react";
+import { Trash2, Copy, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -13,6 +19,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
+import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
+
 import {
   Dialog,
   DialogContent,
@@ -24,12 +33,11 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { apiKeyTable, db } from "@web3socialproof/db";
-import { eq, InsertApiKey, SelectApiKey } from "@web3socialproof/db";
+import { eq, SelectApiKey } from "@web3socialproof/db";
 
 export default function SaasApiKeyManager() {
   const [apiKeys, setApiKeys] = useState<SelectApiKey[]>([]);
   const [newKeyName, setNewKeyName] = useState("");
-  const [keyToDelete, setKeyToDelete] = useState<SelectApiKey | null>(null);
   const [isCreatingKey, setIsCreatingKey] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Loading state for table
 
@@ -79,33 +87,20 @@ export default function SaasApiKeyManager() {
     }
   };
 
-  const handleDeleteKey = async (key: SelectApiKey) => {
-    try {
-      await fetch(`/api-keys/api/${key.api_key}`, {
-        method: "DELETE",
-      });
-      setApiKeys(apiKeys.filter((k) => k.api_key !== key.api_key));
-      setKeyToDelete(null);
-      toast({
-        title: "API Key Deleted",
-        description: "The API key has been deleted successfully.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete API key. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleCopyKey = (key: string) => {
-    navigator.clipboard.writeText(key);
+  const handleCopyKey = (text: string) => {
+    navigator.clipboard.writeText(text);
     toast({
-      title: "API Key Copied",
-      description: "The API key has been copied to your clipboard.",
+      title: "Copied",
+      description: "The content has been copied to your clipboard.",
     });
   };
+
+  const getIntegrationCode = (apiKey: string) =>
+    `<script\n  src="https://pixel.gobyherd.com/static/script.min.js?apiKey=${apiKey}"\n  async\n></script>`;
+
+  const integrationSnippet = apiKeys.length
+    ? getIntegrationCode(apiKeys[0].api_key)
+    : "<script src='https://pixel.gobyherd.com/static/script.min.js?apiKey=YOUR_API_KEY' async></script>";
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -113,6 +108,7 @@ export default function SaasApiKeyManager() {
         <h1 className="text-3xl font-bold">API Keys</h1>
       </div>
 
+      {/* API Keys Card */}
       <Card className="w-full max-w-4xl mx-auto">
         <CardContent className="mt-4">
           {isLoading ? (
@@ -147,45 +143,13 @@ export default function SaasApiKeyManager() {
                       })}
                     </TableCell>
                     <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleCopyKey(key.api_key)}
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button variant="outline" size="icon">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Delete API Key</DialogTitle>
-                              <DialogDescription>
-                                Are you sure you want to delete this API key?
-                                This action cannot be undone.
-                              </DialogDescription>
-                            </DialogHeader>
-                            <DialogFooter>
-                              <Button
-                                variant="secondary"
-                                onClick={() => setKeyToDelete(null)}
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                onClick={() => handleDeleteKey(key)}
-                              >
-                                Delete
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleCopyKey(key.api_key)}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -218,6 +182,46 @@ export default function SaasApiKeyManager() {
             </Button>
           </form>
         </CardFooter>
+      </Card>
+
+      {/* Integration Guide Card */}
+      <Card className="w-full max-w-4xl mx-auto border border-gray-200 shadow-md">
+        <CardHeader className="border-b border-gray-200 p-4 bg-gray-50">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-xl font-semibold text-gray-800">
+              Integration Guide
+            </CardTitle>
+            <Button
+              variant="outline"
+              onClick={() => handleCopyKey(integrationSnippet)}
+              className="hover:bg-gray-100"
+            >
+              <Copy className="h-4 w-4 mr-2" />
+              Copy Code
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6">
+          <p className="text-sm text-gray-600 mb-4">
+            To integrate your API key, add the following snippet to the{" "}
+            <code className="font-mono text-blue-600">&lt;head&gt;</code> of
+            your HTML file.
+            <br /> Replace{" "}
+            <code className="font-mono text-blue-600">apiKey</code> with any of
+            your API keys.
+          </p>
+          <div className="rounded-md overflow-hidden shadow-inner">
+            <SyntaxHighlighter
+              language="html"
+              style={docco}
+              showLineNumbers
+              lineNumberStyle={{ color: "#999" }}
+              className="text-sm"
+            >
+              {integrationSnippet}
+            </SyntaxHighlighter>
+          </div>
+        </CardContent>
       </Card>
     </div>
   );
