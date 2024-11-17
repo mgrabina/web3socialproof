@@ -25,7 +25,11 @@ async function isUserLogged() {
   const headersList = headers();
   const header_url = headersList.get("x-url") || "";
 
-  if (header_url.includes("login") || header_url.includes("subscribe")) {
+  if (
+    header_url.includes("login") ||
+    header_url.includes("subscribe") ||
+    header_url.includes("public") // todo open this up
+  ) {
     return false;
   }
 

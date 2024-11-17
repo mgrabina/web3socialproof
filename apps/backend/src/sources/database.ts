@@ -223,11 +223,9 @@ export const disableVerificationCode = async (codeId: number) => {
 };
 
 export const getVerificationCode = async ({
-  protocolId,
   chainId,
   address,
 }: {
-  protocolId: number;
   chainId: number;
   address: string;
 }) => {
@@ -236,7 +234,6 @@ export const getVerificationCode = async ({
     .from(verificationCodesTable)
     .where(
       and(
-        eq(verificationCodesTable.protocol_id, protocolId),
         eq(verificationCodesTable.chain_id, chainId),
         eq(verificationCodesTable.contract_address, address),
         eq(verificationCodesTable.enabled, true),

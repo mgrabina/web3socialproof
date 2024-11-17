@@ -31,8 +31,6 @@ export const getContractAbi = async ({
     address,
   });
 
-  console.log(contractInDb);
-
   if (contractInDb) {
     // If exists, only owner can get or update
     if (contractInDb.protocol_id !== protocol.id) {
@@ -44,8 +42,6 @@ export const getContractAbi = async ({
 
     // If has abi, return
     if (contractInDb.contract_abi) {
-
-      console.log(contractInDb.contract_abi);
       return JSON.stringify(contractInDb.contract_abi);
     }
 
@@ -54,7 +50,6 @@ export const getContractAbi = async ({
       chainId,
       address,
     });
-    console.log(abiFromScanner);
 
     if (abiFromScanner) {
       // Update database with abi
@@ -70,14 +65,10 @@ export const getContractAbi = async ({
   } else {
     // Create new contract in database
 
-    console.log("Creating new contract in database");
-
     const abiFromScanner = await getContractAbiFromScanner({
       chainId,
       address,
     });
-
-    console.log(abiFromScanner);
 
     const inserted = await insertContract({
       protocolId: protocol.id,
@@ -112,7 +103,6 @@ export const getVerificationCodeForContract = async ({
   return code;
 };
 export const verifyContract = async (input: {
-  protocol: SelectProtocol;
   signature: string;
   chainId: number;
   address: string;
@@ -131,7 +121,6 @@ export const verifyContract = async (input: {
 
   // Get code from database
   const code = await getVerificationCode({
-    protocolId: input.protocol.id,
     chainId: input.chainId,
     address: input.address,
   });
@@ -186,4 +175,4 @@ export const saveCustomAbi = async (input: {
     contractId: contractInDb.id,
     abi: input.abi,
   });
-}
+};

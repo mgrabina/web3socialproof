@@ -23,7 +23,6 @@ export const getContractAbiFromScanner = async ({
   try {
     const etherscanApiToken = env.ETHERSCAN_API_KEY;
     const url = `https://api.etherscan.io/v2/api?chainid=${chainId}&module=contract&action=getabi&address=${address}&apikey=${etherscanApiToken}`;
-    console.log(url);
     const response = fetch(url, {
       method: "GET",
       headers: {
@@ -75,12 +74,7 @@ export const getContractCreatorAndTxHashFromScanner = async ({
   address: string;
 }) => {
   const etherscanApiToken = env.ETHERSCAN_API_KEY;
-  const url = `https://api.etherscan.io/api
-   ?chainid=${chainId}
-   &module=contract
-   &action=getcontractcreation
-   &address=${address}
-   &apikey=${etherscanApiToken}`;
+  const url = `https://api.etherscan.io/api?chainid=${chainId}&module=contract&action=getcontractcreation&address=${address}&apikey=${etherscanApiToken}`;
   const response = fetch(url, {
     method: "GET",
     headers: {

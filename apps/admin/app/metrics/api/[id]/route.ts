@@ -1,6 +1,12 @@
 // pages/api/metrics/[id].ts
 import { NextRequest, NextResponse } from "next/server";
-import { db, metricsTable, eq } from "@web3socialproof/db";
+import {
+  db,
+  metricsTable,
+  eq,
+  logsTable,
+  metricsVariablesTable,
+} from "@web3socialproof/db";
 import { getUserProtocol } from "@/utils/database/users";
 export async function PATCH(
   req: NextRequest,
@@ -110,4 +116,54 @@ export async function DELETE(
       { status: 500 }
     );
   }
+}
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const { id } = params;
+
+  const protocol = await getUserProtocol();
+
+  if (!protocol) {
+    return NextResponse.json(
+      { error: "No protocol found for the user." },
+      { status: 404 }
+    );
+  }
+
+  const metric = await db
+    .select()
+    .from(metricsTable)
+    .where(eq(metricsTable.id, Number(id)));
+
+  if (metric.length === 0) {
+    return NextResponse.json({ error: "Metric not found." }, { status: 404 });
+  }
+
+  if (metric[0].protocol_id !== protocol.id) {
+    return NextResponse.json(
+      { error: "Metric not found for the user." },
+      { status: 404 }
+    );
+  }
+
+  // Add variables
+  const variables = await db
+    .select()
+    .from(logsTable)
+    .fullJoin(
+      metricsVariablesTable,
+      eq(logsTable.id, metricsVariablesTable.variable_id)
+    )
+    .where(eq(metricsVariablesTable.metric_id, Number(id)));
+
+  return NextResponse.json(
+    {
+      ...metric[0],
+      variables,
+    },
+    { status: 200 }
+  );
 }

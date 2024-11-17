@@ -1,15 +1,43 @@
 "use client";
 
 import MetricsForm from "@/components/MetricsForm";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
+import { SelectLog, SelectMetric } from "@web3socialproof/db";
+import { useEffect, useState } from "react";
 
-export default function EditMetric({ metric }: { metric: any }) {
+export default function EditMetric() {
+  const { metric } = useParams();
   const router = useRouter();
+
+  const [initialData, setInitialData] = useState<
+    | {
+        metric: SelectMetric;
+        variables: SelectLog[];
+      }
+    | undefined
+  >();
+
+  useEffect(() => {
+    const fetchCampaign = async () => {
+      try {
+        const response = await fetch(`/metrics/api/${metric}`);
+        let data: {
+          metric: SelectMetric;
+          variables: SelectLog[];
+        } = await response.json();
+
+        setInitialData(data);
+      } catch (error) {
+        console.error("Error fetching campaign:", error);
+      }
+    };
+    fetchCampaign();
+  }, [metric]);
 
   const handleEdit = async (formData: any) => {
     try {
-      const response = await fetch(`/metrics/api/${metric.id}`, {
+      const response = await fetch(`/metrics/api/${metric}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -35,5 +63,5 @@ export default function EditMetric({ metric }: { metric: any }) {
     }
   };
 
-  return <MetricsForm initialData={metric} onSubmit={handleEdit} />;
+  return <MetricsForm initialData={initialData} onSubmit={handleEdit} />;
 }

@@ -22,7 +22,6 @@ export const contractsRouter = router({
     )
     .output(z.string().optional())
     .query(async ({ ctx, input }) => {
-      console.log("getContractAbi");
       return await getContractAbi({
         protocol: ctx.protocol,
         chainId: input.chainId,
@@ -62,7 +61,7 @@ export const contractsRouter = router({
       });
     }),
 
-  verifyContract: userProcedure
+  verifyContract: publicProcedure
     .input(
       z.object({
         chainId: z.number(),
@@ -72,7 +71,6 @@ export const contractsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       return await verifyContract({
-        protocol: ctx.protocol,
         chainId: input.chainId,
         address: input.contractAddress,
         signature: input.signature,
