@@ -18,12 +18,12 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {} from "@supabase/supabase-js";
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
 import { logout } from "@/app/auth/actions";
 import { generateStripeBillingPortalLink } from "@/utils/stripe/api";
 
 export default async function DashboardHeaderProfileDropdown() {
-  const supabase = createClient();
+  const supabase = createSupabaseClientForServerSide();
   const {
     data: { user },
     error,

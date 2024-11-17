@@ -1,5 +1,5 @@
 "use server";
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createStripeCustomer } from "@/utils/stripe/api";
@@ -12,7 +12,7 @@ export async function resetPassword(
   currentState: { message: string },
   formData: FormData
 ) {
-  const supabase = createClient();
+  const supabase = createSupabaseClientForServerSide();
   const passwordData = {
     password: formData.get("password") as string,
     confirm_password: formData.get("confirm_password") as string,
@@ -39,7 +39,7 @@ export async function forgotPassword(
   currentState: { message: string },
   formData: FormData
 ) {
-  const supabase = createClient();
+  const supabase = createSupabaseClientForServerSide();
   const email = formData.get("email") as string;
   const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${PUBLIC_URL}/forgot-password/reset`,
@@ -54,7 +54,7 @@ export async function signup(
   currentState: { message: string },
   formData: FormData
 ) {
-  const supabase = createClient();
+  const supabase = createSupabaseClientForServerSide();
 
   const data = {
     email: formData.get("email") as string,
@@ -103,7 +103,7 @@ export async function loginUser(
   currentState: { message: string },
   formData: FormData
 ) {
-  const supabase = createClient();
+  const supabase = createSupabaseClientForServerSide();
 
   const data = {
     email: formData.get("email") as string,
@@ -121,13 +121,13 @@ export async function loginUser(
 }
 
 export async function logout() {
-  const supabase = createClient();
+  const supabase = createSupabaseClientForServerSide();
   const { error } = await supabase.auth.signOut();
   redirect("/login");
 }
 
 export async function signInWithGoogle() {
-  const supabase = createClient();
+  const supabase = createSupabaseClientForServerSide();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
@@ -141,7 +141,7 @@ export async function signInWithGoogle() {
 }
 
 export async function signInWithGithub() {
-  const supabase = createClient();
+  const supabase = createSupabaseClientForServerSide();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "github",
     options: {

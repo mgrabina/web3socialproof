@@ -15,6 +15,7 @@ import { RefreshCw, Trash2, Edit, Pause, Play } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { campaignsTable, SelectCampaign } from "@web3socialproof/db";
 import { useRouter } from "next/navigation";
+import { LoadingTable } from "./LoadingTable";
 
 export default function CampaignManager() {
   const [campaigns, setCampaigns] = useState<SelectCampaign[]>([]);
@@ -97,10 +98,7 @@ export default function CampaignManager() {
       <Card>
         <CardContent>
           {isLoading ? (
-            <div className="flex justify-center py-4">
-              <RefreshCw className="h-6 w-6 animate-spin" />
-              <span className="ml-2">Loading...</span>
-            </div>
+            <LoadingTable />
           ) : (
             <Table>
               <TableHeader>

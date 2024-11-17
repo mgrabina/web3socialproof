@@ -2,16 +2,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db, metricsTable, eq } from "@web3socialproof/db";
 import { getUserProtocol } from "@/utils/database/users";
-
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
-  const { name, description, calculation_type, enabled } = await req.json();
+  const updates = await req.json();
 
+  // Validate protocol
   const protocol = await getUserProtocol();
-
   if (!protocol) {
     return NextResponse.json(
       { error: "No protocol found for the user." },
@@ -19,15 +18,16 @@ export async function PATCH(
     );
   }
 
+  // Check if metric exists
   const metricInDb = await db
     .select()
     .from(metricsTable)
     .where(eq(metricsTable.id, Number(id)));
-
   if (metricInDb.length === 0) {
     return NextResponse.json({ error: "Metric not found." }, { status: 404 });
   }
 
+  // Check if the metric belongs to the user's protocol
   if (metricInDb[0].protocol_id !== protocol.id) {
     return NextResponse.json(
       { error: "Metric not found for the user." },
@@ -35,20 +35,34 @@ export async function PATCH(
     );
   }
 
+  // Validate updates
+  const allowedUpdates = ["name", "description", "calculation_type", "enabled"];
+  const filteredUpdates: Record<string, any> = {};
+  for (const key of allowedUpdates) {
+    if (key in updates) {
+      filteredUpdates[key] = updates[key];
+    }
+  }
+
+  if (Object.keys(filteredUpdates).length === 0) {
+    return NextResponse.json(
+      { error: "No valid fields provided for update." },
+      { status: 400 }
+    );
+  }
+
+  // Add timestamp for tracking updates
+  filteredUpdates.updated_at = new Date().toISOString();
+
   try {
     const updatedMetric = await db
       .update(metricsTable)
-      .set({
-        name,
-        description,
-        calculation_type,
-        enabled,
-        updated_at: new Date().toISOString(),
-      })
+      .set(filteredUpdates)
       .where(eq(metricsTable.id, Number(id)));
 
     return NextResponse.json(updatedMetric, { status: 200 });
   } catch (error) {
+    console.error("Error updating metric:", error);
     return NextResponse.json(
       { error: "Failed to update the metric." },
       { status: 500 }

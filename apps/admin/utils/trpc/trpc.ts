@@ -6,7 +6,9 @@ import type { AppRouter } from "../../../backend/src/trpc/router";
 
 import type { inferRouterOutputs } from "@trpc/server";
 import { Environment } from "@/lib/constants";
-import { createClient } from "../supabase/server";
+import { createSupabaseClientForServerSide } from "../supabase/server";
+import { createServerClient } from "@supabase/ssr";
+import { createSupabaseClientForClientSide } from "../supabase/client";
 
 // Not using tRPC API as npm package - https://github.com/mkosir/trpc-api-boilerplate#avoid-publishing-package
 // import { AppRouter } from './api-types';
@@ -30,21 +32,17 @@ export const backendUrl = (env: Environment) => {
   }
 };
 
-export const trpcApiClient = async (env: Environment) => {
-  const supabase = createClient();
-
-  const { data: session } = await supabase.auth.getSession();
-
+export const trpcApiClient = (env: Environment, token?: string) => {
   return createTRPCClient<AppRouter>({
     links: [
       httpBatchLink({
         url: `${backendUrl(env)}/trpc`,
-        fetch(url: string | URL | Request, options: RequestInit | undefined) {
+        fetch(url, options) {
           return fetch(url, {
             ...options,
             headers: {
               ...options?.headers,
-              Authorization: `Bearer ${session.session?.access_token}`,
+              ...(token && { Authorization: `Bearer ${token}` }),
             },
             mode: "cors",
           });
@@ -54,3 +52,9 @@ export const trpcApiClient = async (env: Environment) => {
     ],
   });
 };
+
+export type TRPCClient = ReturnType<typeof trpcApiClient>;
+
+
+
+

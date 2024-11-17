@@ -1,10 +1,10 @@
 // utils/authHelpers.ts
 import { db, eq, protocolTable, usersTable } from "@web3socialproof/db";
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
 
 // Function to get the protocol for the authenticated user
 export async function getUserProtocol() {
-  const supabase = createClient();
+  const supabase = createSupabaseClientForServerSide();
 
   const {
     data: { user },

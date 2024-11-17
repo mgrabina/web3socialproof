@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 // The client you created from the Server-Side Auth instructions
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
 import { createStripeCustomer } from "@/utils/stripe/api";
 import { db, eq, protocolTable, usersTable } from "@web3socialproof/db";
 import { env } from "@/lib/constants";
@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const next = searchParams.get("next") ?? "/";
 
   if (code) {
-    const supabase = createClient();
+    const supabase = createSupabaseClientForServerSide();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
       const {

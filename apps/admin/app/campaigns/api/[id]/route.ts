@@ -92,8 +92,6 @@ export async function PATCH(
   // Add updated_at field
   updates.updated_at = new Date().toISOString();
 
-  console.log("Updates payload:", updates);
-
   try {
     const updatedCampaign = await db
       .update(campaignsTable)

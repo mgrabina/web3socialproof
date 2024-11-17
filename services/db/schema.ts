@@ -7,6 +7,7 @@ import {
   serial,
   text,
   timestamp,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 
 // Protocol Table
@@ -118,6 +119,29 @@ export const metricsVariablesTable = pgTable("metrics_variables_table", {
   created_at: timestamp({ mode: "string" }).notNull().defaultNow(),
 });
 
+export const contractsTable = pgTable("contracts_table", {
+  id: serial("id").primaryKey(),
+  protocol_id: integer("protocol_id").references(() => protocolTable.id), // Foreign key to protocol
+  chain_id: integer("chain_id").notNull(),
+  contract_address: text("contract_address").notNull(),
+  contract_name: text("contract_name"),
+  contract_abi: json("contract_abi"),
+  ownership_verified: boolean("ownership_verified").notNull().default(false),
+  created_at: timestamp({ mode: "string" }).notNull().defaultNow(),
+  updated_at: timestamp({ mode: "string" }).notNull().defaultNow(),
+});
+
+export const verificationCodesTable = pgTable("verification_codes_table", {
+  id: serial("id").primaryKey(),
+  protocol_id: integer("protocol_id").references(() => protocolTable.id), // Foreign key to protocol
+  chain_id: integer("chain_id").notNull(),
+  contract_address: text("contract_address").notNull(),
+  code: text("code").notNull(),
+  enabled: boolean("enabled").notNull().default(true),
+  expiration: timestamp({ mode: "string" }).notNull(),
+  created_at: timestamp({ mode: "string" }).notNull().defaultNow(),
+});
+
 // Types
 export type InsertUser = typeof usersTable.$inferInsert;
 export type SelectUser = typeof usersTable.$inferSelect;
@@ -135,3 +159,7 @@ export type InsertMetric = typeof metricsTable.$inferInsert;
 export type SelectMetric = typeof metricsTable.$inferSelect;
 export type InsertMetricsVariable = typeof metricsVariablesTable.$inferInsert;
 export type SelectMetricsVariable = typeof metricsVariablesTable.$inferSelect;
+export type InsertContract = typeof contractsTable.$inferInsert;
+export type SelectContract = typeof contractsTable.$inferSelect;
+export type InsertVerificationCode = typeof verificationCodesTable.$inferInsert;
+export type SelectVerificationCode = typeof verificationCodesTable.$inferSelect;

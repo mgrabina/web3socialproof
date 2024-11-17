@@ -1,4 +1,3 @@
-// src/server.ts
 import express from "express";
 import { fetchAndSaveNewEvents } from "../service/indexer";
 import logger from "../utils/logger";
@@ -17,11 +16,14 @@ const startIndexer = () => {
     fetchAndSaveNewEvents({});
 
     // Set the interval to run subsequently
-    interval = setInterval(() => {
-      if (!isPaused) {
-        fetchAndSaveNewEvents({});
-      }
-    }, 1000 * 60 * 5); // Poll every 5 minutes
+    interval = setInterval(
+      () => {
+        if (!isPaused) {
+          fetchAndSaveNewEvents({});
+        }
+      },
+      1000 * 60 * 5
+    ); // Poll every 5 minutes
   }
 };
 

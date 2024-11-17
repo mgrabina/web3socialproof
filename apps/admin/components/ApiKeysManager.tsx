@@ -34,6 +34,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { apiKeyTable, db } from "@web3socialproof/db";
 import { eq, SelectApiKey } from "@web3socialproof/db";
+import { LoadingTable } from "./LoadingTable";
 
 export default function SaasApiKeyManager() {
   const [apiKeys, setApiKeys] = useState<SelectApiKey[]>([]);
@@ -112,10 +113,7 @@ export default function SaasApiKeyManager() {
       <Card className="w-full max-w-4xl mx-auto">
         <CardContent className="mt-4">
           {isLoading ? (
-            <div className="flex justify-center py-4">
-              <RefreshCw className="h-6 w-6 animate-spin" />
-              <span className="ml-2">Loading...</span>
-            </div>
+            <LoadingTable  />
           ) : (
             <Table>
               <TableHeader>

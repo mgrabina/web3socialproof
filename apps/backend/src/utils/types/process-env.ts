@@ -8,6 +8,7 @@ const envVariables = z.object({
   NODE_ENV: z.union([z.literal("development"), z.literal("production")]),
   DATABASE_URL: z.string(),
   SUPABASE_URL: z.string(),
+  ETHERSCAN_API_KEY: z.string(),
   SUPABASE_ANON_KEY: z.string(),
   PORT: z.string().optional(),
 });

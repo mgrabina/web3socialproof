@@ -14,6 +14,7 @@ import {
 import { RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { metricsTable, SelectMetric } from "@web3socialproof/db";
+import { LoadingTable } from "./LoadingTable";
 
 export default function MetricsManager() {
   const [metrics, setMetrics] = useState<SelectMetric[]>([]);
@@ -66,10 +67,7 @@ export default function MetricsManager() {
       <Card>
         <CardContent>
           {isLoading ? (
-            <div className="flex justify-center py-4">
-              <RefreshCw className="h-6 w-6 animate-spin" />
-              <span className="ml-2">Loading...</span>
-            </div>
+            <LoadingTable />
           ) : (
             <Table>
               <TableHeader>

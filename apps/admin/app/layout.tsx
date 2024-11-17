@@ -1,7 +1,7 @@
 import DashboardHeader from "@/components/DashboardHeader";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
 import { redirect, usePathname, useRouter } from "next/navigation";
 import { db, eq, protocolTable, usersTable } from "@web3socialproof/db";
 
@@ -25,12 +25,11 @@ async function isUserLogged() {
   const headersList = headers();
   const header_url = headersList.get("x-url") || "";
 
-  const supabase = createClient();
-
   if (header_url.includes("login") || header_url.includes("subscribe")) {
     return false;
   }
 
+  const supabase = createSupabaseClientForServerSide();
   // Fetch authenticated user
   const {
     data: { user },

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
 import Dashboard from "@/components/Dashboard";
 import Campaigns from "@/components/Campaigns";
 import MetricsManager from "@/components/Metrics";

@@ -23,8 +23,6 @@ export const getNotification = async ({
   hostname: string;
   protocol: SelectProtocol;
 }): Promise<NotificationOptions> => {
-  console.log("Notification for hostname: ", hostname);
-
   // Check if there are customizations
   let campaigns = await db
     .select()
