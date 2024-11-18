@@ -11,14 +11,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RefreshCw, Trash2 } from "lucide-react";
+import { Edit, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { metricsTable, SelectMetric } from "@web3socialproof/db";
 import { LoadingTable } from "./LoadingTable";
+import { useRouter } from "next/navigation";
 
 export default function MetricsManager() {
   const [metrics, setMetrics] = useState<SelectMetric[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchMetrics() {
@@ -89,6 +91,13 @@ export default function MetricsManager() {
                       {metric.enabled ? "Active" : "Paused"}
                     </TableCell>
                     <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.push(`/metrics/${metric.id}`)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="sm"

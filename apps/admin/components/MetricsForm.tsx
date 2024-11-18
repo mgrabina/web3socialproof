@@ -28,29 +28,15 @@ import { env } from "@/lib/constants";
 import { InsertLog, SelectLog, SelectMetric } from "@web3socialproof/db";
 import ContractVerificationDialog from "./ContractOwnershipVerificationDialog";
 import { shortenAddress } from "@web3socialproof/shared/utils/evm";
-
-const supportedChainIds = [
-  { value: "1", label: "Ethereum Mainnet" },
-  { value: "56", label: "Binance Smart Chain" },
-  { value: "137", label: "Polygon Mainnet" },
-  { value: "43114", label: "Avalanche C-Chain" },
-  { value: "42161", label: "Arbitrum One" },
-  { value: "10", label: "Optimism Mainnet" },
-  { value: "250", label: "Fantom Opera" },
-  { value: "100", label: "Gnosis Chain (xDai)" },
-];
+import {
+  chains,
+  SupportedChainIds,
+} from "@web3socialproof/shared/constants/chains";
 
 const calculationTypes = [
   { value: "count", label: "Count" },
   { value: "sum", label: "Sum" },
   // { value: "count_unique", label: "Count Unique" },
-];
-
-const topicOptions = [
-  { value: "N/A", label: "N/A" },
-  { value: "1", label: "1" },
-  { value: "2", label: "2" },
-  { value: "3", label: "3" },
 ];
 
 export default function MetricsForm({
@@ -63,15 +49,20 @@ export default function MetricsForm({
   };
   onSubmit: (data: any) => Promise<void>;
 }) {
-  const [formData, setFormData] = useState(
-    initialData?.metric || {
-      name: "",
-      description: "",
-      calculation_type: "count",
-    }
+  const [formData, setFormData] = useState<Partial<SelectMetric> | undefined>(
+    initialData?.metric
   );
-  const [variables, setVariables] = useState(initialData?.variables || []);
+  const [variables, setVariables] = useState<Partial<SelectLog>[] | undefined>(
+    initialData?.variables
+  );
   const [abi, setAbi] = useState("");
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData.metric);
+      setVariables(initialData.variables);
+    }
+  }, [initialData]);
 
   const [currentEvent, setCurrentEvent] = useState<InsertLog>({
     chain_id: 0,
@@ -84,7 +75,7 @@ export default function MetricsForm({
   });
 
   const handleAddEvent = () => {
-    setVariables([...variables, currentEvent]);
+    setVariables([...(variables ?? []), currentEvent]);
     setCurrentEvent({
       chain_id: 0,
       contract_address: "",
@@ -194,7 +185,7 @@ export default function MetricsForm({
   }, [abi, currentEvent.event_name]);
 
   const handleDeleteVariable = (index: number) => {
-    setVariables(variables.filter((_, i) => i !== index));
+    setVariables(variables?.filter((_, i) => i !== index));
   };
 
   const handleEventChange = (field: string, value: any) => {
@@ -202,7 +193,7 @@ export default function MetricsForm({
   };
 
   const handleSubmit = async () => {
-    await onSubmit({ ...formData, variables });
+    await onSubmit({ metric: formData, variables });
   };
 
   const handleSaveNewAbi = async (abi: string) => {
@@ -236,7 +227,7 @@ export default function MetricsForm({
             <Input
               id="name"
               placeholder="Metric Name"
-              value={formData.name}
+              value={formData?.name ?? undefined}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
@@ -248,7 +239,7 @@ export default function MetricsForm({
             <Input
               id="description"
               placeholder="Metric Description"
-              value={formData.description ?? ""}
+              value={formData?.description ?? undefined}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
@@ -278,9 +269,9 @@ export default function MetricsForm({
                 <SelectValue placeholder="Select Chain ID" />
               </SelectTrigger>
               <SelectContent>
-                {supportedChainIds.map((chain) => (
-                  <SelectItem key={chain.value} value={chain.value}>
-                    {chain.label}
+                {SupportedChainIds.map((chain) => (
+                  <SelectItem key={chain} value={chain.toString()}>
+                    {chains[chain].name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -478,9 +469,8 @@ export default function MetricsForm({
           <div className="space-y-2">
             <Label>Calculation Type</Label>
             <Select
-              value={formData.calculation_type}
+              value={currentEvent?.calculation_type ?? undefined}
               onValueChange={(value) => {
-                setFormData({ ...formData, calculation_type: value });
                 setCurrentEvent({
                   ...currentEvent,
                   calculation_type: value,
@@ -526,7 +516,7 @@ export default function MetricsForm({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {variables.map((variable: any, index) => (
+              {variables?.map((variable: any, index) => (
                 <TableRow key={index}>
                   <TableCell>{variable.chain_id}</TableCell>
                   <TableCell>

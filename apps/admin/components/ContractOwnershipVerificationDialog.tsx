@@ -30,11 +30,6 @@ export default function ContractVerificationDialog({
       <DialogContent className="bg-opacity-90 transition-opacity duration-300 ease-in-out">
         <DialogHeader>
           <DialogTitle>Verify Contract Ownership</DialogTitle>
-          <DialogClose asChild>
-            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
-              ✕
-            </button>
-          </DialogClose>
         </DialogHeader>
         <ContractOwnershipVerificationContainer
           chainId={chainId}

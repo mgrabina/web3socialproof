@@ -2,8 +2,10 @@ import React from "react";
 import StatusBar, { StatusBarConfig } from "@/components/StatusBar";
 
 import {
+  and,
   apiKeyTable,
   campaignsTable,
+  contractsTable,
   db,
   eq,
   impressionsTable,
@@ -78,6 +80,35 @@ const getStatusBarConfig = async (): Promise<StatusBarConfig> => {
     };
   }
 
+  // If there are contracts not verified yet
+  const notVerifiedContracts = await db
+    .select()
+    .from(contractsTable)
+    .where(
+      and(
+        eq(contractsTable.protocol_id, protocol.id),
+        eq(contractsTable.ownership_verified, false)
+      )
+    );
+
+  if (notVerifiedContracts.length > 0) {
+    return {
+      status: "warning",
+      message: (
+        <>
+          There are contracts not verified yet. Please{" "}
+          <a
+            href="/contracts"
+            className="underline text-blue-600 hover:text-blue-800"
+          >
+            verify them here
+          </a>
+          .
+        </>
+      ),
+    };
+  }
+
   // All systems good
   return {
     status: "info",
@@ -99,7 +130,9 @@ const getStatusBarConfig = async (): Promise<StatusBarConfig> => {
 export default async function StatusBarWrapper() {
   const { status, message } = await getStatusBarConfig();
 
-  return <div className="p-4"> 
-    <StatusBar status={status} message={message} />
+  return (
+    <div className="p-4">
+      <StatusBar status={status} message={message} />
     </div>
+  );
 }

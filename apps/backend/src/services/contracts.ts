@@ -90,6 +90,16 @@ export const getVerificationCodeForContract = async ({
   chainId: number;
   address: string;
 }) => {
+  // If available get from db
+  const codeFromDb = await getVerificationCode({
+    chainId,
+    address,
+  });
+
+  if (codeFromDb) {
+    return codeFromDb.code;
+  }
+
   const code = Math.random().toString(36).substring(7);
 
   // Save to check later

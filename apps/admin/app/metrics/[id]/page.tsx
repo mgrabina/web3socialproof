@@ -7,7 +7,7 @@ import { SelectLog, SelectMetric } from "@web3socialproof/db";
 import { useEffect, useState } from "react";
 
 export default function EditMetric() {
-  const { metric } = useParams();
+  const { id } = useParams();
   const router = useRouter();
 
   const [initialData, setInitialData] = useState<
@@ -21,11 +21,18 @@ export default function EditMetric() {
   useEffect(() => {
     const fetchCampaign = async () => {
       try {
-        const response = await fetch(`/metrics/api/${metric}`);
+        const response = await fetch(`/metrics/api/${id}`);
         let data: {
           metric: SelectMetric;
           variables: SelectLog[];
         } = await response.json();
+
+        if (!response.ok) {
+          console.log("response", response);
+          router.push("/404");
+        }
+
+        console.log("data", data);
 
         setInitialData(data);
       } catch (error) {
@@ -33,11 +40,11 @@ export default function EditMetric() {
       }
     };
     fetchCampaign();
-  }, [metric]);
+  }, [id]);
 
   const handleEdit = async (formData: any) => {
     try {
-      const response = await fetch(`/metrics/api/${metric}`, {
+      const response = await fetch(`/metrics/api/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
