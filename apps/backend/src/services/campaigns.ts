@@ -23,6 +23,13 @@ export const getNotification = async ({
   hostname: string;
   protocol: SelectProtocol;
 }): Promise<NotificationOptions> => {
+  if (!protocol || !protocol.plan) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Protocol not found or doesn't have a plan.",
+    });
+  }
+
   // Check if there are customizations
   let campaigns = await db
     .select()
@@ -57,5 +64,6 @@ export const getNotification = async ({
     message: campaignToPrint.message!,
     subMessage: campaignToPrint.sub_message ?? "",
     campaign: campaignToPrint.id,
+    subscriptionPlan: protocol.plan,
   };
 };

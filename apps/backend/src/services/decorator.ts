@@ -4,6 +4,7 @@ import {
   NotificationResponse,
   NotificationStylingRequired,
   NotificationType,
+  VerificationInfo,
 } from "@web3socialproof/shared/constants/notification";
 import { getMetricValue } from "./metrics";
 
@@ -19,22 +20,32 @@ const icons: Record<NotificationType, URL> = {
 
 const replaceMetricsInString = async (str: string) => {
   const matches = str.match(/{(.*?)}/g);
-  if (!matches) return str;
+  if (!matches)
+    return {
+      str,
+      verifications: [],
+    };
 
-  const replacements = await Promise.all(
-    matches.map(async (match) => {
-      const metric = match.slice(1, -1); // Remove the curly braces
-      const value = await getMetricValue(metric);
-      return value?.toString() ?? match;
-    })
-  );
+  const verificationsAgg: VerificationInfo[] = [];
 
-  let result = str;
-  matches.forEach((match, index) => {
-    result = result.replace(match, replacements[index]);
-  });
+  for (const match of matches) {
+    const metric = match.slice(1, -1); // Remove the curly braces
+    const metricInfo = await getMetricValue(metric);
 
-  return result;
+    metricInfo?.verifications.forEach(
+      (verification) =>
+        !verificationsAgg.includes(verification) &&
+        verificationsAgg.push(verification)
+    );
+    const replacement = metricInfo?.value?.toString() ?? match;
+
+    str = str.replace(match, replacement);
+  }
+
+  return {
+    str,
+    verifications: verificationsAgg,
+  };
 };
 
 export const decorateNotification = async (
@@ -48,16 +59,20 @@ export const decorateNotification = async (
 
   // Todo: add translation if needed
 
-  const message = await replaceMetricsInString(options.message);
-  const subMessage = await replaceMetricsInString(options.subMessage);
+  const messageReplaced = await replaceMetricsInString(options.message);
+  const subMessageReplaced = await replaceMetricsInString(options.subMessage);
 
   return {
     campaign: options.campaign,
     type: options.type,
     icon: "https://static.thenounproject.com/png/1878140-200.png", // todo based on type
-    verificationLink: options.verificationLink,
-    message,
-    subMessage,
+    message: messageReplaced.str,
+    subMessage: subMessageReplaced.str,
     styling,
+    verifications: [
+      ...messageReplaced.verifications,
+      ...subMessageReplaced.verifications,
+    ],
+    subscriptionPlan: options.subscriptionPlan,
   };
 };

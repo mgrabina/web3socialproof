@@ -26,8 +26,8 @@ import { useTrpcBackend } from "@/hooks/useTrpcBackend";
 import { getTrpcClientForClient } from "@/utils/trpc/client";
 import { env } from "@/lib/constants";
 import { InsertLog, SelectLog, SelectMetric } from "@web3socialproof/db";
-import { shortenAddress } from "@/utils/strings/string.utils";
 import ContractVerificationDialog from "./ContractOwnershipVerificationDialog";
+import { shortenAddress } from "@web3socialproof/shared/utils/evm";
 
 const supportedChainIds = [
   { value: "1", label: "Ethereum Mainnet" },

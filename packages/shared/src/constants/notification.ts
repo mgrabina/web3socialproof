@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { shortenAddress } from "../utils/evm";
 
 export const notificationTypeSchema = z.union([
   z.literal("swaps"),
@@ -59,9 +60,20 @@ export const notificationOptionsSchema = z.object({
   message: z.string(),
   subMessage: z.string(),
   verificationLink: z.string(),
+  subscriptionPlan: z.string(),
   styling: notificationStylingSchemaOptional,
 });
 export type NotificationOptions = z.infer<typeof notificationOptionsSchema>;
+
+export const verificationInfoSchema = z.object({
+  chainId: z.number(),
+  contractAddress: z.string(),
+  isOwnershipVerified: z.boolean(),
+  chainName: z.string().optional(),
+  url: z.string().optional(),
+});
+
+export type VerificationInfo = z.infer<typeof verificationInfoSchema>;
 
 export const notificationResponseSchema = z.object({
   campaign: z.number(),
@@ -69,8 +81,9 @@ export const notificationResponseSchema = z.object({
   icon: z.string(),
   message: z.string(),
   subMessage: z.string(),
-  verificationLink: z.string(),
+  verifications: z.array(verificationInfoSchema),
   styling: notificationStylingSchemaRequired,
+  subscriptionPlan: z.string(),
 });
 export type NotificationResponse = z.infer<typeof notificationResponseSchema>;
 
@@ -199,32 +212,149 @@ export const createNotification = (
   }
 
   // Verified link
-  const verifiedLink = document.createElement("a");
-  verifiedLink.href = params.verificationLink;
-  verifiedLink.target = "_blank";
-  verifiedLink.textContent = "Verified on-chain by Herd";
-  verifiedLink.style.fontSize = "10px";
-  verifiedLink.style.color = "#4a63e7";
-  verifiedLink.style.cursor = "pointer";
-  verifiedLink.style.textDecoration = "none";
-  verifiedLink.style.marginTop = "4px";
-  verifiedLink.style.display = "flex";
-  verifiedLink.style.alignItems = "center";
+  // Create the container for the verification message
+  const verificationContainer = document.createElement("div");
+  verificationContainer.style.position = "relative";
+  verificationContainer.style.display = "inline-block";
 
-  // Verified icon
-  const verifiedIcon = document.createElement("img");
-  verifiedIcon.src = "https://img.icons8.com/fluency/48/verified-badge.png";
-  verifiedIcon.alt = "Verified icon";
-  verifiedIcon.style.width = "12px";
-  verifiedIcon.style.opacity = "0.8";
-  verifiedIcon.style.height = "10px";
-  verifiedIcon.style.marginRight = "5px";
-  verifiedLink.prepend(verifiedIcon);
+  // Determine if all verifications are ownership verified
+  const allVerified = params.verifications.every((v) => v.isOwnershipVerified);
+  const textColor = allVerified ? "#4a63e7" : "#d8a200"; // Blue if verified, dark yellow otherwise
+  const iconSrcIfVerified = (verified: boolean) =>
+    verified
+      ? "https://img.icons8.com/fluency/48/verified-badge.png"
+      : "https://img.icons8.com/fluency/48/warning-shield.png"; // Different icons
+
+  // Main link/button
+  const verificationLink = document.createElement("label");
+  verificationLink.style.color = textColor;
+  verificationLink.style.fontSize = "10px";
+  verificationLink.style.textDecoration = "none";
+  verificationLink.style.cursor = "pointer";
+  verificationLink.style.display = "flex";
+  verificationLink.style.alignItems = "center";
+  verificationLink.textContent = allVerified
+    ? `Verified on-chain${
+        params.subscriptionPlan.toLocaleLowerCase() != "enterprise"
+          ? " by Herd"
+          : ""
+      }`
+    : "Please verify on-chain";
+
+  // Icon for the link
+  const verificationIcon = document.createElement("img");
+  verificationIcon.src = iconSrcIfVerified(allVerified);
+  verificationIcon.alt = allVerified ? "Verified icon" : "Warning icon";
+  verificationIcon.style.width = "12px";
+  verificationIcon.style.height = "10px";
+  verificationIcon.style.marginRight = "5px";
+  verificationLink.prepend(verificationIcon);
+
+  // Tooltip container for hover menu
+  const tooltipContainer = document.createElement("div");
+  tooltipContainer.style.position = "absolute";
+  tooltipContainer.style.backgroundColor = "#fff";
+  tooltipContainer.style.border = "1px solid #ddd";
+  tooltipContainer.style.borderRadius = "4px";
+  tooltipContainer.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.2)";
+  tooltipContainer.style.padding = "8px";
+  tooltipContainer.style.marginTop = "4px";
+  tooltipContainer.style.display = "none"; // Hidden by default
+  tooltipContainer.style.zIndex = "100";
+  tooltipContainer.style.minWidth = "200px";
+  tooltipContainer.style.whiteSpace = "nowrap";
+
+  // Populate the hover menu with verification links
+  params.verifications.forEach((v) => {
+    const verificationItem = document.createElement("div");
+    verificationItem.style.display = "flex";
+    verificationItem.style.justifyContent = "space-between";
+    verificationItem.style.alignItems = "center";
+    verificationItem.style.marginBottom = "4px"; // Add spacing between rows if needed
+
+    const verificationLink = document.createElement("a");
+    const label = v.url
+      ? `${shortenAddress(v.contractAddress)} on ${
+          v.chainName ?? "chain id " + v.chainId
+        }`
+      : `Contract ${v.contractAddress} on chain with id: ${v.chainId}, `;
+
+    verificationLink.textContent = label;
+    verificationLink.href = v.url ?? "#";
+    verificationLink.style.color = v.isOwnershipVerified
+      ? "#4a63e7"
+      : "#d8a200";
+    verificationLink.target = "_blank";
+    verificationLink.style.fontSize = "10px";
+    verificationLink.style.textDecoration = "none";
+    verificationLink.style.flexGrow = "1"; // Ensure the link takes up available space
+
+    const verificationIcon = document.createElement("img");
+    verificationIcon.src = iconSrcIfVerified(v.isOwnershipVerified);
+    verificationIcon.alt = v.isOwnershipVerified
+      ? "Verified icon"
+      : "Warning icon";
+    verificationIcon.style.width = "12px";
+    verificationIcon.style.height = "10px";
+
+    // Append link and icon to the row
+    verificationItem.appendChild(verificationLink);
+    verificationItem.appendChild(verificationIcon);
+
+    // Add the row to the tooltip container
+    tooltipContainer.appendChild(verificationItem);
+  });
+
+  // Add hover events to ensure menu remains visible when moving between elements
+  let isHovering = false;
+
+  const showTooltip = () => {
+    tooltipContainer.style.display = "block";
+  };
+
+  const hideTooltip = () => {
+    if (!isHovering) {
+      tooltipContainer.style.display = "none";
+    }
+  };
+
+  verificationContainer.addEventListener("mouseenter", () => {
+    isHovering = true;
+    showTooltip();
+
+    // Check for viewport overflow and adjust position
+    const rect = tooltipContainer.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    if (rect.bottom > viewportHeight) {
+      tooltipContainer.style.marginTop = `-${rect.height + 8}px`; // Open upward
+    } else {
+      tooltipContainer.style.marginTop = "4px"; // Default downward
+    }
+  });
+
+  verificationContainer.addEventListener("mouseleave", () => {
+    isHovering = false;
+    setTimeout(hideTooltip, 200); // Delay hiding to allow mouse to move to the menu
+  });
+
+  tooltipContainer.addEventListener("mouseenter", () => {
+    isHovering = true;
+    showTooltip();
+  });
+
+  tooltipContainer.addEventListener("mouseleave", () => {
+    isHovering = false;
+    setTimeout(hideTooltip, 200); // Delay hiding to allow mouse to move back to the link
+  });
+
+  // Assemble the components
+  verificationContainer.appendChild(verificationLink);
+  verificationContainer.appendChild(tooltipContainer);
 
   // Assemble the text container
   textContainer.appendChild(title);
   textContainer.appendChild(subtitle);
-  textContainer.appendChild(verifiedLink);
+  textContainer.appendChild(verificationContainer);
 
   // Assemble the notification
   notification.appendChild(iconContainer);

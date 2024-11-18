@@ -14,6 +14,7 @@ import {
   HelpCircle,
   LogOut,
   Key,
+  Verified,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -55,6 +56,12 @@ export default async function DashboardHeaderProfileDropdown() {
             <DropdownMenuItem>
               <Key className="mr-2 h-4 w-4" />
               <span>Api Keys</span>
+            </DropdownMenuItem>
+          </Link>
+          <Link href="/contracts">
+            <DropdownMenuItem>
+              <Verified className="mr-2 h-4 w-4" />
+              <span>Contracts</span>
             </DropdownMenuItem>
           </Link>
           <Link href="#">

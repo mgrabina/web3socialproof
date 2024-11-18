@@ -29,6 +29,7 @@ import {
   NotificationStylingRequired,
 } from "@web3socialproof/shared/constants/notification";
 import { Skeleton } from "./ui/skeleton";
+import { useSupabaseUser } from "@/hooks/useSupabaseUser";
 
 interface CampaignFormProps {
   initialData?: {
@@ -386,7 +387,8 @@ export default function CampaignForm({
                     campaign: 0,
                     type: "swaps",
                     icon: "https://static.thenounproject.com/png/1878140-200.png",
-                    verificationLink: "https://example.com",
+                    verifications: [],
+                    subscriptionPlan: "free", //todo adapt to user plan
                     message: formData.message ?? "",
                     subMessage: formData.sub_message ?? "",
                     styling: formData.styling as NotificationStylingRequired,

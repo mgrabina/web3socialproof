@@ -23,7 +23,7 @@ import { env } from "@/lib/constants";
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { Check, Copy } from "lucide-react";
-import { shortenAddress } from "@/utils/strings/string.utils";
+import { shortenAddress } from "@web3socialproof/shared/utils/evm";
 
 export default function ContractVerification({
   chainId,
@@ -153,7 +153,7 @@ function ContractOwnershipVerificationContainer({
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = () => {
-    const shareableLink = `${window.location.origin}/verify?chainId=${chainId}&contractAddress=${contractAddress}&code=${verificationCode}`;
+    const shareableLink = `${window.location.origin}/verify?chainId=${chainId}&contractAddress=${contractAddress}&code=${verificationCode}`; //todo double check window.location.origin
     navigator.clipboard.writeText(shareableLink).then(() => {
       setCopied(true);
       toast({
