@@ -48,7 +48,8 @@ export async function fetchAndSaveNewEvents({
   for (const logToTrack of logsToTrack) {
     const blockEnd = endBlock;
     let blockStart = Math.max(
-      logToTrack.last_block_indexed ?? Math.max(logToTrack.start_block ?? 0, startBlock ?? 0),
+      logToTrack.last_block_indexed ??
+        Math.max(logToTrack.start_block ?? 0, startBlock ?? 0),
       0
     );
 
@@ -68,7 +69,10 @@ export async function fetchAndSaveNewEvents({
     );
 
     const getValue = (config: SelectLog, received: Log): bigint => {
-      if (config.topic_index === 0) {
+      if (
+        (!config.topic_index && config.data_key) ||
+        config.topic_index === 0
+      ) {
         return 1n; // Just counting the number of logs, not the value
       } else if (
         config.topic_index !== null &&
@@ -100,7 +104,9 @@ export async function fetchAndSaveNewEvents({
         return BigInt(decodedData[keyIndex]);
       }
 
-      logger.error(`Could not get value from log: ${JSON.stringify(received)}`);
+      logger.error(
+        `Could not get value from log: ${JSON.stringify(received)} for config ${JSON.stringify(config)}`
+      );
       return 0n;
     };
 
@@ -117,13 +123,16 @@ export async function fetchAndSaveNewEvents({
           2
         )}`
       );
-      const queryResponse = await clients[logToTrack.chain_id].collect(query, {});
+      const queryResponse = await clients[logToTrack.chain_id].collect(
+        query,
+        {}
+      );
       logger.debug(
         `Query responded in ${queryResponse.totalExecutionTime}ms with ${queryResponse.data.logs.length} logs`
       );
 
-      const newValues: bigint[] = queryResponse.data.logs.map((logFromResponse) =>
-        getValue(logToTrack, logFromResponse)
+      const newValues: bigint[] = queryResponse.data.logs.map(
+        (logFromResponse) => getValue(logToTrack, logFromResponse)
       );
       let newTotalValue: bigint;
       if (logToTrack.calculation_type === "count") {

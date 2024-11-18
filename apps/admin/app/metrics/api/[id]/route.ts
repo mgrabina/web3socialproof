@@ -107,6 +107,7 @@ export async function PATCH(
           ...variable,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
+          protocol_id: protocol.id,
         }))
       )
       .returning();
