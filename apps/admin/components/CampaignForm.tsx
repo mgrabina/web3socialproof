@@ -21,7 +21,11 @@ import {
 } from "@/components/ui/accordion";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import { SelectCampaign, SelectMetric } from "@web3socialproof/db";
+import {
+  InsertCampaign,
+  SelectCampaign,
+  SelectMetric,
+} from "@web3socialproof/db";
 import {
   createNotification,
   defaultStyling,
@@ -56,11 +60,20 @@ export default function CampaignForm({
   },
   onSubmit,
 }: CampaignFormProps) {
-  const [formData, setFormData] = useState(initialData);
+  const [formData, setFormData] =
+    useState<
+      Partial<
+        (InsertCampaign & { styling: NotificationStylingRequired }) | undefined
+      >
+    >();
   const [metrics, setMetrics] = useState<SelectMetric[] | undefined>();
   const [availableMetricNames, setAvailableMetricNames] = useState(
     new Set<string>()
   );
+
+  useEffect(() => {
+    if (initialData && !formData) setFormData(initialData);
+  }, [initialData, formData]);
 
   const handlePathnameAdd = () => {
     setFormData((prev: any) => ({
@@ -70,7 +83,7 @@ export default function CampaignForm({
   };
 
   const handlePathnameChange = (index: number, value: string) => {
-    const updatedPathnames = [...(formData.pathnames ?? [])];
+    const updatedPathnames = [...(formData?.pathnames ?? [])];
     updatedPathnames[index] = value;
     setFormData((prev: any) => ({
       ...prev,
@@ -79,7 +92,7 @@ export default function CampaignForm({
   };
 
   const handlePathnameRemove = (index: number) => {
-    const updatedPathnames = formData.pathnames?.filter(
+    const updatedPathnames = formData?.pathnames?.filter(
       (_: any, i: number) => i !== index
     );
     setFormData((prev: any) => ({
@@ -92,10 +105,8 @@ export default function CampaignForm({
     if (value.startsWith("^") && value.endsWith("$")) {
       try {
         new RegExp(value);
-        console.log("Valid regex:", value);
         return true;
       } catch (e) {
-        console.log("Invalid regex:", value);
         return false;
       }
     }
@@ -110,7 +121,7 @@ export default function CampaignForm({
   };
 
   const handleHostnameChange = (index: number, value: string) => {
-    const updatedHostnames = [...(formData.hostnames ?? [])];
+    const updatedHostnames = [...(formData?.hostnames ?? [])];
     updatedHostnames[index] = value;
     setFormData((prev: any) => ({
       ...prev,
@@ -119,7 +130,7 @@ export default function CampaignForm({
   };
 
   const handleHostnameRemove = (index: number) => {
-    const updatedHostnames = formData.hostnames?.filter(
+    const updatedHostnames = formData?.hostnames?.filter(
       (_: any, i: number) => i !== index
     );
     setFormData((prev: any) => ({
@@ -144,6 +155,8 @@ export default function CampaignForm({
     fetchMetrics();
   }, []);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleStylingChange = (field: string, value: string) => {
     setFormData((prev: any) => ({
       ...prev,
@@ -167,7 +180,7 @@ export default function CampaignForm({
               <Input
                 id="name"
                 placeholder="My Campaign"
-                value={formData.name}
+                value={formData?.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
@@ -177,7 +190,7 @@ export default function CampaignForm({
               <Label htmlFor="message">Title</Label>
               <Input
                 id="message"
-                value={formData.message ?? ""}
+                value={formData?.message ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, message: e.target.value })
                 }
@@ -187,7 +200,7 @@ export default function CampaignForm({
               <Label htmlFor="sub_message">Subtitle</Label>
               <Input
                 id="sub_message"
-                value={formData.sub_message ?? ""}
+                value={formData?.sub_message ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, sub_message: e.target.value })
                 }
@@ -202,7 +215,7 @@ export default function CampaignForm({
                     <Label htmlFor="fontFamily">Font Family</Label>
                     <Input
                       id="fontFamily"
-                      value={formData.styling.fontFamily}
+                      value={formData?.styling?.fontFamily}
                       onChange={(e) =>
                         handleStylingChange("fontFamily", e.target.value)
                       }
@@ -213,7 +226,7 @@ export default function CampaignForm({
                     <Input
                       id="titleColor"
                       type="color"
-                      value={formData.styling.titleColor}
+                      value={formData?.styling?.titleColor}
                       onChange={(e) =>
                         handleStylingChange("titleColor", e.target.value)
                       }
@@ -224,7 +237,7 @@ export default function CampaignForm({
                     <Input
                       id="subtitleColor"
                       type="color"
-                      value={formData.styling.subtitleColor}
+                      value={formData?.styling?.subtitleColor}
                       onChange={(e) =>
                         handleStylingChange("subtitleColor", e.target.value)
                       }
@@ -235,7 +248,7 @@ export default function CampaignForm({
                     <Input
                       id="backgroundColor"
                       type="color"
-                      value={formData.styling.backgroundColor}
+                      value={formData?.styling?.backgroundColor}
                       onChange={(e) =>
                         handleStylingChange("backgroundColor", e.target.value)
                       }
@@ -248,7 +261,7 @@ export default function CampaignForm({
                     <Input
                       id="iconBackgroundColor"
                       type="color"
-                      value={formData.styling.iconBackgroundColor}
+                      value={formData?.styling?.iconBackgroundColor}
                       onChange={(e) =>
                         handleStylingChange(
                           "iconBackgroundColor",
@@ -262,7 +275,7 @@ export default function CampaignForm({
                     <Input
                       id="iconColor"
                       type="color"
-                      value={formData.styling.iconColor}
+                      value={formData?.styling?.iconColor}
                       onChange={(e) =>
                         handleStylingChange("iconColor", e.target.value)
                       }
@@ -272,7 +285,7 @@ export default function CampaignForm({
                     <Label htmlFor="border">Border</Label>
                     <Input
                       id="border"
-                      value={formData.styling.border}
+                      value={formData?.styling?.border}
                       onChange={(e) =>
                         handleStylingChange("border", e.target.value)
                       }
@@ -282,7 +295,7 @@ export default function CampaignForm({
                     <Label htmlFor="borderRadius">Border Radius</Label>
                     <Input
                       id="borderRadius"
-                      value={formData.styling.borderRadius}
+                      value={formData?.styling?.borderRadius}
                       onChange={(e) =>
                         handleStylingChange("borderRadius", e.target.value)
                       }
@@ -292,7 +305,7 @@ export default function CampaignForm({
                     <Label htmlFor="boxShadow">Box Shadow</Label>
                     <Input
                       id="boxShadow"
-                      value={formData.styling.boxShadow}
+                      value={formData?.styling?.boxShadow}
                       onChange={(e) =>
                         handleStylingChange("boxShadow", e.target.value)
                       }
@@ -313,7 +326,7 @@ export default function CampaignForm({
 
               {/* Existing Hostnames as Badges */}
               <div className="flex flex-wrap gap-2">
-                {formData.hostnames?.map((hostname: string, index: number) => (
+                {formData?.hostnames?.map((hostname: string, index: number) => (
                   <Badge
                     key={index}
                     variant="outline"
@@ -341,7 +354,7 @@ export default function CampaignForm({
                       if (value) {
                         setFormData((prev) => ({
                           ...prev,
-                          hostnames: [...(prev.hostnames ?? []), value],
+                          hostnames: [...(prev?.hostnames ?? []), value],
                         }));
                         (e.target as HTMLInputElement).value = ""; // Clear input field
                       } else {
@@ -366,7 +379,7 @@ export default function CampaignForm({
                       if (value) {
                         setFormData((prev) => ({
                           ...prev,
-                          hostnames: [...(prev.hostnames ?? []), value],
+                          hostnames: [...(prev?.hostnames ?? []), value],
                         }));
                         input.value = ""; // Clear input field
                       } else {
@@ -394,7 +407,7 @@ export default function CampaignForm({
 
               {/* Existing Pathnames as Badges */}
               <div className="flex flex-wrap gap-2">
-                {formData.pathnames?.map((pathname: string, index: number) => {
+                {formData?.pathnames?.map((pathname: string, index: number) => {
                   const isValid = isValidRegex(pathname);
                   return (
                     <Badge
@@ -441,7 +454,7 @@ export default function CampaignForm({
                       if (value) {
                         setFormData((prev) => ({
                           ...prev,
-                          pathnames: [...(prev.pathnames ?? []), value],
+                          pathnames: [...(prev?.pathnames ?? []), value],
                         }));
                         (e.target as HTMLInputElement).value = ""; // Clear input field
                       }
@@ -473,7 +486,7 @@ export default function CampaignForm({
                       if (value) {
                         setFormData((prev) => ({
                           ...prev,
-                          pathnames: [...(prev.pathnames ?? []), value],
+                          pathnames: [...(prev?.pathnames ?? []), value],
                         }));
                         input.value = ""; // Clear input field
                       }
@@ -512,8 +525,47 @@ export default function CampaignForm({
                 )}
               </div>
             </div>
-            <Button className="w-full" onClick={() => onSubmit(formData)}>
-              Save Campaign
+            <Button
+              className="w-full"
+              onClick={async () => {
+                setIsLoading(true); // Start loading
+                try {
+                  await onSubmit(formData); // Perform the form submission
+                } catch (error) {
+                  console.error("Error saving campaign:", error);
+                } finally {
+                  setIsLoading(false); // End loading
+                }
+              }}
+              disabled={isLoading} // Disable button during loading
+            >
+              {isLoading ? (
+                <span className="flex items-center space-x-2">
+                  <svg
+                    className="animate-spin h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    ></path>
+                  </svg>
+                  <span>Saving...</span>
+                </span>
+              ) : (
+                "Save Campaign"
+              )}
             </Button>
           </CardContent>
         </Card>
@@ -532,9 +584,12 @@ export default function CampaignForm({
                     icon: "https://static.thenounproject.com/png/1878140-200.png",
                     verifications: [],
                     subscriptionPlan: "free", //todo adapt to user plan
-                    message: formData.message ?? "",
-                    subMessage: formData.sub_message ?? "",
-                    styling: formData.styling as NotificationStylingRequired,
+                    message: formData?.message ?? "",
+                    subMessage: formData?.sub_message ?? "",
+                    styling: {
+                      ...defaultStyling,
+                      ...(formData?.styling as NotificationStylingRequired),
+                    },
                   },
                   true,
                   availableMetricNames

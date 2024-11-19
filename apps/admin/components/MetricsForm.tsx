@@ -58,11 +58,11 @@ export default function MetricsForm({
   const [abi, setAbi] = useState("");
 
   useEffect(() => {
-    if (initialData) {
+    if (initialData && !formData) {
       setFormData(initialData.metric);
       setVariables(initialData.variables);
     }
-  }, [initialData]);
+  }, [initialData, formData]);
 
   const [currentEvent, setCurrentEvent] = useState<InsertLog>({
     chain_id: 0,
@@ -215,6 +215,8 @@ export default function MetricsForm({
     });
   };
 
+  const [isLoading, setIsLoading] = useState(false);
+
   return (
     <div className="grid gap-6 md:grid-cols-2 p-6">
       <Card>
@@ -246,8 +248,47 @@ export default function MetricsForm({
             />
           </div>
 
-          <Button className="w-full" onClick={handleSubmit}>
-            {initialData ? "Update Metric" : "Create Metric"}
+          <Button
+            className="w-full"
+            onClick={async () => {
+              setIsLoading(true); // Set loading state
+              try {
+                await handleSubmit(); // Perform the submit action
+              } catch (error) {
+                console.error("Error:", error);
+              } finally {
+                setIsLoading(false); // Reset loading state
+              }
+            }}
+            disabled={isLoading} // Disable button during loading
+          >
+            {isLoading ? (
+              <span className="flex items-center space-x-2">
+                <svg
+                  className="animate-spin h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8H4z"
+                  ></path>
+                </svg>
+                <span>Loading...</span>
+              </span>
+            ) : (
+              <>{initialData ? "Update Metric" : "Create Metric"}</>
+            )}
           </Button>
         </CardContent>
       </Card>
@@ -307,7 +348,6 @@ export default function MetricsForm({
                 contractAddress={currentEvent.contract_address}
                 open={isContractOwnershipDialogOpen}
                 setOpen={setIsContractOwnershipDialogOpen}
-                onVerify={() => console.log("Verified!")}
               />
             </div>
           </div>

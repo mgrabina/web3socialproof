@@ -211,6 +211,7 @@ export async function DELETE(
     await db.delete(metricsTable).where(eq(metricsTable.id, Number(id)));
     return NextResponse.json({}, { status: 204 });
   } catch (error) {
+    console.error("Failed to delete metric:", error);
     return NextResponse.json(
       { error: "Failed to delete the metric." },
       { status: 500 }

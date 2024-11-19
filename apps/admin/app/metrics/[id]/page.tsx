@@ -28,11 +28,9 @@ export default function EditMetric() {
         } = await response.json();
 
         if (!response.ok) {
-          console.log("response", response);
+          console.error("response", response);
           router.push("/404");
         }
-
-        console.log("data", data);
 
         setInitialData(data);
       } catch (error) {

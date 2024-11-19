@@ -22,6 +22,7 @@ export async function GET() {
 
     return NextResponse.json(campaigns, { status: 200 });
   } catch (error) {
+    console.error("Failed to fetch campaigns:", error);
     return NextResponse.json(
       { error: "Failed to fetch campaigns." },
       { status: 500 }
@@ -75,8 +76,9 @@ export async function POST(req: NextRequest) {
     await db.insert(campaignsTable).values(newCampaign);
     return NextResponse.json(newCampaign, { status: 201 });
   } catch (error) {
+    console.error("Failed to create the campaign:", error);
     return NextResponse.json(
-      { error: "Failed to create the campaign." },
+      { error: "Failed to create the campaign. " },
       { status: 500 }
     );
   }

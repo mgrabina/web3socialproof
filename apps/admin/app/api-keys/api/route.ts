@@ -20,6 +20,7 @@ export async function GET() {
     const keys = await db.select().from(apiKeyTable);
     return NextResponse.json(keys, { status: 200 });
   } catch (error) {
+    console.error("Failed to fetch API keys:", error);
     return NextResponse.json(
       { error: "Failed to fetch API keys" },
       { status: 500 }
@@ -51,6 +52,7 @@ export async function POST(req: NextRequest) {
     await db.insert(apiKeyTable).values(newKey);
     return NextResponse.json(newKey, { status: 201 });
   } catch (error) {
+    console.error("Failed to create API key:", error);
     return NextResponse.json(
       { error: "Failed to create API key" },
       { status: 500 }
