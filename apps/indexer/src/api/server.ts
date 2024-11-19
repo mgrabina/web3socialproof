@@ -99,5 +99,5 @@ app.post("/indexer/reindex", async (req: any, res: any) => {
 });
 
 app.listen(3002, () => {
-  logger.info("API server running on http://localhost:3002");
+  logger.info("API server running on port: 3002");
 });
