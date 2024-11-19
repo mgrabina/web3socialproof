@@ -4,10 +4,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createStripeCustomer } from "@/utils/stripe/api";
 import { db, eq, protocolTable, usersTable } from "@web3socialproof/db";
+import { PUBLIC_URL } from "@/lib/constants";
 
-const PUBLIC_URL = process.env.NEXT_PUBLIC_WEBSITE_URL
-  ? process.env.NEXT_PUBLIC_WEBSITE_URL
-  : "http://localhost:3000";
 export async function resetPassword(
   currentState: { message: string },
   formData: FormData
