@@ -1,0 +1,34 @@
+name: Database Migration on Release
+
+on:
+  push:
+    branches:
+      - release # Trigger only when pushing to the 'release' branch
+
+jobs:
+  migrate-db:
+    name: Run Database Migrations
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20 # Replace with your Node.js version
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # Step 4: Provide the .env file
+      - name: Set up environment
+        run: echo "DATABASE_URL=${{ secrets.PROD_DATABASE_URL }}" > .env
+
+      # Step 5: Run migrations
+      - name: Run database migrations
+        run: yarn migrate-db
