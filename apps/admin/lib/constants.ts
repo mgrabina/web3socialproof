@@ -24,6 +24,7 @@ export const getPixelServerByEnvironment = (env: Environment): string => {
   }
 };
 
-export const PUBLIC_URL = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL
-  ? process.env.NEXT_PUBLIC_VERCEL_URL
-  : "http://localhost:3000";
+export const PUBLIC_URL =
+  process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ??
+  process.env.NEXT_PUBLIC_VERCEL_URL ??
+  "http://localhost:3000";
