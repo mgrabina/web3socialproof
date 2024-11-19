@@ -62,6 +62,7 @@ export const notificationOptionsSchema = z.object({
   verificationLink: z.string(),
   subscriptionPlan: z.string(),
   styling: notificationStylingSchemaOptional,
+  pathnames: z.array(z.string()).optional(),
 });
 export type NotificationOptions = z.infer<typeof notificationOptionsSchema>;
 
@@ -84,6 +85,7 @@ export const notificationResponseSchema = z.object({
   verifications: z.array(verificationInfoSchema),
   styling: notificationStylingSchemaRequired,
   subscriptionPlan: z.string(),
+  pathnames: z.array(z.string()).optional(),
 });
 export type NotificationResponse = z.infer<typeof notificationResponseSchema>;
 
@@ -362,9 +364,10 @@ export const createNotification = (
 
   // Wrap in div
   const wrapper = document.createElement("div");
+  wrapper.id = notificationId;
   wrapper.appendChild(notification);
 
   return wrapper;
-
-  return notification;
 };
+
+export const notificationId = "herd-notification";

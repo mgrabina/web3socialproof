@@ -1,10 +1,5 @@
-import { getNotification } from "../../services/campaigns";
-import { router, publicProcedure, pixelProcedure, userProcedure } from "..";
-import { db, usersTable } from "@web3socialproof/db";
+import { router, publicProcedure, userProcedure } from "..";
 import { z } from "zod";
-import { decorateNotification } from "../../services/decorator";
-import { notificationResponseSchema } from "../../../../../packages/shared/src/constants/notification";
-import { trackImpression } from "../../services/impressions";
 import {
   getContractAbi,
   getVerificationCodeForContract,

@@ -39,6 +39,7 @@ interface CampaignFormProps {
     sub_message: string;
     styling: any;
     hostnames?: string[] | null;
+    pathnames?: string[] | null;
   };
   onSubmit: (data: any) => Promise<void>;
 }
@@ -51,6 +52,7 @@ export default function CampaignForm({
     sub_message: "4504 in the last month",
     styling: { ...defaultStyling },
     hostnames: [] as string[],
+    pathnames: [] as string[],
   },
   onSubmit,
 }: CampaignFormProps) {
@@ -59,6 +61,46 @@ export default function CampaignForm({
   const [availableMetricNames, setAvailableMetricNames] = useState(
     new Set<string>()
   );
+
+  const handlePathnameAdd = () => {
+    setFormData((prev: any) => ({
+      ...prev,
+      pathnames: [...(prev.pathnames ?? []), ""],
+    }));
+  };
+
+  const handlePathnameChange = (index: number, value: string) => {
+    const updatedPathnames = [...(formData.pathnames ?? [])];
+    updatedPathnames[index] = value;
+    setFormData((prev: any) => ({
+      ...prev,
+      pathnames: updatedPathnames,
+    }));
+  };
+
+  const handlePathnameRemove = (index: number) => {
+    const updatedPathnames = formData.pathnames?.filter(
+      (_: any, i: number) => i !== index
+    );
+    setFormData((prev: any) => ({
+      ...prev,
+      pathnames: updatedPathnames,
+    }));
+  };
+
+  const isValidRegex = (value: string): boolean => {
+    if (value.startsWith("^") && value.endsWith("$")) {
+      try {
+        new RegExp(value);
+        console.log("Valid regex:", value);
+        return true;
+      } catch (e) {
+        console.log("Invalid regex:", value);
+        return false;
+      }
+    }
+    return true; // Non-regex inputs are always valid
+  };
 
   const handleHostnameAdd = () => {
     setFormData((prev: any) => ({
@@ -333,6 +375,107 @@ export default function CampaignForm({
                           description: "Please enter a valid hostname.",
                           variant: "destructive",
                         });
+                      }
+                    }
+                  }}
+                >
+                  Add
+                </Button>
+              </div>
+            </div>
+
+            {/* Pathnames */}
+            <div className="space-y-2">
+              <Label>Allowed Pathnames</Label>
+              <p className="text-sm text-gray-500">
+                Specify pathnames where this campaign is allowed to run. You can
+                use regex for advanced matching (e.g., <code>^/metrics$</code>).
+              </p>
+
+              {/* Existing Pathnames as Badges */}
+              <div className="flex flex-wrap gap-2">
+                {formData.pathnames?.map((pathname: string, index: number) => {
+                  const isValid = isValidRegex(pathname);
+                  return (
+                    <Badge
+                      key={index}
+                      variant="outline"
+                      className="flex items-center space-x-2 px-2 py-1"
+                      title={!isValid ? "Invalid regex pattern" : ""}
+                    >
+                      <span className={`${!isValid ? "text-red-500" : ""}`}>
+                        {pathname}
+                      </span>
+                      <button
+                        onClick={() => handlePathnameRemove(index)}
+                        className="text-red-500 hover:text-red-700 focus:outline-none"
+                      >
+                        ✕
+                      </button>
+                    </Badge>
+                  );
+                })}
+              </div>
+
+              {/* Input for Adding New Pathnames */}
+              <div className="flex items-center space-x-2 mt-2">
+                <Input
+                  placeholder="Add a pathname or regex (e.g., ^/metrics$)"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault(); // Prevent form submission
+                      const value = (e.target as HTMLInputElement).value.trim();
+                      // const isRegex =
+                      //   value.startsWith("^") && value.endsWith("$");
+                      // const isValid = isRegex ? isValidRegex(value) : true;
+
+                      // if (!isValid) {
+                      //   toast({
+                      //     title: "Invalid Regex",
+                      //     description: "Please enter a valid regex pattern.",
+                      //     variant: "destructive",
+                      //   });
+                      //   return;
+                      // }
+
+                      if (value) {
+                        setFormData((prev) => ({
+                          ...prev,
+                          pathnames: [...(prev.pathnames ?? []), value],
+                        }));
+                        (e.target as HTMLInputElement).value = ""; // Clear input field
+                      }
+                    }
+                  }}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const input = document.querySelector<HTMLInputElement>(
+                      'input[placeholder="Add a pathname or regex (e.g., ^/metrics$)"]'
+                    );
+                    if (input) {
+                      const value = input.value.trim();
+                      // const isRegex =
+                      //   value.startsWith("^") && value.endsWith("$");
+                      // const isValid = isRegex ? isValidRegex(value) : true;
+
+                      // if (!isValid) {
+                      //   toast({
+                      //     title: "Invalid Regex",
+                      //     description: "Please enter a valid regex pattern.",
+                      //     variant: "destructive",
+                      //   });
+                      //   return;
+                      // }
+
+                      if (value) {
+                        setFormData((prev) => ({
+                          ...prev,
+                          pathnames: [...(prev.pathnames ?? []), value],
+                        }));
+                        input.value = ""; // Clear input field
                       }
                     }
                   }}

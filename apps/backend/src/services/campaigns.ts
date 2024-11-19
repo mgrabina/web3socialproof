@@ -65,5 +65,6 @@ export const getNotification = async ({
     subMessage: campaignToPrint.sub_message ?? "",
     campaign: campaignToPrint.id,
     subscriptionPlan: protocol.plan,
+    pathnames: campaignToPrint.pathnames ?? undefined,
   };
 };

@@ -1,13 +1,12 @@
 import { inferRouterOutputs } from "@trpc/server";
 import { AppRouter } from "../../../apps/backend/src/trpc/router";
-import { createNotification } from "@web3socialproof/shared";
+import { createNotification, notificationId } from "@web3socialproof/shared";
 
 type NotificationOutput =
   inferRouterOutputs<AppRouter>["campaigns"]["getNotification"];
 
 // Function to show a notification on the page
 export function showNotification(params: NotificationOutput): void {
-
   try {
     const notification = createNotification(params);
 
@@ -17,5 +16,12 @@ export function showNotification(params: NotificationOutput): void {
     }, 3000);
   } catch (error) {
     console.error("Error showing notification:", error);
+  }
+}
+
+export function hideNotification() {
+  const notificationElement = document.getElementById(notificationId);
+  if (notificationElement) {
+    notificationElement.remove();
   }
 }

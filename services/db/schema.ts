@@ -43,6 +43,7 @@ export const campaignsTable = pgTable("campaigns_table", {
   type: text("type").notNull(),
   addresses: text("addresses"),
   hostnames: text("hostnames").array(),
+  pathnames: text("pathnames").array(),
   styling: json("styling"),
 });
 

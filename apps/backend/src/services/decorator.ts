@@ -74,5 +74,6 @@ export const decorateNotification = async (
       ...subMessageReplaced.verifications,
     ],
     subscriptionPlan: options.subscriptionPlan,
+    pathnames: options.pathnames,
   };
 };
