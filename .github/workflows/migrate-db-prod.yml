@@ -31,4 +31,6 @@ jobs:
 
       # Step 5: Run migrations
       - name: Run database migrations
+        env:
+          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }} # Ensure DATABASE_URL is in the environment
         run: yarn migrate-db
