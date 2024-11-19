@@ -19,9 +19,10 @@ import { PixelEnv } from "./constants";
 
 export const backendUrl = (env: PixelEnv) => {
   switch (env) {
-    case "preview":
     case "production":
-      return "https://web3socialproof-production.up.railway.app";
+      return "https://backend.gobyherd.com";
+    case "preview":
+      return "https://staging.backend.gobyherd.com";
     case "development":
       return "http://localhost:4000";
     default:

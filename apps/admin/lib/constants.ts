@@ -14,11 +14,16 @@ if (!environments.includes(env)) {
 export const getPixelServerByEnvironment = (env: Environment): string => {
   switch (env) {
     case "production":
+      return "https://pixel.gobyherd.com";
     case "preview":
-      return "https://pixel-server-production.up.railway.app";
+      return "https://staging.pixel.gobyherd.com";
     case "development":
       return "http://localhost:3001";
     default:
       throw new Error("Invalid env");
   }
 };
+
+export const PUBLIC_URL = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL
+  ? process.env.NEXT_PUBLIC_VERCEL_URL
+  : "http://localhost:3000";
