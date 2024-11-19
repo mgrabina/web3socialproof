@@ -38,7 +38,7 @@ export default function EditMetric() {
       }
     };
     fetchCampaign();
-  }, [id]);
+  }, [id, router]);
 
   const handleEdit = async (formData: any) => {
     try {
