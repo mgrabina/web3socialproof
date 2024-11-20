@@ -1,11 +1,50 @@
+"use client";
+
 import { Bell, Menu, Search } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import DashboardHeaderProfileDropdown from "./DashboardHeaderProfileDropdown";
+import { createSupabaseClientForClientSide } from "@/utils/supabase/client";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { User } from "@supabase/supabase-js";
 
-export default async function DashboardHeader() {
+export default function DashboardHeader({
+  user,
+  billingPortalLink,
+  openRoutes,
+}: {
+  user: User | null;
+  billingPortalLink?: string;
+  openRoutes: string[];
+}) {
+  const [isLogged, setIsLogged] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    // Check if the current route is an open route
+    const isOpenRoute = openRoutes.some((route) => pathname?.startsWith(route));
+
+    // Skip login checks for open routes
+    if (isOpenRoute) {
+      setIsLogged(false);
+      return;
+    }
+
+    // Function to check login status
+    const checkLoggedInStatus = async () => {
+      setIsLogged(!!user?.email);
+    };
+
+    checkLoggedInStatus();
+  }, [pathname]); // Re-run whenever the route changes
+
+  if (!isLogged) {
+    return null;
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
@@ -54,7 +93,10 @@ export default async function DashboardHeader() {
                             </div>
                         </form>
                     </div> */}
-          <DashboardHeaderProfileDropdown />
+          <DashboardHeaderProfileDropdown
+            user={user}
+            billingPortalLink={billingPortalLink}
+          />
         </div>
       </div>
     </header>

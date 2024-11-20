@@ -1,16 +1,13 @@
 import DashboardHeader from "@/components/DashboardHeader";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
-import { redirect, usePathname, useRouter } from "next/navigation";
-import { db, eq, protocolTable, usersTable } from "@web3socialproof/db";
 
-import "./globals.css";
 import { env, getPixelServerByEnvironment } from "@/lib/constants";
-import { headers } from "next/headers";
-import { cp } from "fs";
-import StatusBar from "@/components/StatusBar";
+import "./globals.css";
+// import { headers } from "next/headers";
 import StatusBarWrapper from "@/components/StatusBarWrapper";
+import { generateStripeBillingPortalLink } from "@/utils/stripe/api";
+import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,57 +18,30 @@ export const metadata: Metadata = {
 
 const apiKey = "sk_test_51hGXLs7gUOVBHKGjehbwK2kNo9BoJanNX";
 
-async function isUserLogged() {
-  const headersList = headers();
-  const header_url = headersList.get("x-url") || "";
-
-  if (
-    header_url.includes("login") ||
-    header_url.includes("subscribe") ||
-    header_url.includes("public") // todo open this up
-  ) {
-    return false;
-  }
-
-  const supabase = createSupabaseClientForServerSide();
-  // Fetch authenticated user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user?.email) {
-    return false;
-  }
-
-  // Check user in the database
-  const userInDB = await db
-    .select()
-    .from(usersTable)
-    .where(eq(usersTable.email, user.email));
-
-  if (userInDB.length === 0) {
-    return false;
-  }
-
-  // Check the user's protocol and plan
-  const protocol = await db
-    .select()
-    .from(protocolTable)
-    .where(eq(protocolTable.id, userInDB[0].protocol_id!));
-
-  if (protocol.length === 0 || protocol[0].plan === "none") {
-    return false;
-  }
-
-  return true;
-}
-
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const isLogged = await isUserLogged();
+  // const isLogged = await isUserLogged();
+
+  const supabase = createSupabaseClientForServerSide();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  const billingPortalURL = user
+    ? await generateStripeBillingPortalLink(user?.email!)
+    : undefined;
+
+  const openRoutes = [
+    "/login",
+    "/signup",
+    "/forgot-password",
+    "/reset-password",
+    "/subscribe",
+    "/public",
+  ];
 
   return (
     <html lang="en">
@@ -89,12 +59,13 @@ export default async function RootLayout({
         ></script>
       </head>
       <body className={inter.className}>
-        {isLogged && (
-          <>
-            <DashboardHeader />
-            <StatusBarWrapper />
-          </>
-        )}
+        <DashboardHeader
+          user={user}
+          billingPortalLink={billingPortalURL}
+          openRoutes={openRoutes}
+        />
+        <StatusBarWrapper user={user} openRoutes={openRoutes} />
+
         {children}
       </body>
     </html>

@@ -1,12 +1,12 @@
 "use client";
 
-
-import React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
-import { AlertCircle, CheckCircle2, Info, X, XCircle } from "lucide-react";
+import { cva } from "class-variance-authority";
+import { AlertCircle, Info, X, XCircle } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
-import { useAsync } from "react-async";
+import { User } from "@supabase/supabase-js";
+import { usePathname } from "next/navigation";
 
 const statusBarVariants = cva(
   "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium",
@@ -28,12 +28,17 @@ const statusBarVariants = cva(
 export type StatusBarConfig = {
   status: "info" | "warning" | "error";
   message: React.ReactNode; // Renamed to avoid conflict
-}
+};
 
 const StatusBar = ({
   status,
   message,
-}: StatusBarConfig) => {
+  user,
+  openRoutes,
+}: StatusBarConfig & {
+  user: User | null;
+  openRoutes: string[];
+}) => {
   const [isVisible, setIsVisible] = React.useState(true);
 
   const statusConfig = {
@@ -51,14 +56,40 @@ const StatusBar = ({
     },
   };
 
-  if (!isVisible) return null;
-
   const icon = statusConfig[status!].icon;
+
+  const [isLogged, setIsLogged] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    // Check if the current route is an open route
+    const isOpenRoute = openRoutes.some((route) => pathname?.startsWith(route));
+
+    // Skip login checks for open routes
+    if (isOpenRoute) {
+      setIsLogged(false);
+      return;
+    }
+
+    // Function to check login status
+    const checkLoggedInStatus = async () => {
+      setIsLogged(!!user?.email);
+    };
+
+    checkLoggedInStatus();
+  }, [pathname]); // Re-run whenever the route changes
+
+  
+  if (!isLogged) {
+    return null;
+  }
+  
+  if (!isVisible) return null;
 
   return (
     <div
       className={cn(
-        "relative flex items-center justify-between",
+        "relative flex items-center justify-between mt-4 mr-4 ml-4",
         statusBarVariants({ variant: statusConfig[status!].variant })
       )}
     >

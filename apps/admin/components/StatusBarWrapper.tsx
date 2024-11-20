@@ -1,6 +1,7 @@
-import React from "react";
 import StatusBar, { StatusBarConfig } from "@/components/StatusBar";
 
+import { getUserProtocol } from "@/utils/database/users";
+import { User } from "@supabase/supabase-js";
 import {
   and,
   apiKeyTable,
@@ -10,7 +11,6 @@ import {
   eq,
   impressionsTable,
 } from "@web3socialproof/db";
-import { getUserProtocol } from "@/utils/database/users";
 
 const getStatusBarConfig = async (): Promise<StatusBarConfig> => {
   const protocol = await getUserProtocol();
@@ -127,12 +127,21 @@ const getStatusBarConfig = async (): Promise<StatusBarConfig> => {
   };
 };
 
-export default async function StatusBarWrapper() {
+export default async function StatusBarWrapper({
+  user,
+  openRoutes,
+}: {
+  user: User | null;
+  openRoutes: string[];
+}) {
   const { status, message } = await getStatusBarConfig();
 
   return (
-    <div className="p-4">
-      <StatusBar status={status} message={message} />
-    </div>
+      <StatusBar
+        status={status}
+        message={message}
+        user={user}
+        openRoutes={openRoutes}
+      />
   );
 }

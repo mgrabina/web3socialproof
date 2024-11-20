@@ -54,12 +54,15 @@ export async function signup(
 ) {
   const supabase = createSupabaseClientForServerSide();
 
-  const data = {
+  const dataToInsert = {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
   };
 
-  const { error } = await supabase.auth.signUp(data);
+  const { data, error } = await supabase.auth.signUp(dataToInsert);
+
+  console.log("data", data);
+  console.log("error", error);
 
   if (error) {
     return { message: error.message };
@@ -69,11 +72,17 @@ export async function signup(
     redirect("/error");
   }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = data?.user;
+
+  console.log("user", user);
+
+  if (!user?.id || !user?.email) {
+    console.log("no user id or email");
+    redirect("/error");
+  }
+
   // create Stripe Customer Record
-  const stripeID = await createStripeCustomer(user!.id, user!.email!, "");
+  const stripeID = await createStripeCustomer(user?.id, user?.email, "");
   // Create record in DB
   const protocolInDb = await db
     .insert(protocolTable)
@@ -146,6 +155,9 @@ export async function signInWithGithub() {
       redirectTo: `${PUBLIC_URL}/auth/callback`,
     },
   });
+
+  console.log("data", data);
+  console.log("error", error);
 
   if (data.url) {
     redirect(data.url); // use the redirect API for your server framework

@@ -111,12 +111,14 @@ export default function Dashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium">
-                    {capitalize(mostImpressiveMetric?.name ?? "")}
+                    {capitalize(
+                      mostImpressiveMetric?.name ?? "Your best metric"
+                    )}
                   </p>
                   <Star className="h-4 w-4 text-blue-500" />
                 </div>
                 <p className="text-2xl font-bold">
-                  {mostImpressiveMetric?.value}
+                  {mostImpressiveMetric?.value ?? 0}
                 </p>
                 {/* Information saying that is one is customized */}
                 <div className="flex mt-2 items-center">
@@ -130,27 +132,29 @@ export default function Dashboard() {
           </div>
 
           {/* Graph */}
-          <Card>
-            <CardContent className="pt-4">
-              <h2 className="text-lg font-semibold">Daily Impressions</h2>
-              <ResponsiveContainer width="100%" height={300} className="pt-2">
-                <LineChart data={dailyImpressions}>
-                  {/* <CartesianGrid strokeDasharray="3 3" /> */}
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="count"
-                    stroke="#8884d8"
-                    activeDot={{ r: 8 }}
-                    isAnimationActive={true}
-                    animationDuration={1500}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          {dailyImpressions?.length ? (
+            <Card>
+              <CardContent className="pt-4">
+                <h2 className="text-lg font-semibold">Daily Impressions</h2>
+                <ResponsiveContainer width="100%" height={300} className="pt-2">
+                  <LineChart data={dailyImpressions}>
+                    {/* <CartesianGrid strokeDasharray="3 3" /> */}
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line
+                      type="monotone"
+                      dataKey="count"
+                      stroke="#8884d8"
+                      activeDot={{ r: 8 }}
+                      isAnimationActive={true}
+                      animationDuration={1500}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          ) : null}
         </div>
       </div>
     </div>

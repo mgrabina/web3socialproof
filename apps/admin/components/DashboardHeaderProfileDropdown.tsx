@@ -1,3 +1,7 @@
+"use client";
+
+import { logout } from "@/app/auth/actions";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,30 +10,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { User } from "@supabase/supabase-js";
 import {
-  Bell,
-  ReceiptText,
-  User,
-  Settings,
-  HelpCircle,
-  LogOut,
   Key,
+  LogOut,
+  ReceiptText,
+  User as UserIcon,
   Verified,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import {} from "@supabase/supabase-js";
-import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
-import { logout } from "@/app/auth/actions";
-import { generateStripeBillingPortalLink } from "@/utils/stripe/api";
 
-export default async function DashboardHeaderProfileDropdown() {
-  const supabase = createSupabaseClientForServerSide();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-  const billingPortalURL = await generateStripeBillingPortalLink(user!.email!);
+export default function DashboardHeaderProfileDropdown({
+  billingPortalLink,
+}: {
+  user: User | null;
+  billingPortalLink?: string;
+}) {
   return (
     <nav className="flex items-center">
       {/* <Button variant="ghost" size="icon" className="mr-2">
@@ -39,7 +35,7 @@ export default async function DashboardHeaderProfileDropdown() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon">
-            <User className="h-4 w-4" />
+            <UserIcon className="h-4 w-4" />
             <span className="sr-only">Open user menu</span>
           </Button>
         </DropdownMenuTrigger>
@@ -67,7 +63,7 @@ export default async function DashboardHeaderProfileDropdown() {
           <Link href="#">
             <DropdownMenuItem>
               <ReceiptText className="mr-2 h-4 w-4" />
-              <Link href={billingPortalURL}>Billing</Link>
+              <Link href={billingPortalLink ?? "#"}>Billing</Link>
             </DropdownMenuItem>
           </Link>
           {/* <Link href="#">
