@@ -17,7 +17,7 @@ export default function LoginForm() {
                 <Input
                     id="email"
                     type="email"
-                    placeholder="m@example.com"
+                    placeholder="vitalik@ethereum.org"
                     name="email"
                     required
                 />
@@ -26,6 +26,7 @@ export default function LoginForm() {
                 <Label htmlFor="password">Password</Label>
                 <Input
                     id="password"
+                    placeholder="********"
                     type="password"
                     name="password"
                     required

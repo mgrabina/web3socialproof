@@ -24,9 +24,9 @@ export default function SignupForm() {
           name="email"
           required
         />
-        <label className="text-xs text-muted-foreground">
+        {/* <label className="text-xs text-muted-foreground">
           We will send you a confirmation email
-        </label>
+        </label> */}
       </div>
       <div className="grid gap-2 mt-2">
         <Label htmlFor="password">Password</Label>
