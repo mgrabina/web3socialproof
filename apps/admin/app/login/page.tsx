@@ -7,11 +7,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 
-import ProviderSigninBlock from "@/components/ProviderSigninBlock";
 import LoginForm from "@/components/LoginForm";
+import ProviderSigninBlock from "@/components/ProviderSigninBlock";
+
 export default function Login() {
   return (
     <div className="flex items-center justify-center bg-muted min-h-screen">
@@ -19,7 +20,13 @@ export default function Login() {
         <CardHeader className="space-y-1">
           <div className="flex justify-center py-4">
             <Link href="/">
-              <Image src="/logo/horizontal.png" alt="logo" width={200} height={150} />
+              <Image
+                priority
+                src="/logo/horizontal.png"
+                alt="logo"
+                width={200}
+                height={150}
+              />
             </Link>
           </div>
 

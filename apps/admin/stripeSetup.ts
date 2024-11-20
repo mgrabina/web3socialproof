@@ -46,5 +46,5 @@ stripe.webhookEndpoints.create({
     "customer.subscription.deleted",
     "customer.subscription.updated",
   ],
-  url: `${PUBLIC_URL}/webhook/stripe`,
+  url: `${PUBLIC_URL()}/webhook/stripe`,
 });

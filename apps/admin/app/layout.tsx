@@ -2,7 +2,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
-import { env, getPixelServerByEnvironment } from "@/lib/constants";
+import { env, getPixelServerByEnvironment, PUBLIC_URL } from "@/lib/constants";
 import "./globals.css";
 // import { headers } from "next/headers";
 import StatusBarWrapper from "@/components/StatusBarWrapper";
@@ -42,6 +42,8 @@ export default async function RootLayout({
     "/subscribe",
     "/public",
   ];
+
+  console.info("URL", PUBLIC_URL());
 
   return (
     <html lang="en">

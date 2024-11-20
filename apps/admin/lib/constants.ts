@@ -24,8 +24,19 @@ export const getPixelServerByEnvironment = (env: Environment): string => {
   }
 };
 
-export const PUBLIC_URL = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}`
-  : process.env.NEXT_PUBLIC_VERCEL_URL
-  ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-  : "http://localhost:3000";
+export const PUBLIC_URL = () => {
+  switch (env) {
+    case "production":
+      return process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}`
+        : "https://app.gobyherd.com";
+    case "preview":
+      if (process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF == "main") {
+        return "https://staging.app.gobyherd.com";
+      } else {
+        return process.env.NEXT_PUBLIC_VERCEL_URL;
+      }
+    case "development":
+      return "http://localhost:3000";
+  }
+};
