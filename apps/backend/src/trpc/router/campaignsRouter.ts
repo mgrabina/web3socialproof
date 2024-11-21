@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { pixelProcedure, router } from "..";
 import { notificationResponseSchema } from "../../../../../packages/shared/src/constants/notification";
@@ -12,11 +13,18 @@ export const campaignsRouter = router({
     .query(async ({ ctx, input }) => {
       // Todo: get user data to improve the notification (e.g. wallet, device, language, etc.)
 
-      console.log("ctx.req", ctx.req);
+      const originUrl = ctx.req.get("origin");
+
+      if (!originUrl) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Origin header is required",
+        });
+      }
 
       return await decorateNotification(
         await getNotification({
-          hostname: ctx.req.originalUrl,
+          hostname: originUrl,
           protocol: ctx.protocol,
         })
       );
