@@ -23,7 +23,7 @@ async function initializeWidget() {
 
     // Helper function to check if the current URL is allowed
     const isUrlAllowed = (currentUrl: string, pathnames?: string[]) => {
-      if (!pathnames) {
+      if (!pathnames?.length) {
         return true; // No restrictions
       }
 

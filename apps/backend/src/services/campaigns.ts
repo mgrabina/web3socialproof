@@ -1,12 +1,10 @@
+import { TRPCError } from "@trpc/server";
 import {
   and,
-  apiKeyTable,
   campaignsTable,
   db,
   eq,
-  inArray,
   isNotNull,
-  protocolTable,
   SelectProtocol,
 } from "@web3socialproof/db";
 import {
@@ -14,7 +12,6 @@ import {
   NotificationStylingOptional,
   NotificationType,
 } from "../../../../packages/shared/src/constants/notification";
-import { TRPCError } from "@trpc/server";
 
 export const getNotification = async ({
   hostname,
@@ -43,6 +40,13 @@ export const getNotification = async ({
       )
     );
 
+  if (campaigns.length === 0) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "No campaigns found",
+    });
+  }
+
   // Check hosts
   campaigns = campaigns.filter((campaign) => {
     return campaign.hostnames?.includes(hostname);
@@ -51,7 +55,7 @@ export const getNotification = async ({
   if (campaigns.length === 0) {
     throw new TRPCError({
       code: "NOT_FOUND",
-      message: "No campaigns found",
+      message: "No campaigns found for this hostname",
     });
   }
 
