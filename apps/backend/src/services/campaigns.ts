@@ -55,7 +55,7 @@ export const getNotification = async ({
   if (campaigns.length === 0) {
     throw new TRPCError({
       code: "NOT_FOUND",
-      message: "No campaigns found for this hostname",
+      message: "No campaigns found for this hostname " + hostname,
     });
   }
 
