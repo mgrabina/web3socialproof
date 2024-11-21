@@ -1,9 +1,17 @@
 import { NextResponse } from "next/server";
 // The client you created from the Server-Side Auth instructions
-import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
-import { createStripeCustomer } from "@/utils/stripe/api";
-import { db, eq, protocolTable, usersTable } from "@web3socialproof/db";
 import { env } from "@/lib/constants";
+import { generateRandomKey } from "@/lib/utils";
+import { createStripeCustomer } from "@/utils/stripe/api";
+import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
+import {
+  apiKeyTable,
+  countDistinct,
+  db,
+  eq,
+  protocolTable,
+  usersTable,
+} from "@web3socialproof/db";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -50,6 +58,24 @@ export async function GET(request: Request) {
           email: user!.email!,
           protocol_id: protocolInDb[0].id,
         });
+
+        // If no api-keys are set, add a first one
+        const apiKeys = await db.$count(
+          countDistinct(apiKeyTable.api_key),
+          eq(apiKeyTable.protocol_id, protocolInDb[0].id)
+        );
+
+        if (apiKeys === 0) {
+          const newKey = {
+            api_key: generateRandomKey(),
+            protocol_id: protocolInDb[0].id,
+            name: "Your first API Key",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            enabled: true,
+          };
+          await db.insert(apiKeyTable).values(newKey);
+        }
       }
 
       const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer

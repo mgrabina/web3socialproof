@@ -1,34 +1,38 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { useOnboarding } from "@/hooks/useOnboarding";
+import { OnboardingName } from "@/lib/onboarding";
+import { capitalize } from "@/utils/strings/string.utils";
+import { Eye, Info, NotepadText, Star, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
-  ArrowUpRight,
-  TrendingUp,
-  Wallet,
-  Bell,
-  Rocket,
-  Info,
-  Star,
-  Eye,
-  NotepadText,
-} from "lucide-react";
-import { capitalize } from "@/utils/strings/string.utils";
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import IntegrationGuide from "./IntegrationGuide";
 
 export default function Dashboard() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(
+    Boolean(localStorage.getItem(OnboardingName))
+  );
+
+  const onboarding = useOnboarding();
+
+  useEffect(() => {
+    if (!hasSeenOnboarding && !loading) {
+      setHasSeenOnboarding(true);
+      // localStorage.setItem(OnboardingName, "true");
+      onboarding?.start(OnboardingName);
+    }
+  }, [hasSeenOnboarding, onboarding, loading]);
 
   useEffect(() => {
     async function fetchData() {
@@ -73,7 +77,7 @@ export default function Dashboard() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold animate-pulse">Dashboard</h1>
+              <h1 className="text-3xl font-bold">Dashboard</h1>
               {/* <p className="text-muted-foreground">Monitor your Web3 conversion metrics with Herd</p> */}
             </div>
           </div>
@@ -154,7 +158,9 @@ export default function Dashboard() {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
-          ) : null}
+          ) : (
+            <IntegrationGuide />
+          )}
         </div>
       </div>
     </div>

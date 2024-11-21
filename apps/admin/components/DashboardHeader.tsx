@@ -1,15 +1,14 @@
 "use client";
 
-import { Bell, Menu, Search } from "lucide-react";
+import { Menu } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import DashboardHeaderProfileDropdown from "./DashboardHeaderProfileDropdown";
-import { createSupabaseClientForClientSide } from "@/utils/supabase/client";
-import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
 import { User } from "@supabase/supabase-js";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import DashboardHeaderProfileDropdown from "./DashboardHeaderProfileDropdown";
 
 export default function DashboardHeader({
   user,
@@ -39,7 +38,7 @@ export default function DashboardHeader({
     };
 
     checkLoggedInStatus();
-  }, [pathname]); // Re-run whenever the route changes
+  }, [pathname, user?.email]); // Re-run whenever the route changes
 
   if (!isLogged) {
     return null;
@@ -65,12 +64,14 @@ export default function DashboardHeader({
             <Link
               className="transition-colors hover:text-foreground/80 text-foreground"
               href="/campaigns"
+              id="header-campaigns-link"
             >
               Campaigns
             </Link>
             <Link
               className="transition-colors hover:text-foreground/80 text-foreground"
               href="/metrics"
+              id="header-metrics-link"
             >
               Metrics
             </Link>

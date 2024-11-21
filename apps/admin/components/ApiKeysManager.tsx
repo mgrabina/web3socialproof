@@ -1,16 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Trash2, Copy, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -19,21 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
-import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { Copy, RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { apiKeyTable, db } from "@web3socialproof/db";
-import { eq, SelectApiKey } from "@web3socialproof/db";
+import { SelectApiKey } from "@web3socialproof/db";
+import IntegrationGuide from "./IntegrationGuide";
 import { LoadingTable } from "./LoadingTable";
 
 export default function SaasApiKeyManager() {
@@ -113,7 +96,7 @@ export default function SaasApiKeyManager() {
       <Card className="w-full max-w-4xl mx-auto">
         <CardContent className="mt-4">
           {isLoading ? (
-            <LoadingTable  />
+            <LoadingTable />
           ) : (
             <Table>
               <TableHeader>
@@ -183,44 +166,7 @@ export default function SaasApiKeyManager() {
       </Card>
 
       {/* Integration Guide Card */}
-      <Card className="w-full max-w-4xl mx-auto border border-gray-200 shadow-md">
-        <CardHeader className="border-b border-gray-200 p-4 bg-gray-50">
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-xl font-semibold text-gray-800">
-              Integration Guide
-            </CardTitle>
-            <Button
-              variant="outline"
-              onClick={() => handleCopyKey(integrationSnippet)}
-              className="hover:bg-gray-100"
-            >
-              <Copy className="h-4 w-4 mr-2" />
-              Copy Code
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="p-6">
-          <p className="text-sm text-gray-600 mb-4">
-            To integrate your API key, add the following snippet to the{" "}
-            <code className="font-mono text-blue-600">&lt;head&gt;</code> of
-            your HTML file.
-            <br /> Replace{" "}
-            <code className="font-mono text-blue-600">apiKey</code> with any of
-            your API keys.
-          </p>
-          <div className="rounded-md overflow-hidden shadow-inner">
-            <SyntaxHighlighter
-              language="html"
-              style={docco}
-              showLineNumbers
-              lineNumberStyle={{ color: "#999" }}
-              className="text-sm"
-            >
-              {integrationSnippet}
-            </SyntaxHighlighter>
-          </div>
-        </CardContent>
-      </Card>
+      <IntegrationGuide />
     </div>
   );
 }

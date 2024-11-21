@@ -5,9 +5,13 @@ import { Inter } from "next/font/google";
 import { env, getPixelServerByEnvironment, PUBLIC_URL } from "@/lib/constants";
 import "./globals.css";
 // import { headers } from "next/headers";
+import { OnboardingProvider } from "@/components/OnboardingProvider";
+import { NextStep } from "@/components/OnboardingStep";
 import StatusBarWrapper from "@/components/StatusBarWrapper";
+import { onboardingSteps } from "@/lib/onboarding";
 import { generateStripeBillingPortalLink } from "@/utils/stripe/api";
 import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
+import console from "console";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -61,14 +65,20 @@ export default async function RootLayout({
         ></script>
       </head>
       <body className={inter.className}>
-        <DashboardHeader
-          user={user}
-          billingPortalLink={billingPortalURL}
-          openRoutes={openRoutes}
-        />
-        <StatusBarWrapper user={user} openRoutes={openRoutes} />
+        <OnboardingProvider>
+          <div>
+            <DashboardHeader
+              user={user}
+              billingPortalLink={billingPortalURL}
+              openRoutes={openRoutes}
+            />
+            <StatusBarWrapper user={user} openRoutes={openRoutes} />
 
-        {children}
+            {children}
+          </div>
+
+          <NextStep steps={onboardingSteps} />
+        </OnboardingProvider>
       </body>
     </html>
   );
