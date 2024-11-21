@@ -2,7 +2,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
-import { env, getPixelServerByEnvironment, PUBLIC_URL } from "@/lib/constants";
+import { PUBLIC_URL } from "@/lib/constants";
 import "./globals.css";
 // import { headers } from "next/headers";
 import StatusBarWrapper from "@/components/StatusBarWrapper";
@@ -48,12 +48,13 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script
+        {/* Notification set in Landing */}
+        {/* <script
           src={`${getPixelServerByEnvironment(
             env
           )}?env=${env}&apiKey=${apiKey}`}
           async
-        ></script>
+        ></script> */}
         <script
           async
           src="https://js.stripe.com/v3/pricing-table.js"

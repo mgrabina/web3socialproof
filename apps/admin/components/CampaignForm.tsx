@@ -72,7 +72,7 @@ export default function CampaignForm({
   );
 
   useEffect(() => {
-    if (initialData && !formData) setFormData(initialData);
+    if (initialData && (!formData || !formData.name )) setFormData(initialData);
   }, [initialData, formData]);
 
   const handlePathnameAdd = () => {
@@ -581,7 +581,7 @@ export default function CampaignForm({
                   {
                     campaign: 0,
                     type: "swaps",
-                    icon: "https://static.thenounproject.com/png/1878140-200.png",
+                    icon: "https://www.svgrepo.com/show/13210/flame.svg",
                     verifications: [],
                     subscriptionPlan: "free", //todo adapt to user plan
                     message: formData?.message ?? "",

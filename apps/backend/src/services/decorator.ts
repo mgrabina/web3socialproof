@@ -65,7 +65,7 @@ export const decorateNotification = async (
   return {
     campaign: options.campaign,
     type: options.type,
-    icon: "https://static.thenounproject.com/png/1878140-200.png", // todo based on type
+    icon: "https://www.svgrepo.com/show/13210/flame.svg", // todo based on type
     message: messageReplaced.str,
     subMessage: subMessageReplaced.str,
     styling,

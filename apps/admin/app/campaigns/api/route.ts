@@ -35,8 +35,8 @@ export async function POST(req: NextRequest) {
     name,
     enabled,
     type,
-    mainText,
-    subText,
+    message,
+    sub_message,
     styling,
     hostnames,
     pathnames,
@@ -60,8 +60,8 @@ export async function POST(req: NextRequest) {
 
   const newCampaign: InsertCampaign = {
     name,
-    message: mainText,
-    sub_message: subText,
+    message,
+    sub_message,
     enabled: true,
     protocol_id: protocol.id,
     type,
