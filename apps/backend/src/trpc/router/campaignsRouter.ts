@@ -1,9 +1,8 @@
-import { getNotification } from "../../services/campaigns";
-import { router, publicProcedure, pixelProcedure } from "..";
-import { db, usersTable } from "@web3socialproof/db";
 import { z } from "zod";
-import { decorateNotification } from "../../services/decorator";
+import { pixelProcedure, router } from "..";
 import { notificationResponseSchema } from "../../../../../packages/shared/src/constants/notification";
+import { getNotification } from "../../services/campaigns";
+import { decorateNotification } from "../../services/decorator";
 import { trackImpression } from "../../services/impressions";
 
 export const campaignsRouter = router({
@@ -13,9 +12,11 @@ export const campaignsRouter = router({
     .query(async ({ ctx, input }) => {
       // Todo: get user data to improve the notification (e.g. wallet, device, language, etc.)
 
+      console.log("ctx.req", ctx.req);
+
       return await decorateNotification(
         await getNotification({
-          hostname: ctx.req.hostname,
+          hostname: ctx.req.originalUrl,
           protocol: ctx.protocol,
         })
       );
