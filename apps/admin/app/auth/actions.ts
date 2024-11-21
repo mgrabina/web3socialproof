@@ -40,7 +40,7 @@ export async function forgotPassword(
   const supabase = createSupabaseClientForServerSide();
   const email = formData.get("email") as string;
   const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${PUBLIC_URL}/forgot-password/reset`,
+    redirectTo: `${PUBLIC_URL()}/forgot-password/reset`,
   });
 
   if (error) {
@@ -138,9 +138,11 @@ export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${PUBLIC_URL}/auth/callback`,
+      redirectTo: `${PUBLIC_URL()}/auth/callback`,
     },
   });
+
+  console.log("data", data);
 
   if (data.url) {
     redirect(data.url); // use the redirect API for your server framework
@@ -152,12 +154,11 @@ export async function signInWithGithub() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "github",
     options: {
-      redirectTo: `${PUBLIC_URL}/auth/callback`,
+      redirectTo: `${PUBLIC_URL()}/auth/callback`,
     },
   });
 
   console.log("data", data);
-  console.log("error", error);
 
   if (data.url) {
     redirect(data.url); // use the redirect API for your server framework
