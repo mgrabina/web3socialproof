@@ -142,6 +142,7 @@ export const createNotification = (
   notification.style.display = "flex";
   notification.style.alignItems = "center";
   notification.style.padding = "20px";
+  notification.style.border = params.styling.border || defaultStyling.border;
   notification.style.borderRadius =
     params.styling.borderRadius || defaultStyling.borderRadius;
   notification.style.backgroundColor =
