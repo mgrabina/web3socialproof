@@ -1,0 +1,1 @@
+ALTER TABLE "campaigns_table" DROP COLUMN IF EXISTS "icon";

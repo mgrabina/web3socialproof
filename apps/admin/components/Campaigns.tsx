@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -11,10 +10,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RefreshCw, Trash2, Edit, Pause, Play } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { campaignsTable, SelectCampaign } from "@web3socialproof/db";
+import { SelectCampaign } from "@web3socialproof/db";
+import { Edit, Pause, Play, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { LoadingTable } from "./LoadingTable";
 
 export default function CampaignManager() {
@@ -28,7 +28,8 @@ export default function CampaignManager() {
       try {
         const response = await fetch("/campaigns/api");
         const data = await response.json();
-        setCampaigns(data);
+
+        if (response.ok) setCampaigns(data);
       } catch (error) {
         console.error("Error fetching campaigns:", error);
       } finally {
@@ -69,7 +70,7 @@ export default function CampaignManager() {
         body: JSON.stringify(updatedCampaign),
       });
       setCampaigns((prevCampaigns) =>
-        prevCampaigns.map((c) => (c.id === campaign.id ? updatedCampaign : c))
+        prevCampaigns?.map((c) => (c.id === campaign.id ? updatedCampaign : c))
       );
       toast({
         title: `Campaign ${campaign.enabled ? "Paused" : "Activated"}`,
@@ -111,7 +112,7 @@ export default function CampaignManager() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {campaigns.map((campaign) => (
+                {campaigns?.map((campaign) => (
                   <TableRow key={campaign.id}>
                     <TableCell>{campaign.name}</TableCell>
                     <TableCell>
