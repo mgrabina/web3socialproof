@@ -1,6 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,27 +18,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import {
-  InsertCampaign,
-  SelectCampaign,
-  SelectMetric,
-} from "@web3socialproof/db";
+import { capitalize, capitalizeEachWord } from "@/utils/strings/string.utils";
+import { InsertCampaign, SelectMetric } from "@web3socialproof/db";
 import {
   createNotification,
   defaultStyling,
-  NotificationStylingOptional,
+  DestkopPositions,
+  IconName,
+  iconNames,
+  iconsSvgs,
+  MobilePositions,
   NotificationStylingRequired,
 } from "@web3socialproof/shared/constants/notification";
+import parse from "html-react-parser";
+import { useEffect, useState } from "react";
 import { Skeleton } from "./ui/skeleton";
-import { useSupabaseUser } from "@/hooks/useSupabaseUser";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface CampaignFormProps {
   initialData?: {
@@ -42,6 +43,10 @@ interface CampaignFormProps {
     message: string;
     sub_message: string;
     styling: any;
+    iconSrc?: string | null;
+    iconName?: string | null;
+    delay?: number | null;
+    timer?: number | null;
     hostnames?: string[] | null;
     pathnames?: string[] | null;
   };
@@ -53,6 +58,7 @@ export default function CampaignForm({
     name: "My Campaign",
     type: "swaps",
     message: "537 Swaps",
+    iconName: "flame",
     sub_message: "4504 in the last month",
     styling: { ...defaultStyling },
     hostnames: [] as string[],
@@ -72,7 +78,7 @@ export default function CampaignForm({
   );
 
   useEffect(() => {
-    if (initialData && (!formData || !formData.name )) setFormData(initialData);
+    if (initialData && (!formData || !formData.name)) setFormData(initialData);
   }, [initialData, formData]);
 
   const handlePathnameAdd = () => {
@@ -207,10 +213,106 @@ export default function CampaignForm({
               />
             </div>
 
+            <div className="space-y-2">
+              <Label>Available Metrics</Label>
+              <br />
+              {!metrics?.length ? (
+                <Label className="text-sm text-gray-500">
+                  There are not any metrics set, you can add them{" "}
+                  <a
+                    href="/metrics"
+                    target="_blank"
+                    className="
+                    text-blue-500
+                    hover:text-blue-800
+                    focus:outline-none
+                  "
+                  >
+                    here
+                  </a>
+                  .
+                </Label>
+              ) : (
+                <Label className="text-sm text-gray-500">
+                  You can add them like this `{"{METRIC}"}` in the title or
+                  subtitle.
+                </Label>
+              )}
+              <div className="space-y-2">
+                {!metrics ? (
+                  <Skeleton
+                    className="
+                      w-full
+                      h-8
+                      rounded-md
+                      bg-gray-200
+                      animate-pulse
+                "
+                  />
+                ) : (
+                  metrics.map((metric) => (
+                    <Badge key={metric.id} variant="outline">
+                      {metric.name}
+                    </Badge>
+                  ))
+                )}
+              </div>
+            </div>
+
             <Accordion type="single" collapsible>
               <AccordionItem value="item-1">
-                <AccordionTrigger>Advanced Customization</AccordionTrigger>
+                <AccordionTrigger>Overall Styling</AccordionTrigger>
                 <AccordionContent>
+                  <div className="space-y-2">
+                    <Label>Desktop Position</Label>
+                    <Select
+                      value={formData?.styling?.desktopPosition.toString()}
+                      onValueChange={(value) =>
+                        handleStylingChange("desktopPosition", value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Desktop Position" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DestkopPositions.map((position) => (
+                          <SelectItem
+                            key={position}
+                            value={position.toString()}
+                          >
+                            {capitalizeEachWord(position.replace("-", " "))}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Mobile Position</Label>
+                    <Select
+                      value={formData?.styling?.mobilePosition.toString()}
+                      onValueChange={(value) =>
+                        handleStylingChange("mobilePosition", value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Mobile Position" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {MobilePositions.map((position) => (
+                          <SelectItem
+                            key={position}
+                            value={position.toString()}
+                          >
+                            {capitalizeEachWord(position.replace("-", " "))}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <label className="text-sm text-gray-500">
+                      Select None to disable the notification on mobile
+                    </label>
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="fontFamily">Font Family</Label>
                     <Input
@@ -255,33 +357,6 @@ export default function CampaignForm({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="iconBackgroundColor">
-                      Icon Background Color
-                    </Label>
-                    <Input
-                      id="iconBackgroundColor"
-                      type="color"
-                      value={formData?.styling?.iconBackgroundColor}
-                      onChange={(e) =>
-                        handleStylingChange(
-                          "iconBackgroundColor",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="iconColor">Icon Color</Label>
-                    <Input
-                      id="iconColor"
-                      type="color"
-                      value={formData?.styling?.iconColor}
-                      onChange={(e) =>
-                        handleStylingChange("iconColor", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
                     <Label htmlFor="border">Border</Label>
                     <Input
                       id="border"
@@ -313,218 +388,332 @@ export default function CampaignForm({
                   </div>
                 </AccordionContent>
               </AccordionItem>
+              <AccordionItem value="item-2">
+                <AccordionTrigger>Icon Styling</AccordionTrigger>
+                <AccordionContent>
+                  <Tabs defaultValue="predefined">
+                    <TabsList>
+                      <TabsTrigger value="predefined">Predefined</TabsTrigger>
+                      <TabsTrigger value="custom">Custom</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="predefined">
+                      <Label>Predefined Icons</Label>
+                      <Select
+                        value={formData?.iconName?.toString() || undefined}
+                        onValueChange={(value) => {
+                          setFormData((prev) => ({ ...prev, iconName: value }));
+                          setFormData((prev) => ({
+                            ...prev,
+                            iconSrc: undefined,
+                          }));
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Icon" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {iconNames.map((iconName) => (
+                            <SelectItem key={iconName} value={iconName}>
+                              {capitalize(iconName)}
+                              {parse(iconsSvgs[iconName]().getHTML())}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TabsContent>
+
+                    <TabsContent value="custom">
+                      <Label>Custom Icon</Label>
+                      <Input
+                        placeholder="Custom Icon Field"
+                        value={formData?.iconSrc ?? undefined}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setFormData((prev) => ({
+                            ...prev,
+                            iconSrc: value,
+                          }));
+                          setFormData((prev) => ({
+                            ...prev,
+                            iconName: undefined,
+                          }));
+                        }}
+                      />
+                    </TabsContent>
+                  </Tabs>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="iconBackgroundColor">
+                      Icon Background Color
+                    </Label>
+                    <Input
+                      id="iconBackgroundColor"
+                      type="color"
+                      value={formData?.styling?.iconBackgroundColor}
+                      onChange={(e) =>
+                        handleStylingChange(
+                          "iconBackgroundColor",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="iconColor">Icon Color</Label>
+                    <Input
+                      id="iconColor"
+                      type="color"
+                      value={formData?.styling?.iconColor}
+                      onChange={(e) =>
+                        handleStylingChange("iconColor", e.target.value)
+                      }
+                    />
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-3">
+                <AccordionTrigger>Where to show it</AccordionTrigger>
+                <AccordionContent>
+                  {/* Allowed hostnames. Add as badges */}
+                  <div className="space-y-2">
+                    <Label>Allowed Hostnames</Label>
+                    <p className="text-sm text-gray-500">
+                      Specify hostnames where this campaign is allowed to run.
+                      Hostnames should not include protocols (e.g., use
+                      example.com instead of https://example.com).
+                    </p>
+
+                    {/* Existing Hostnames as Badges */}
+                    <div className="flex flex-wrap gap-2">
+                      {formData?.hostnames?.map(
+                        (hostname: string, index: number) => (
+                          <Badge
+                            key={index}
+                            variant="outline"
+                            className="flex items-center space-x-2 px-2 py-1"
+                          >
+                            <span>{hostname}</span>
+                            <button
+                              onClick={() => handleHostnameRemove(index)}
+                              className="text-red-500 hover:text-red-700 focus:outline-none"
+                            >
+                              ✕
+                            </button>
+                          </Badge>
+                        )
+                      )}
+                    </div>
+
+                    {/* Input for Adding New Hostnames */}
+                    <div className="flex items-center space-x-2 mt-2">
+                      <Input
+                        placeholder="Add a hostname (e.g., example.com)"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault(); // Prevent form submission
+                            const value = (
+                              e.target as HTMLInputElement
+                            ).value.trim();
+                            if (value) {
+                              setFormData((prev) => ({
+                                ...prev,
+                                hostnames: [...(prev?.hostnames ?? []), value],
+                              }));
+                              (e.target as HTMLInputElement).value = ""; // Clear input field
+                            } else {
+                              toast({
+                                title: "Invalid Hostname",
+                                description: "Please enter a valid hostname.",
+                                variant: "destructive",
+                              });
+                            }
+                          }
+                        }}
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const input =
+                            document.querySelector<HTMLInputElement>(
+                              'input[placeholder="Add a hostname (e.g., example.com)"]'
+                            );
+                          if (input) {
+                            const value = input.value.trim();
+                            if (value) {
+                              setFormData((prev) => ({
+                                ...prev,
+                                hostnames: [...(prev?.hostnames ?? []), value],
+                              }));
+                              input.value = ""; // Clear input field
+                            } else {
+                              toast({
+                                title: "Invalid Hostname",
+                                description: "Please enter a valid hostname.",
+                                variant: "destructive",
+                              });
+                            }
+                          }
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Pathnames */}
+                  <div className="space-y-2">
+                    <Label>Allowed Pathnames</Label>
+                    <p className="text-sm text-gray-500">
+                      Specify pathnames where this campaign is allowed to run.
+                      You can use regex for advanced matching (e.g.,{" "}
+                      <code>^/metrics$</code>).
+                    </p>
+
+                    {/* Existing Pathnames as Badges */}
+                    <div className="flex flex-wrap gap-2">
+                      {formData?.pathnames?.map(
+                        (pathname: string, index: number) => {
+                          const isValid = isValidRegex(pathname);
+                          return (
+                            <Badge
+                              key={index}
+                              variant="outline"
+                              className="flex items-center space-x-2 px-2 py-1"
+                              title={!isValid ? "Invalid regex pattern" : ""}
+                            >
+                              <span
+                                className={`${!isValid ? "text-red-500" : ""}`}
+                              >
+                                {pathname}
+                              </span>
+                              <button
+                                onClick={() => handlePathnameRemove(index)}
+                                className="text-red-500 hover:text-red-700 focus:outline-none"
+                              >
+                                ✕
+                              </button>
+                            </Badge>
+                          );
+                        }
+                      )}
+                    </div>
+
+                    {/* Input for Adding New Pathnames */}
+                    <div className="flex items-center space-x-2 mt-2">
+                      <Input
+                        placeholder="Add a pathname or regex (e.g., ^/metrics$)"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault(); // Prevent form submission
+                            const value = (
+                              e.target as HTMLInputElement
+                            ).value.trim();
+                            // const isRegex =
+                            //   value.startsWith("^") && value.endsWith("$");
+                            // const isValid = isRegex ? isValidRegex(value) : true;
+
+                            // if (!isValid) {
+                            //   toast({
+                            //     title: "Invalid Regex",
+                            //     description: "Please enter a valid regex pattern.",
+                            //     variant: "destructive",
+                            //   });
+                            //   return;
+                            // }
+
+                            if (value) {
+                              setFormData((prev) => ({
+                                ...prev,
+                                pathnames: [...(prev?.pathnames ?? []), value],
+                              }));
+                              (e.target as HTMLInputElement).value = ""; // Clear input field
+                            }
+                          }
+                        }}
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const input =
+                            document.querySelector<HTMLInputElement>(
+                              'input[placeholder="Add a pathname or regex (e.g., ^/metrics$)"]'
+                            );
+                          if (input) {
+                            const value = input.value.trim();
+                            // const isRegex =
+                            //   value.startsWith("^") && value.endsWith("$");
+                            // const isValid = isRegex ? isValidRegex(value) : true;
+
+                            // if (!isValid) {
+                            //   toast({
+                            //     title: "Invalid Regex",
+                            //     description: "Please enter a valid regex pattern.",
+                            //     variant: "destructive",
+                            //   });
+                            //   return;
+                            // }
+
+                            if (value) {
+                              setFormData((prev) => ({
+                                ...prev,
+                                pathnames: [...(prev?.pathnames ?? []), value],
+                              }));
+                              input.value = ""; // Clear input field
+                            }
+                          }
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-4">
+                <AccordionTrigger>When to show it</AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-2">
+                    <Label htmlFor="delay">Delay</Label>
+                    <label className="text-sm text-gray-500">
+                      In milliseconds, before showing the notification
+                    </label>
+                    <Input
+                      id="delay"
+                      min={1500}
+                      value={formData?.delay ?? 1500}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          delay: Number(e.target.value),
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="delay">Timer</Label>
+                    <label className="text-sm text-gray-500">
+                      In milliseconds, before hiding the notification. Leave it
+                      empty to keep it visible.
+                    </label>
+                    <Input
+                      id="delay"
+                      min={0}
+                      value={formData?.timer ?? undefined}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          timer: Number(e.target.value),
+                        })
+                      }
+                    />
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
 
-            {/* Allowed hostnames. Add as badges */}
-            <div className="space-y-2">
-              <Label>Allowed Hostnames</Label>
-              <p className="text-sm text-gray-500">
-                Specify hostnames where this campaign is allowed to run.
-                Hostnames should not include protocols (e.g., use example.com
-                instead of https://example.com).
-              </p>
-
-              {/* Existing Hostnames as Badges */}
-              <div className="flex flex-wrap gap-2">
-                {formData?.hostnames?.map((hostname: string, index: number) => (
-                  <Badge
-                    key={index}
-                    variant="outline"
-                    className="flex items-center space-x-2 px-2 py-1"
-                  >
-                    <span>{hostname}</span>
-                    <button
-                      onClick={() => handleHostnameRemove(index)}
-                      className="text-red-500 hover:text-red-700 focus:outline-none"
-                    >
-                      ✕
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-
-              {/* Input for Adding New Hostnames */}
-              <div className="flex items-center space-x-2 mt-2">
-                <Input
-                  placeholder="Add a hostname (e.g., example.com)"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault(); // Prevent form submission
-                      const value = (e.target as HTMLInputElement).value.trim();
-                      if (value) {
-                        setFormData((prev) => ({
-                          ...prev,
-                          hostnames: [...(prev?.hostnames ?? []), value],
-                        }));
-                        (e.target as HTMLInputElement).value = ""; // Clear input field
-                      } else {
-                        toast({
-                          title: "Invalid Hostname",
-                          description: "Please enter a valid hostname.",
-                          variant: "destructive",
-                        });
-                      }
-                    }
-                  }}
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const input = document.querySelector<HTMLInputElement>(
-                      'input[placeholder="Add a hostname (e.g., example.com)"]'
-                    );
-                    if (input) {
-                      const value = input.value.trim();
-                      if (value) {
-                        setFormData((prev) => ({
-                          ...prev,
-                          hostnames: [...(prev?.hostnames ?? []), value],
-                        }));
-                        input.value = ""; // Clear input field
-                      } else {
-                        toast({
-                          title: "Invalid Hostname",
-                          description: "Please enter a valid hostname.",
-                          variant: "destructive",
-                        });
-                      }
-                    }
-                  }}
-                >
-                  Add
-                </Button>
-              </div>
-            </div>
-
-            {/* Pathnames */}
-            <div className="space-y-2">
-              <Label>Allowed Pathnames</Label>
-              <p className="text-sm text-gray-500">
-                Specify pathnames where this campaign is allowed to run. You can
-                use regex for advanced matching (e.g., <code>^/metrics$</code>).
-              </p>
-
-              {/* Existing Pathnames as Badges */}
-              <div className="flex flex-wrap gap-2">
-                {formData?.pathnames?.map((pathname: string, index: number) => {
-                  const isValid = isValidRegex(pathname);
-                  return (
-                    <Badge
-                      key={index}
-                      variant="outline"
-                      className="flex items-center space-x-2 px-2 py-1"
-                      title={!isValid ? "Invalid regex pattern" : ""}
-                    >
-                      <span className={`${!isValid ? "text-red-500" : ""}`}>
-                        {pathname}
-                      </span>
-                      <button
-                        onClick={() => handlePathnameRemove(index)}
-                        className="text-red-500 hover:text-red-700 focus:outline-none"
-                      >
-                        ✕
-                      </button>
-                    </Badge>
-                  );
-                })}
-              </div>
-
-              {/* Input for Adding New Pathnames */}
-              <div className="flex items-center space-x-2 mt-2">
-                <Input
-                  placeholder="Add a pathname or regex (e.g., ^/metrics$)"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault(); // Prevent form submission
-                      const value = (e.target as HTMLInputElement).value.trim();
-                      // const isRegex =
-                      //   value.startsWith("^") && value.endsWith("$");
-                      // const isValid = isRegex ? isValidRegex(value) : true;
-
-                      // if (!isValid) {
-                      //   toast({
-                      //     title: "Invalid Regex",
-                      //     description: "Please enter a valid regex pattern.",
-                      //     variant: "destructive",
-                      //   });
-                      //   return;
-                      // }
-
-                      if (value) {
-                        setFormData((prev) => ({
-                          ...prev,
-                          pathnames: [...(prev?.pathnames ?? []), value],
-                        }));
-                        (e.target as HTMLInputElement).value = ""; // Clear input field
-                      }
-                    }
-                  }}
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const input = document.querySelector<HTMLInputElement>(
-                      'input[placeholder="Add a pathname or regex (e.g., ^/metrics$)"]'
-                    );
-                    if (input) {
-                      const value = input.value.trim();
-                      // const isRegex =
-                      //   value.startsWith("^") && value.endsWith("$");
-                      // const isValid = isRegex ? isValidRegex(value) : true;
-
-                      // if (!isValid) {
-                      //   toast({
-                      //     title: "Invalid Regex",
-                      //     description: "Please enter a valid regex pattern.",
-                      //     variant: "destructive",
-                      //   });
-                      //   return;
-                      // }
-
-                      if (value) {
-                        setFormData((prev) => ({
-                          ...prev,
-                          pathnames: [...(prev?.pathnames ?? []), value],
-                        }));
-                        input.value = ""; // Clear input field
-                      }
-                    }
-                  }}
-                >
-                  Add
-                </Button>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Available Metrics</Label>
-              <br />
-              <Label className="text-sm text-gray-500">
-                You can add them like this `{"{METRIC}"}` in the title or
-                subtitle.
-              </Label>
-              <div className="space-y-2">
-                {!metrics ? (
-                  <Skeleton
-                    className="
-                      w-full
-                      h-8
-                      rounded-md
-                      bg-gray-200
-                      animate-pulse
-                "
-                  />
-                ) : (
-                  metrics.map((metric) => (
-                    <Badge key={metric.id} variant="outline">
-                      {metric.name}
-                    </Badge>
-                  ))
-                )}
-              </div>
-            </div>
             <Button
               className="w-full"
               onClick={async () => {
@@ -581,10 +770,11 @@ export default function CampaignForm({
                   {
                     campaign: 0,
                     type: "swaps",
-                    icon: "https://www.svgrepo.com/show/13210/flame.svg",
                     verifications: [],
                     subscriptionPlan: "free", //todo adapt to user plan
                     message: formData?.message ?? "",
+                    iconName: (formData?.iconName as IconName) ?? undefined,
+                    iconSrc: formData?.iconSrc ?? undefined,
                     subMessage: formData?.sub_message ?? "",
                     styling: {
                       ...defaultStyling,

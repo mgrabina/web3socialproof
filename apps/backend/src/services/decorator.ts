@@ -65,9 +65,12 @@ export const decorateNotification = async (
   return {
     campaign: options.campaign,
     type: options.type,
-    icon: "https://www.svgrepo.com/show/13210/flame.svg", // todo based on type
     message: messageReplaced.str,
     subMessage: subMessageReplaced.str,
+    iconName: options.iconName,
+    iconSrc: options.iconSrc,
+    delay: options.delay,
+    timer: options.timer,
     styling,
     verifications: [
       ...messageReplaced.verifications,

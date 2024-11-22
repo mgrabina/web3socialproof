@@ -29,7 +29,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!hasSeenOnboarding && !loading) {
       setHasSeenOnboarding(true);
-      // localStorage.setItem(OnboardingName, "true");
+      localStorage.setItem(OnboardingName, "true");
       onboarding?.start(OnboardingName);
     }
   }, [hasSeenOnboarding, onboarding, loading]);

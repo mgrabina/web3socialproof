@@ -1,12 +1,13 @@
 // src/widget.ts
 
+import { isMobile } from "@web3socialproof/shared";
 import { isPixelEnv, PixelEnv } from "./constants";
-import { trpcApiClient } from "./trpc";
 import {
-  showNotification,
   hideNotification as deleteNotification,
+  showNotification,
 } from "./notification"; // Add hideNotification
 import { getSessionId, getUserId } from "./session";
+import { trpcApiClient } from "./trpc";
 
 // Main function to initialize the widget
 async function initializeWidget() {
@@ -62,13 +63,19 @@ async function initializeWidget() {
         apiKey
       ).campaigns.getNotification.query({});
 
-      if (isUrlAllowed(window.location.pathname, notification.pathnames)) {
+      const shouldHide =
+        isMobile() && notification.styling.mobilePosition === "none";
+
+      if (
+        isUrlAllowed(window.location.pathname, notification.pathnames) &&
+        !shouldHide
+      ) {
         // Show notification if URL is allowed
         deleteNotification(); // To update if necessary
         showNotification(notification);
 
         // Track the impression after showing the notification
-        await trpcApiClient(env, apiKey!).campaigns.trackImpression.mutate({
+        await trpcApiClient(env, apiKey).campaigns.trackImpression.mutate({
           campaignId: notification.campaign,
           session: getSessionId(),
           user: getUserId(),

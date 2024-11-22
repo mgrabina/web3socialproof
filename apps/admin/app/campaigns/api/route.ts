@@ -1,7 +1,6 @@
 // pages/api/campaigns/index.ts
 import { getUserProtocol } from "@/utils/database/users";
-import { db, campaignsTable, eq } from "@web3socialproof/db";
-import { InsertCampaign } from "@web3socialproof/db";
+import { campaignsTable, db, eq, InsertCampaign } from "@web3socialproof/db";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
@@ -37,6 +36,10 @@ export async function POST(req: NextRequest) {
     type,
     message,
     sub_message,
+    iconSrc,
+    iconName,
+    delay,
+    timer,
     styling,
     hostnames,
     pathnames,
@@ -62,6 +65,10 @@ export async function POST(req: NextRequest) {
     name,
     message,
     sub_message,
+    iconSrc,
+    iconName,
+    delay,
+    timer,
     enabled: true,
     protocol_id: protocol.id,
     type,

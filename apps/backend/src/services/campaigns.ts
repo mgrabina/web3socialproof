@@ -8,6 +8,7 @@ import {
   SelectProtocol,
 } from "@web3socialproof/db";
 import {
+  isIconName,
   NotificationOptions,
   NotificationStylingOptional,
   NotificationType,
@@ -65,7 +66,14 @@ export const getNotification = async ({
     verificationLink: "#",
     type: campaignToPrint.type as NotificationType,
     styling: campaignToPrint.styling as NotificationStylingOptional,
-    message: campaignToPrint.message!,
+    message: campaignToPrint.message,
+    iconName:
+      campaignToPrint.iconName && isIconName(campaignToPrint.iconName)
+        ? campaignToPrint.iconName
+        : undefined,
+    iconSrc: campaignToPrint.iconSrc ?? undefined,
+    delay: campaignToPrint.delay ?? undefined,
+    timer: campaignToPrint.timer ?? undefined,
     subMessage: campaignToPrint.sub_message ?? "",
     campaign: campaignToPrint.id,
     subscriptionPlan: protocol.plan,

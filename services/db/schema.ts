@@ -35,7 +35,11 @@ export const campaignsTable = pgTable("campaigns_table", {
 
   message: text("message").notNull(),
   sub_message: text("sub_message").notNull(),
-  icon: text("icon"),
+  iconSrc: text("icon"),
+  iconName: text("icon"),
+  delay: integer("delay"),
+  timer: integer("timer"),
+
 
   created_at: timestamp({ mode: "string" }).notNull(),
   updated_at: timestamp({ mode: "string" }).notNull(),
