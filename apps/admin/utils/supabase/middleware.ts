@@ -58,7 +58,7 @@ export async function updateSession(request: NextRequest) {
   // If no plan is found, redirect to subscribe
   const protocol = await getUserProtocol();
 
-  if (protocol && !protocol.plan) {
+  if (protocol && (!protocol.plan || protocol.plan === "none")) {
     url.pathname = "/subscribe";
     return NextResponse.redirect(url);
   }

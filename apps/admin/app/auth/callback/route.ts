@@ -79,7 +79,7 @@ export async function GET(request: Request) {
           await db.insert(apiKeyTable).values(newKey);
         }
 
-        if (!protocolInDb[0].plan) {
+        if (!protocolInDb[0].plan || protocolInDb[0].plan === "none") {
           next = "/subscribe";
         }
       }
