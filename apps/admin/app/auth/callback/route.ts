@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   // if "next" is in param, use it as the redirect URL
-  const next = searchParams.get("next") ?? "/";
+  let next = searchParams.get("next") ?? "/";
 
   if (code) {
     const supabase = createSupabaseClientForServerSide();
@@ -60,12 +60,14 @@ export async function GET(request: Request) {
         });
 
         // If no api-keys are set, add a first one
-        const apiKeys = await db.$count(
-          countDistinct(apiKeyTable.api_key),
-          eq(apiKeyTable.protocol_id, protocolInDb[0].id)
-        );
+        const apiKeys = await db
+          .select({
+            count: countDistinct(apiKeyTable.api_key),
+          })
+          .from(apiKeyTable)
+          .where(eq(apiKeyTable.protocol_id, protocolInDb[0].id));
 
-        if (apiKeys === 0) {
+        if (apiKeys[0].count === 0) {
           const newKey = {
             api_key: generateRandomKey(),
             protocol_id: protocolInDb[0].id,
@@ -75,6 +77,10 @@ export async function GET(request: Request) {
             enabled: true,
           };
           await db.insert(apiKeyTable).values(newKey);
+        }
+
+        if (!protocolInDb[0].plan) {
+          next = "/subscribe";
         }
       }
 

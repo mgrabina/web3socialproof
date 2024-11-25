@@ -2,21 +2,9 @@ import {
   defaultStyling,
   NotificationOptions,
   NotificationResponse,
-  NotificationStylingRequired,
-  NotificationType,
   VerificationInfo,
 } from "@web3socialproof/shared/constants/notification";
 import { getMetricValue } from "./metrics";
-
-const icons: Record<NotificationType, URL> = {
-  walletsConnected: new URL(
-    "https://img.icons8.com/ios-glyphs/30/fa314a/fire-element.png"
-  ),
-  swaps: new URL(
-    "https://img.icons8.com/ios-glyphs/30/fa314a/fire-element.png"
-  ),
-  TVL: new URL("https://img.icons8.com/ios-glyphs/30/fa314a/fire-element.png"),
-};
 
 const replaceMetricsInString = async (str: string) => {
   const matches = str.match(/{(.*?)}/g);

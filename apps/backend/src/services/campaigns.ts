@@ -36,8 +36,7 @@ export const getNotification = async ({
       and(
         eq(campaignsTable.protocol_id, protocol.id),
         isNotNull(campaignsTable.message),
-        eq(campaignsTable.enabled, true),
-        isNotNull(campaignsTable.hostnames)
+        eq(campaignsTable.enabled, true)
       )
     );
 
@@ -48,8 +47,13 @@ export const getNotification = async ({
     });
   }
 
-  // Check hosts
+  // Check hosts)
   campaigns = campaigns.filter((campaign) => {
+    if (!campaign.hostnames?.length) {
+      // Allow all hosts
+      return true;
+    }
+
     return campaign.hostnames?.includes(hostname);
   });
 

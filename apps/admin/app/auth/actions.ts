@@ -69,9 +69,6 @@ export async function signup(
 
   const { data, error } = await supabase.auth.signUp(dataToInsert);
 
-  console.log("data", data);
-  console.log("error", error);
-
   if (error) {
     return { message: error.message };
   }
@@ -82,10 +79,7 @@ export async function signup(
 
   const user = data?.user;
 
-  console.log("user", user);
-
   if (!user?.id || !user?.email) {
-    console.log("no user id or email");
     redirect("/error");
   }
 
@@ -168,8 +162,6 @@ export async function signInWithGoogle() {
     },
   });
 
-  console.log("data", data);
-
   if (data.url) {
     redirect(data.url); // use the redirect API for your server framework
   }
@@ -183,9 +175,6 @@ export async function signInWithGithub() {
       redirectTo: `${PUBLIC_URL()}/auth/callback`,
     },
   });
-
-  console.log("data", data);
-
   if (data.url) {
     redirect(data.url); // use the redirect API for your server framework
   }

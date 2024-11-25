@@ -14,7 +14,6 @@ export const NextStep = ({ steps }: { steps: Tour[] }) => {
     height: number;
   } | null>(null);
 
-  console.log(highlightRect);
   useEffect(() => {
     if (!currentTour) return;
 

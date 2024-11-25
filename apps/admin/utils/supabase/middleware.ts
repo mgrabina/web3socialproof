@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getUserProtocol } from "../database/users";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -51,6 +52,14 @@ export async function updateSession(request: NextRequest) {
   ) {
     // no user, potentially respond by redirecting the user to the login page
     url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
+  // If no plan is found, redirect to subscribe
+  const protocol = await getUserProtocol();
+
+  if (protocol && !protocol.plan) {
+    url.pathname = "/subscribe";
     return NextResponse.redirect(url);
   }
 

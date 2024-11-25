@@ -14,11 +14,8 @@ export const OnboardingCard: React.FC<CardComponentProps> = ({
   // Onborda hooks
   const { closeOnborda } = useOnborda();
 
-  console.log("OnboardingCard", step);
-
   function handleClose() {
     closeOnborda();
-    console.log("Closed onborda");
   }
 
   return (
