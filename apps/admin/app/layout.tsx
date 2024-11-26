@@ -20,8 +20,6 @@ export const metadata: Metadata = {
   description: "The ultimate marketing tool to increase conversions in web3",
 };
 
-const apiKey = "sk_test_51hGXLs7gUOVBHKGjehbwK2kNo9BoJanNX";
-
 export default async function RootLayout({
   children,
 }: {

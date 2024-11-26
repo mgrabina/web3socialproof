@@ -7,8 +7,6 @@ import { Inter } from "next/font/google";
 import { usePathname } from "next/navigation";
 import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
 
-const apiKey = "sk_test_51hGXLs7gUOVBHKGjehbwK2kNo9BoJanNX";
-
 // Function to check if the user is logged in
 async function checkUserLoggedIn() {
   const supabase = createSupabaseClientForServerSide();

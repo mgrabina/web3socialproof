@@ -1,15 +1,13 @@
 import { getUserProtocol } from "@/utils/database/users";
 import {
   db,
-  metricsTable,
-  logsTable,
-  metricsVariablesTable,
   eq,
-} from "@web3socialproof/db";
-import {
-  InsertMetric,
   InsertLog,
+  InsertMetric,
   InsertMetricsVariable,
+  logsTable,
+  metricsTable,
+  metricsVariablesTable,
 } from "@web3socialproof/db";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -39,13 +37,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const {
-    name,
-    description,
-    calculation_type,
-    enabled = true,
-    variables,
-  } = await req.json();
+  const { metric, variables } = await req.json();
 
   const protocol = await getUserProtocol();
 
@@ -56,23 +48,22 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (!name || !calculation_type) {
-    return NextResponse.json(
-      { error: "Name and calculation_type are required." },
-      { status: 400 }
-    );
+  if (!metric.name) {
+    return NextResponse.json({ error: "Name is required." }, { status: 400 });
   }
 
   // Insert the new metric
   const newMetric: InsertMetric = {
-    name,
-    description: description || "",
-    calculation_type,
-    enabled,
+    name: metric.name,
+    description: metric.description || "",
+    enabled: metric.enabled || "true",
+    calculation_type: metric.calculation_type || "count",
     protocol_id: protocol.id,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
+
+  console.log("newMetric", newMetric);
 
   try {
     const [insertedMetric] = await db
@@ -80,8 +71,15 @@ export async function POST(req: NextRequest) {
       .values(newMetric)
       .returning();
 
+    if (!variables) {
+      return NextResponse.json(
+        { metric: insertedMetric, variables: [] },
+        { status: 201 }
+      );
+    }
+
     // Prepare variables for bulk insert
-    const variableRecords: InsertLog[] = variables.map((variable: any) => ({
+    const variableRecords: InsertLog[] = variables?.map((variable: any) => ({
       protocol_id: protocol.id,
       chain_id: parseInt(variable.chain_id, 10),
       contract_address: variable.contract_address,
@@ -97,26 +95,29 @@ export async function POST(req: NextRequest) {
       updated_at: new Date().toISOString(),
     }));
 
-    // Bulk insert variables and get inserted IDs
-    const insertedVariables = await db
-      .insert(logsTable)
-      .values(variableRecords)
-      .returning();
+    let insertedVariables;
+    if (!variableRecords?.length) {
+      // Bulk insert variables and get inserted IDs
+      insertedVariables = await db
+        .insert(logsTable)
+        .values(variableRecords)
+        .returning();
 
-    // Prepare relationships for bulk insert
-    const relationRecords: InsertMetricsVariable[] = insertedVariables.map(
-      (variable) => ({
-        metric_id: insertedMetric.id,
-        variable_id: variable.id,
-        created_at: new Date().toISOString(),
-      })
-    );
+      // Prepare relationships for bulk insert
+      const relationRecords: InsertMetricsVariable[] = insertedVariables?.map(
+        (variable) => ({
+          metric_id: insertedMetric.id,
+          variable_id: variable.id,
+          created_at: new Date().toISOString(),
+        })
+      );
 
-    // Bulk insert relations
-    await db.insert(metricsVariablesTable).values(relationRecords);
+      // Bulk insert relations
+      await db.insert(metricsVariablesTable).values(relationRecords);
+    }
 
     return NextResponse.json(
-      { metric: insertedMetric, variables: insertedVariables },
+      { metric: insertedMetric, variables: insertedVariables ?? [] },
       { status: 201 }
     );
   } catch (error) {

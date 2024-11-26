@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { User } from "@supabase/supabase-js";
 import {
+  HelpCircle,
   Key,
   LogOut,
   ReceiptText,
+  Text,
   User as UserIcon,
   Verified,
 } from "lucide-react";
@@ -64,6 +66,22 @@ export default function DashboardHeaderProfileDropdown({
             <DropdownMenuItem>
               <ReceiptText className="mr-2 h-4 w-4" />
               <Link href={billingPortalLink ?? "#"}>Billing</Link>
+            </DropdownMenuItem>
+          </Link>
+          <Link href="https://docs.gobyherd.com" target="_blank">
+            <DropdownMenuItem>
+              <Text className="mr-2 h-4 w-4" />
+              <Link href="https://docs.gobyherd.com" target="_blank">
+                Docs
+              </Link>
+            </DropdownMenuItem>
+          </Link>
+          <Link href="https://t.me/+os2FdFkUrlsxZWZh" target="_blank">
+            <DropdownMenuItem>
+              <HelpCircle className="mr-2 h-4 w-4" />
+              <Link href="https://t.me/+os2FdFkUrlsxZWZh" target="_blank">
+                Support
+              </Link>
             </DropdownMenuItem>
           </Link>
           {/* <Link href="#">
