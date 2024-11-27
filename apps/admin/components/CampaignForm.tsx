@@ -682,7 +682,6 @@ export default function CampaignForm({
                     </label>
                     <Input
                       id="delay"
-                      min={1500}
                       value={formData?.delay ?? 1500}
                       onChange={(e) =>
                         setFormData({

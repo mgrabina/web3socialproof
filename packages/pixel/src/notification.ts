@@ -10,7 +10,7 @@ export function showNotification(params: NotificationOutput): void {
   try {
     const notification = createNotification(params);
 
-    const delay = Math.max(2000, params.delay ?? 0); // Todo: replace 0 for recognizing when DOM is really loaded
+    const delay = params.delay ?? 300;
 
     setTimeout(() => {
       document.body.appendChild(notification);

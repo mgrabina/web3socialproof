@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { HelpCircle, Menu } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -63,17 +63,17 @@ export default function DashboardHeader({
           <nav className="flex items-center space-x-6 text-sm font-medium">
             <Link
               className="transition-colors hover:text-foreground/80 text-foreground"
-              href="/campaigns"
-              id="header-campaigns-link"
-            >
-              Campaigns
-            </Link>
-            <Link
-              className="transition-colors hover:text-foreground/80 text-foreground"
               href="/metrics"
               id="header-metrics-link"
             >
               Metrics
+            </Link>
+            <Link
+              className="transition-colors hover:text-foreground/80 text-foreground"
+              href="/campaigns"
+              id="header-campaigns-link"
+            >
+              Campaigns
             </Link>
           </nav>
         </div>
@@ -94,6 +94,11 @@ export default function DashboardHeader({
                             </div>
                         </form>
                     </div> */}
+
+          <Link href="https://docs.gobyherd.com" target="_blank">
+            <HelpCircle className="mr-2 h-4 w-4" />
+          </Link>
+
           <DashboardHeaderProfileDropdown
             user={user}
             billingPortalLink={billingPortalLink}

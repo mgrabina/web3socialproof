@@ -37,13 +37,13 @@ export default function IntegrationGuide() {
   };
 
   const getIntegrationCode = (apiKey: string) =>
-    `<script\n  src="https://pixel.gobyherd.com?apiKey=${apiKey}"\n  async\n></script>`;
+    `<script\n  src="https://pixel.gobyherd.com?apiKey=${apiKey}"\n  defer\n></script>`;
 
   const integrationSnippet = isLoading
     ? "Loading..."
     : apiKeys.length
     ? getIntegrationCode(apiKeys[0].api_key)
-    : "<script src='https://pixel.gobyherd.com?apiKey=YOUR_API_KEY' async></script>";
+    : "<script src='https://pixel.gobyherd.com?apiKey=YOUR_API_KEY' defer></script>";
 
   return (
     <Card className="w-full mx-auto border border-gray-200 shadow-md" id="integration-guide">

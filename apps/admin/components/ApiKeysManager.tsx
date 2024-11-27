@@ -80,11 +80,11 @@ export default function SaasApiKeyManager() {
   };
 
   const getIntegrationCode = (apiKey: string) =>
-    `<script\n  src="https://pixel.gobyherd.com?apiKey=${apiKey}"\n  async\n></script>`;
+    `<script\n  src="https://pixel.gobyherd.com?apiKey=${apiKey}"\n  defer\n></script>`;
 
   const integrationSnippet = apiKeys.length
     ? getIntegrationCode(apiKeys[0].api_key)
-    : "<script src='https://pixel.gobyherd.com?apiKey=YOUR_API_KEY' async></script>";
+    : "<script src='https://pixel.gobyherd.com?apiKey=YOUR_API_KEY' defer></script>";
 
   return (
     <div className="container mx-auto p-6 space-y-8">
