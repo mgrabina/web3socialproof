@@ -677,6 +677,7 @@ export default function CampaignForm({
                 <AccordionContent>
                   <div className="space-y-2">
                     <Label htmlFor="delay">Delay</Label>
+                    <br />
                     <label className="text-sm text-gray-500">
                       In milliseconds, before showing the notification
                     </label>
@@ -693,6 +694,7 @@ export default function CampaignForm({
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="delay">Timer</Label>
+                    <br />
                     <label className="text-sm text-gray-500">
                       In milliseconds, before hiding the notification. Leave it
                       empty to keep it visible.

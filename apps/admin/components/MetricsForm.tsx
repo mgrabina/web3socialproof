@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -21,17 +19,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { useTrpcBackend } from "@/hooks/useTrpcBackend";
-import { getTrpcClientForClient } from "@/utils/trpc/client";
 import { env } from "@/lib/constants";
+import { getTrpcClientForClient } from "@/utils/trpc/client";
 import { InsertLog, SelectLog, SelectMetric } from "@web3socialproof/db";
-import ContractVerificationDialog from "./ContractOwnershipVerificationDialog";
-import { shortenAddress } from "@web3socialproof/shared/utils/evm";
 import {
   chains,
   SupportedChainIds,
 } from "@web3socialproof/shared/constants/chains";
+import { shortenAddress } from "@web3socialproof/shared/utils/evm";
+import { useEffect, useState } from "react";
+import ContractVerificationDialog from "./ContractOwnershipVerificationDialog";
 
 const calculationTypes = [
   { value: "count", label: "Count" },
@@ -317,6 +316,16 @@ export default function MetricsForm({
                 ))}
               </SelectContent>
             </Select>
+            <label className="text-sm text-gray-500">
+              See supported chains{" "}
+              <a
+                className="text-blue-500 hover:text-blue-700"
+                href="https://docs.envio.dev/docs/HyperSync/hypersync-supported-networks"
+                target="_blank"
+              >
+                here
+              </a>
+            </label>
           </div>
 
           <div className="space-y-2">
