@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -11,11 +10,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Edit, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { metricsTable, SelectMetric } from "@web3socialproof/db";
-import { LoadingTable } from "./LoadingTable";
+import { SelectMetric } from "@web3socialproof/db";
+import { Edit, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { LoadingTable } from "./LoadingTable";
 
 export default function MetricsManager() {
   const [metrics, setMetrics] = useState<SelectMetric[]>([]);
@@ -108,6 +108,14 @@ export default function MetricsManager() {
                     </TableCell>
                   </TableRow>
                 ))}
+                {metrics.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center">
+                      No metrics found. Create a new one by clicking the button
+                      above.
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           )}

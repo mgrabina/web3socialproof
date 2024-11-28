@@ -227,7 +227,7 @@ export default function MetricsForm({
             <Label htmlFor="name">Name</Label>
             <Input
               id="name"
-              placeholder="Metric Name"
+              placeholder="Swaps"
               value={formData?.name ?? undefined}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
@@ -239,7 +239,7 @@ export default function MetricsForm({
             <Label htmlFor="description">Description</Label>
             <Input
               id="description"
-              placeholder="Metric Description"
+              placeholder="The amount of swaps made across all chains and pools"
               value={formData?.description ?? undefined}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
@@ -247,8 +247,67 @@ export default function MetricsForm({
             />
           </div>
 
+          <div className="space-y-2">
+            {" "}
+            <Label htmlFor="description">Events</Label>
+            <br />
+            <Label className="text-sm text-gray-500">
+              A Metric can have multiple events so you can track metric like TVL
+              among multiple chains. We will sum the results of all events to
+              get the metrics current value.
+            </Label>
+            <Table
+              className="w-full
+              border
+              rounded-sm
+              
+              "
+            >
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Chain</TableHead>
+                  <TableHead>Contract Address</TableHead>
+                  <TableHead>Event Name</TableHead>
+                  <TableHead>Topic Index</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {variables?.map((variable: any, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      {chains[variable.chain_id as keyof typeof chains].name}
+                    </TableCell>
+                    <TableCell>
+                      {shortenAddress(variable.contract_address)}
+                    </TableCell>
+                    <TableCell>{variable.event_name}</TableCell>
+                    <TableCell>{variable.topic_index}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteVariable(index)}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {!variables?.length && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center">
+                      No events added yet
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
           <Button
             className="w-full"
+            variant="default"
             onClick={async () => {
               setIsLoading(true); // Set loading state
               try {
@@ -298,7 +357,7 @@ export default function MetricsForm({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>Chain ID</Label>
+            <Label>Chain</Label>
             <Select
               value={currentEvent.chain_id.toString()}
               onValueChange={(value) =>
@@ -309,7 +368,9 @@ export default function MetricsForm({
                 <SelectValue placeholder="Select Chain ID" />
               </SelectTrigger>
               <SelectContent>
-                {SupportedChainIds.map((chain) => (
+                {SupportedChainIds.toSorted((a, b) => {
+                  return chains[a].name.localeCompare(chains[b].name);
+                }).map((chain) => (
                   <SelectItem key={chain} value={chain.toString()}>
                     {chains[chain].name}
                   </SelectItem>
@@ -332,7 +393,7 @@ export default function MetricsForm({
             <Label>Contract Address</Label>
             <Input
               autoComplete="on"
-              placeholder="Contract Address"
+              placeholder="0x1234..."
               value={currentEvent.contract_address}
               onChange={(e) =>
                 handleEventChange("contract_address", e.target.value)
@@ -359,6 +420,11 @@ export default function MetricsForm({
                 setOpen={setIsContractOwnershipDialogOpen}
               />
             </div>
+
+            <label className="text-sm text-gray-500">
+              {" "}
+              We will try to fetch the ABI from public sources for you{" "}
+            </label>
           </div>
 
           {/* Optional ABI */}
@@ -367,9 +433,16 @@ export default function MetricsForm({
               ABI (Optional)
               <p className="opacity-70"></p>
             </Label>
+            <label className="text-sm text-gray-500">
+              The ABI (Application Binary Interface) is a representation of what
+              functionality and events are available in your smart contracts, we
+              use it to help you find the event and fields you want to track.
+            </label>
             <Input
-              placeholder={`ABI ${
-                isAbiLoading ? "(Finding in scanners...)" : ""
+              placeholder={`${
+                isAbiLoading
+                  ? "(Finding in scanners...)"
+                  : "[{'type':'event','name':'Swaps','inputs':[{'type':'address','name':'from','indexed':true},{'type':'address','name':'to','indexed':true},{'type':'uint256','name':'amount'}]}]"
               }`}
               disabled={isAbiLoading}
               value={abi}
@@ -378,10 +451,6 @@ export default function MetricsForm({
                 handleSaveNewAbi(e.target.value).catch(console.error);
               }}
             />
-            <label className="text-sm text-gray-500">
-              {" "}
-              We will try to fetch the ABI for you{" "}
-            </label>
           </div>
 
           <div className="space-y-2">
@@ -409,7 +478,7 @@ export default function MetricsForm({
               </Select>
             ) : (
               <Input
-                placeholder="Custom Event Signature"
+                placeholder="Swaps(address,address,uint256)"
                 value={currentEvent.event_name}
                 onChange={(e) =>
                   setCurrentEvent({
@@ -423,6 +492,11 @@ export default function MetricsForm({
 
           <div className="space-y-2">
             <Label>Topic or Data Field</Label>
+            <br />
+            <label className="text-sm text-gray-500">
+              Topics are highlighted parameters in the events, data fields are
+              standard parameters.
+            </label>
             {eventSignatures.length > 0 ||
             topics.length > 0 ||
             dataFields.length > 0 ? (
@@ -517,6 +591,10 @@ export default function MetricsForm({
 
           <div className="space-y-2">
             <Label>Calculation Type</Label>
+            <br />
+            <label className="text-sm text-gray-500">
+              Choose how we should aggregate the results of this event
+            </label>
             <Select
               value={currentEvent?.calculation_type ?? undefined}
               onValueChange={(value) => {
@@ -541,51 +619,11 @@ export default function MetricsForm({
 
           <Button
             className="w-full mt-4"
-            variant="secondary"
+            variant="default"
             onClick={handleAddEvent}
           >
             Add Event
           </Button>
-        </CardContent>
-      </Card>
-
-      <Card className="mt-8 md:col-span-2">
-        <CardHeader>
-          <CardTitle>Events</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Chain ID</TableHead>
-                <TableHead>Contract Address</TableHead>
-                <TableHead>Event Name</TableHead>
-                <TableHead>Topic Index</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {variables?.map((variable: any, index) => (
-                <TableRow key={index}>
-                  <TableCell>{variable.chain_id}</TableCell>
-                  <TableCell>
-                    {shortenAddress(variable.contract_address)}
-                  </TableCell>
-                  <TableCell>{variable.event_name}</TableCell>
-                  <TableCell>{variable.topic_index}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDeleteVariable(index)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
         </CardContent>
       </Card>
     </div>

@@ -154,6 +154,14 @@ export default function CampaignManager() {
                     </TableCell>
                   </TableRow>
                 ))}
+                {campaigns.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center">
+                      No campaigns found. Create a new one by clicking the
+                      button above.
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           )}

@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { Tour } from "@/lib/onboarding";
+import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const NextStep = ({ steps }: { steps: Tour[] }) => {
@@ -70,23 +71,23 @@ export const NextStep = ({ steps }: { steps: Tour[] }) => {
 
       {/* Highlight Box */}
       {highlightRect && (
-  <div
-    style={{
-      position: "absolute",
-      top: highlightRect.top - 4, // Add padding outside the border
-      left: highlightRect.left - 4, // Add padding outside the border
-      width: highlightRect.width + 8, // Adjust width to accommodate the space
-      height: highlightRect.height + 8, // Adjust height to accommodate the space
-      borderRadius: "8px", // Keep the border rounded
-      background: "transparent", // Ensure no background
-      boxShadow: "0 0 0 4px rgba(255, 255, 255, 0.5), 0 0 0 6px rgba(199, 146, 234, 1), 0 0 0 8px rgba(147, 126, 255, 1)", // Gradient border layers
-      zIndex: 9999,
-      pointerEvents: "none", // Prevent blocking interactions
-    }}
-    className="animate-pulse"
-  ></div>
-)}
-
+        <div
+          style={{
+            position: "absolute",
+            top: highlightRect.top - 4, // Add padding outside the border
+            left: highlightRect.left - 4, // Add padding outside the border
+            width: highlightRect.width + 8, // Adjust width to accommodate the space
+            height: highlightRect.height + 8, // Adjust height to accommodate the space
+            borderRadius: "8px", // Keep the border rounded
+            background: "transparent", // Ensure no background
+            boxShadow:
+              "0 0 0 4px rgba(255, 255, 255, 0.5), 0 0 0 6px rgba(199, 146, 234, 1), 0 0 0 8px rgba(147, 126, 255, 1)", // Gradient border layers
+            zIndex: 9999,
+            pointerEvents: "none", // Prevent blocking interactions
+          }}
+          className="animate-pulse"
+        ></div>
+      )}
 
       {/* Tooltip in the Center */}
       <div
@@ -100,7 +101,7 @@ export const NextStep = ({ steps }: { steps: Tour[] }) => {
           padding: "1.5rem",
           borderRadius: "12px",
           boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)",
-          maxWidth: "400px",
+          maxWidth: "600px",
           textAlign: "center",
         }}
       >
@@ -109,15 +110,23 @@ export const NextStep = ({ steps }: { steps: Tour[] }) => {
         </h3>
         <p className="text-sm text-gray-600 mt-2">{currentStep.content}</p>
         <div className="flex justify-between mt-6">
-          <Button onClick={prev} disabled={currentStepIndex === 0}>
-            Previous
-          </Button>
+          {currentStepIndex > 0 ? (
+            <Button onClick={prev} disabled={currentStepIndex === 0}>
+              <ArrowLeftIcon className="h-4 w-4" />
+            </Button>
+          ) : (
+            <div></div>
+          )}
+
           <div className="flex space-x-2">
+            <div className="flex items-center text-gray-600">
+              {currentStepIndex + 1} / {tour?.steps.length}
+            </div>
             <Button variant="secondary" onClick={stop}>
               Skip
             </Button>
             <Button onClick={() => (!isLast ? next() : stop())}>
-              {isLast ? "Finish" : "Next"}
+              {isLast ? "Finish" : <ArrowRightIcon className="h-4 w-4" />}
             </Button>
           </div>
         </div>
