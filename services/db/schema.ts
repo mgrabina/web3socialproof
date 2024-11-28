@@ -1,13 +1,12 @@
 import {
+  bigint,
   boolean,
   integer,
-  bigint,
   json,
   pgTable,
   serial,
   text,
   timestamp,
-  primaryKey,
 } from "drizzle-orm/pg-core";
 
 // Protocol Table
@@ -40,7 +39,6 @@ export const campaignsTable = pgTable("campaigns_table", {
   delay: integer("delay"),
   timer: integer("timer"),
 
-
   created_at: timestamp({ mode: "string" }).notNull(),
   updated_at: timestamp({ mode: "string" }).notNull(),
   enabled: boolean("enabled").notNull(),
@@ -63,12 +61,27 @@ export const apiKeyTable = pgTable("api_key_table", {
 
 export const impressionsTable = pgTable("impressions_table", {
   id: serial("id").primaryKey(),
+  protocol: integer("protocol_id").references(() => protocolTable.id), // Foreign key to protocol
   campaign_id: integer("campaign_id")
     .references(() => campaignsTable.id)
     .notNull(), // Foreign key to campaign
-  session: text("session_id").notNull(),
-  user: text("user_id").notNull(),
+  session: text("session").notNull(),
+  user: text("user").notNull(),
   address: text("address"),
+  timestamp: timestamp({ mode: "string" }).notNull().defaultNow(),
+});
+
+export const conversionsTable = pgTable("conversions_table", {
+  id: serial("id").primaryKey(),
+  protocol_id: integer("protocol_id")
+    .references(() => protocolTable.id)
+    .notNull(), // Foreign key to protocol
+  campaign_id: integer("campaign_id").references(() => campaignsTable.id),
+  session: text("session").notNull(),
+  user: text("user").notNull(),
+  hostname: text("hostname"),
+  pathname: text("pathname"),
+  element_id: text("element_id"),
   timestamp: timestamp({ mode: "string" }).notNull().defaultNow(),
 });
 

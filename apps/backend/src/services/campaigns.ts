@@ -20,7 +20,7 @@ export const getNotification = async ({
 }: {
   hostname: string;
   protocol: SelectProtocol;
-}): Promise<NotificationOptions> => {
+}): Promise<NotificationOptions | undefined> => {
   if (!protocol || !protocol.plan) {
     throw new TRPCError({
       code: "NOT_FOUND",
@@ -41,10 +41,7 @@ export const getNotification = async ({
     );
 
   if (campaigns.length === 0) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "No campaigns found",
-    });
+    return undefined;
   }
 
   // Check hosts)
@@ -58,10 +55,7 @@ export const getNotification = async ({
   });
 
   if (campaigns.length === 0) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "No campaigns found for this hostname " + hostname,
-    });
+    return undefined;
   }
 
   const campaignToPrint = campaigns[0];

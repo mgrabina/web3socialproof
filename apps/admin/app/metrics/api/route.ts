@@ -63,8 +63,6 @@ export async function POST(req: NextRequest) {
     updated_at: new Date().toISOString(),
   };
 
-  console.log("newMetric", newMetric);
-
   try {
     const [insertedMetric] = await db
       .insert(metricsTable)

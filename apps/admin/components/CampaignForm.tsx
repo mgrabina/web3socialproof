@@ -416,7 +416,7 @@ export default function CampaignForm({
                           {iconNames.map((iconName) => (
                             <SelectItem key={iconName} value={iconName}>
                               {capitalize(iconName)}
-                              {parse(iconsSvgs[iconName]().getHTML())}
+                              {parse(iconsSvgs[iconName]()?.getHTML() ?? "")}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -767,23 +767,25 @@ export default function CampaignForm({
           <CardContent>
             <div
               dangerouslySetInnerHTML={{
-                __html: createNotification(
-                  {
-                    campaign: 0,
-                    type: "swaps",
-                    verifications: [],
-                    subscriptionPlan: "free", //todo adapt to user plan
-                    message: formData?.message ?? "",
-                    iconName: (formData?.iconName as IconName) ?? undefined,
-                    iconSrc: formData?.iconSrc ?? undefined,
-                    subMessage: formData?.sub_message ?? "",
-                    styling: {
-                      ...defaultStyling,
-                      ...(formData?.styling as NotificationStylingRequired),
+                __html: (
+                  createNotification(
+                    {
+                      campaign: 0,
+                      type: "swaps",
+                      verifications: [],
+                      subscriptionPlan: "free", //todo adapt to user plan
+                      message: formData?.message ?? "",
+                      iconName: (formData?.iconName as IconName) ?? undefined,
+                      iconSrc: formData?.iconSrc ?? undefined,
+                      subMessage: formData?.sub_message ?? "",
+                      styling: {
+                        ...defaultStyling,
+                        ...(formData?.styling as NotificationStylingRequired),
+                      },
                     },
-                  },
-                  true,
-                  availableMetricNames
+                    true,
+                    availableMetricNames
+                  ) ?? (new HTMLElement() as any)
                 ).innerHTML,
               }}
             ></div>

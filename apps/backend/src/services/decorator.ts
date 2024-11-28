@@ -37,8 +37,10 @@ const replaceMetricsInString = async (str: string) => {
 };
 
 export const decorateNotification = async (
-  options: NotificationOptions
-): Promise<NotificationResponse> => {
+  options?: NotificationOptions
+): Promise<NotificationResponse | undefined> => {
+  if (!options) return undefined;
+  
   // Prioritize user configured styling
   const styling = {
     ...defaultStyling,

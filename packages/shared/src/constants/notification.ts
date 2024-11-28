@@ -73,9 +73,9 @@ export const defaultStyling: NotificationStylingRequired = {
   subtitleColor: "#888",
   border: "1px solid #e0e0e0",
   borderRadius: "100px",
-  backgroundColor: "white",
+  backgroundColor: "#ffffff",
   iconBackgroundColor: "#FF6347",
-  iconColor: "white",
+  iconColor: "#ffffff",
   boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
   mobilePosition: "bottom-center",
   desktopPosition: "bottom-left",
@@ -177,7 +177,11 @@ type IconAttributes = {
 export const createSvgIcon = (
   pathsArray: string[],
   attributes: IconAttributes = {}
-): SVGElement => {
+): SVGElement | null => {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
   const {
     viewBox = "0 0 24 24",
     width = "24",
@@ -198,7 +202,7 @@ export const createSvgIcon = (
   return svg;
 };
 
-export const iconsSvgs: Record<IconName, () => SVGElement> = {
+export const iconsSvgs: Record<IconName, () => SVGElement | null> = {
   flame: () =>
     createSvgIcon(
       [
@@ -254,7 +258,11 @@ export const createNotification = (
   params: NotificationResponse,
   isPreview = false,
   metrics = new Set<string>()
-): HTMLElement => {
+): HTMLElement | null => {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
   const notification = document.createElement("div");
   notification.style.display = "flex";
   notification.style.alignItems = "center";
@@ -316,18 +324,24 @@ export const createNotification = (
     icon.alt = "Notification Icon";
   } else if (params.iconName && isIconName(params.iconName)) {
     icon = iconsSvgs[params.iconName]();
-    icon.style.fill = params.styling.iconColor || defaultStyling.iconColor;
-    icon.style.color = params.styling.iconColor || defaultStyling.iconColor;
+    if (icon) {
+      icon.style.fill = params.styling.iconColor || defaultStyling.iconColor;
+      icon.style.color = params.styling.iconColor || defaultStyling.iconColor;
+    }
   } else {
     // Default icon
     icon = iconsSvgs.flame();
-    icon.style.fill = params.styling.iconColor || defaultStyling.iconColor;
-    icon.style.color = params.styling.iconColor || defaultStyling.iconColor;
+    if (icon) {
+      icon.style.fill = params.styling.iconColor || defaultStyling.iconColor;
+      icon.style.color = params.styling.iconColor || defaultStyling.iconColor;
+    }
   }
-  icon.style.width = "24px";
-  icon.style.height = "24px";
+  if (icon) {
+    icon.style.width = "24px";
+    icon.style.height = "24px";
 
-  iconContainer.appendChild(icon);
+    iconContainer.appendChild(icon);
+  }
 
   // Text container
   const textContainer = document.createElement("div");

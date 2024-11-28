@@ -9,18 +9,21 @@ import {
 import { getSessionId, getUserId } from "./session";
 import { trpcApiClient } from "./trpc";
 
+// Variables to store apiKey and env for use in other functions
+let apiKey: string | null = null;
+let env: PixelEnv = "production";
+let campaignId: number | null = null;
+
 // Main function to initialize the widget
 async function initializeWidget() {
   try {
     // Get the current script and extract the API key and env from the URL parameters
     const script = document.currentScript as HTMLScriptElement;
-    const apiKey = script
-      ? new URL(script.src).searchParams.get("apiKey")
-      : null;
+    apiKey = script ? new URL(script.src).searchParams.get("apiKey") : null;
     const envParam = script
       ? new URL(script.src).searchParams.get("env")
       : null;
-    const env: PixelEnv = isPixelEnv(envParam) ? envParam : "production";
+    env = isPixelEnv(envParam) ? envParam : "production";
 
     // Helper function to check if the current URL is allowed
     const isUrlAllowed = (currentUrl: string, pathnames?: string[]) => {
@@ -62,6 +65,16 @@ async function initializeWidget() {
         env,
         apiKey
       ).campaigns.getNotification.query({});
+
+      if (!notification) {
+        console.info("[Herd] No notification to show.");
+
+        // Hide notification if there is no notification to show
+        deleteNotification();
+        return;
+      }
+
+      campaignId = notification.campaign;
 
       const shouldHide =
         isMobile() && notification.styling.mobilePosition === "none";
@@ -114,5 +127,45 @@ async function initializeWidget() {
     console.error("Error while loading notification:", error);
   }
 }
+// Conversion tracking function
+async function trackConversion(id?: string) {
+  try {
+    if (!apiKey) {
+      console.error("[Herd] API key is missing.");
+      return;
+    }
+
+    // Send conversion data to the server
+    await trpcApiClient(env, apiKey).campaigns.trackConversion.mutate({
+      session: getSessionId(),
+      user: getUserId(),
+      campaignId: campaignId ?? undefined,
+      hostname: window.location.hostname,
+      pathname: window.location.pathname,
+      elementId: id,
+    });
+  } catch (error) {
+    console.error("Error tracking conversion:", error);
+  }
+}
+
+// Expose the functions under the 'herd' namespace on the global object
+(function () {
+  const globalScope =
+    typeof globalThis !== "undefined"
+      ? (globalThis as any)
+      : typeof self !== "undefined"
+      ? (self as any)
+      : typeof window !== "undefined"
+      ? (window as any)
+      : undefined;
+
+  if (globalScope) {
+    globalScope.herd = globalScope.herd || {};
+    globalScope.herd.trackConversion = trackConversion;
+  } else {
+    console.warn("Global scope not found; 'herd' namespace not attached.");
+  }
+})();
 
 initializeWidget();

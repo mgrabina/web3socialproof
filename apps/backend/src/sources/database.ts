@@ -7,6 +7,7 @@ import {
   apiKeyTable,
   campaignsTable,
   contractsTable,
+  conversionsTable,
   db,
   desc,
   eq,
@@ -106,6 +107,37 @@ export const saveImpressionInDb = async (input: {
     });
   }
 };
+
+export const saveConversionInDb = async (input: {
+  protocolId: number;
+  campaignId?: number;
+  user: string;
+  session: string;
+  hostname?: string;
+  pathname?: string;
+  elementId?: string;
+}) => {
+  const inserted = await db
+    .insert(conversionsTable)
+    .values({
+      protocol_id: input.protocolId,
+      session: input.session,
+      user: input.user,
+      campaign_id: input.campaignId,
+      hostname: input.hostname,
+      pathname: input.pathname,
+      element_id: input.elementId,
+    })
+    .returning();
+
+  if (inserted.length === 0) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to track conversion",
+    });
+  }
+}
+
 
 export const getContractFromDatabase = async ({
   chainId,

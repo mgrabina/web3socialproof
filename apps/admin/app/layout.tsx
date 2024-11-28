@@ -2,7 +2,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
-import { PUBLIC_URL } from "@/lib/constants";
+import { env, getPixelServerByEnvironment, PUBLIC_URL } from "@/lib/constants";
 import "./globals.css";
 // import { headers } from "next/headers";
 import { OnboardingProvider } from "@/components/OnboardingProvider";
@@ -12,6 +12,7 @@ import { onboardingSteps } from "@/lib/onboarding";
 import { generateStripeBillingPortalLink } from "@/utils/stripe/api";
 import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
 import console from "console";
+import { useEffect } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -47,16 +48,18 @@ export default async function RootLayout({
 
   console.info("URL", PUBLIC_URL());
 
+  const HERD_API_KEY = "sk_test_51sxGqT3cQ3FiKPoJbHPCCJ6qq7I06XvIc";
+
   return (
     <html lang="en">
       <head>
         {/* Notification set in Landing */}
-        {/* <script
+        <script
           src={`${getPixelServerByEnvironment(
             env
-          )}?env=${env}&apiKey=${apiKey}`}
+          )}?env=${env}&apiKey=${HERD_API_KEY}`}
           async
-        ></script> */}
+        ></script>
         <script
           async
           src="https://js.stripe.com/v3/pricing-table.js"

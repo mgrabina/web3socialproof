@@ -5,11 +5,12 @@ import { notificationResponseSchema } from "../../../../../packages/shared/src/c
 import { getNotification } from "../../services/campaigns";
 import { decorateNotification } from "../../services/decorator";
 import { trackImpression } from "../../services/impressions";
+import { trackConversion } from "../../services/conversions";
 
 export const campaignsRouter = router({
   getNotification: pixelProcedure
     .input(z.object({}))
-    .output(notificationResponseSchema)
+    .output(notificationResponseSchema.optional())
     .query(async ({ ctx, input }) => {
       // Todo: get user data to improve the notification (e.g. wallet, device, language, etc.)
 
@@ -45,6 +46,31 @@ export const campaignsRouter = router({
         session: input.session,
         user: input.user,
         address: input.address,
+      });
+    }),
+
+  trackConversion: pixelProcedure
+    .input(
+      z.object({
+        campaignId: z.number().optional(),
+        session: z.string(),
+        user: z.string(),
+        hostname: z.string().optional(),
+        pathname: z.string().optional(),
+        elementId: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const protocol = ctx.protocol;
+
+      await trackConversion({
+        protocol: protocol.id,
+        campaignId: input.campaignId,
+        session: input.session,
+        user: input.user,
+        hostname: input.hostname,
+        pathname: input.pathname,
+        elementId: input.elementId,
       });
     }),
 });

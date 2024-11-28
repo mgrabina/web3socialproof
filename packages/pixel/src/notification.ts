@@ -7,17 +7,29 @@ type NotificationOutput =
 
 // Function to show a notification on the page
 export function showNotification(params: NotificationOutput): void {
+  if (!params) {
+    return;
+  }
+
   try {
+    const delay = params.delay ?? 300;
     const notification = createNotification(params);
 
-    const delay = params.delay ?? 300;
-
     setTimeout(() => {
+      if (!notification) {
+        console.error("[Herd] Failed to create notification element.");
+        return;
+      }
+
       document.body.appendChild(notification);
     }, delay);
 
     if (params.timer) {
       setTimeout(() => {
+        if (!notification) {
+          return;
+        }
+
         notification.remove();
       }, delay + params.timer);
     }

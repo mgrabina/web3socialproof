@@ -183,6 +183,13 @@
       "when": 1732298005780,
       "tag": "0028_awesome_king_cobra",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1732815114921,
+      "tag": "0029_rich_newton_destine",
+      "breakpoints": true
     }
   ]
 }
