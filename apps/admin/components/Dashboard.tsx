@@ -4,8 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { OnboardingName } from "@/lib/onboarding";
-import { capitalize } from "@/utils/strings/string.utils";
-import { Eye, Info, NotepadText, Star, TrendingUp } from "lucide-react";
+import { Eye, NotepadText, Star, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   Line,
@@ -66,6 +65,7 @@ export default function Dashboard() {
     totalCampaigns,
     totalMetrics,
     totalImpressions,
+    totalConversions,
     dailyImpressions,
     mostImpressiveMetric,
   } = data;
@@ -115,23 +115,12 @@ export default function Dashboard() {
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">
-                      {capitalize(
-                        mostImpressiveMetric?.name ?? "Your best metric"
-                      )}
-                    </p>
+                    <p className="text-sm font-medium">Total Conversions</p>
                     <Star className="h-4 w-4 text-blue-500" />
                   </div>
                   <p className="text-2xl font-bold">
-                    {mostImpressiveMetric?.value ?? 0}
+                    {totalConversions?.value ?? "Integrate to see"}
                   </p>
-                  {/* Information saying that is one is customized */}
-                  <div className="flex mt-2 items-center">
-                    <Info className="h-4 w-4 text-muted-foreground mr-2 flex-shrink-0" />
-                    <span className="text-muted-foreground leading-none">
-                      Customized
-                    </span>
-                  </div>
                 </CardContent>
               </Card>
             </div>

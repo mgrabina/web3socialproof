@@ -1,21 +1,20 @@
+import { getUserProtocol } from "@/utils/database/users";
 import {
-  db,
+  and,
   campaignsTable,
-  metricsTable,
-  impressionsTable,
+  conversionsTable,
+  db,
+  desc,
   eq,
   gte,
-  count,
-  sql,
-  desc,
-  metricsVariablesTable,
+  impressionsTable,
   logsTable,
-  countDistinct,
-  and,
+  metricsTable,
+  metricsVariablesTable,
+  sql,
 } from "@web3socialproof/db";
-import { NextRequest, NextResponse } from "next/server";
 import dayjs from "dayjs";
-import { getUserProtocol } from "@/utils/database/users";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
@@ -48,6 +47,14 @@ export async function GET(req: NextRequest) {
           eq(impressionsTable.campaign_id, campaignsTable.id)
         )
         .where(eq(campaignsTable.protocol_id, protocolId))
+        .as("subquery")
+    );
+
+    const totalConversions = await db.$count(
+      db
+        .select()
+        .from(conversionsTable)
+        .where(eq(conversionsTable.protocol_id, protocolId))
         .as("subquery")
     );
 
@@ -94,6 +101,7 @@ export async function GET(req: NextRequest) {
       totalCampaigns: totalCampaigns,
       totalMetrics: totalMetrics,
       totalImpressions: totalImpressions,
+      totalConversions: totalConversions,
       dailyImpressions,
       mostImpressiveMetric:
         mostImpressiveMetric.length === 0

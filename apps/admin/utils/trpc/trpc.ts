@@ -4,11 +4,7 @@ import { createTRPCClient, httpBatchLink } from "@trpc/client";
 
 import type { AppRouter } from "../../../backend/src/trpc/router";
 
-import type { inferRouterOutputs } from "@trpc/server";
 import { Environment } from "@/lib/constants";
-import { createSupabaseClientForServerSide } from "../supabase/server";
-import { createServerClient } from "@supabase/ssr";
-import { createSupabaseClientForClientSide } from "../supabase/client";
 
 // Not using tRPC API as npm package - https://github.com/mkosir/trpc-api-boilerplate#avoid-publishing-package
 // import { AppRouter } from './api-types';

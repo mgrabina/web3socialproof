@@ -1,3 +1,4 @@
+import { Database } from "@/lib/database.types";
 import { createBrowserClient } from "@supabase/ssr";
 
 export function createSupabaseClientForClientSide() {
@@ -9,7 +10,7 @@ export function createSupabaseClientForClientSide() {
     throw new Error("NEXT_PUBLIC_SUPABASE_ANON_KEY is required");
   }
 
-  return createBrowserClient(
+  return createBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );

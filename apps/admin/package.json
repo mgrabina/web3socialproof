@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "create-supabase-types-staging": "npx supabase gen types typescript --project-id meueqznyohtsuzmykbie --schema public > lib/database.types.ts",
+    "create-supabase-types-prod": "npx supabase gen types typescript --project-id vjvunsoataecxlbwambb --schema public > lib/database.types.ts"
   },
   "type": "module",
   "dependencies": {
