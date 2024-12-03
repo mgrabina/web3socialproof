@@ -567,7 +567,7 @@ export const createNotification = (
   }
 
   // Assemble the notification
-  notification.appendChild(closeButton);
+  // notification.appendChild(closeButton);
   notification.appendChild(iconContainer);
   notification.appendChild(textContainer);
 
