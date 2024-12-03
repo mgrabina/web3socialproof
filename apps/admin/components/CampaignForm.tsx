@@ -38,10 +38,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface CampaignFormProps {
   initialData?: {
-    name: string;
+    name?: string;
     type: string;
-    message: string;
-    sub_message: string;
+    message?: string;
+    sub_message?: string;
     styling: any;
     iconSrc?: string | null;
     iconName?: string | null;
@@ -55,11 +55,8 @@ interface CampaignFormProps {
 
 export default function CampaignForm({
   initialData = {
-    name: "My Campaign",
     type: "swaps",
-    message: "537 Swaps",
     iconName: "flame",
-    sub_message: "4504 in the last month",
     styling: { ...defaultStyling },
     hostnames: [] as string[],
     pathnames: [] as string[],
@@ -78,7 +75,7 @@ export default function CampaignForm({
   );
 
   useEffect(() => {
-    if (initialData && (!formData || !formData.name)) setFormData(initialData);
+    if (initialData && (!formData || !formData.styling)) setFormData(initialData);
   }, [initialData, formData]);
 
   const handlePathnameAdd = () => {
@@ -180,12 +177,12 @@ export default function CampaignForm({
           <CardHeader>
             <CardTitle>Campaign Details</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 overflow-y-scroll max-h-[750px]">
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
-                placeholder="My Campaign"
+                placeholder="A unique name to easily identify your campaign"
                 value={formData?.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
@@ -196,6 +193,7 @@ export default function CampaignForm({
               <Label htmlFor="message">Title</Label>
               <Input
                 id="message"
+                placeholder="${METRIC} staked in Protocol!"
                 value={formData?.message ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, message: e.target.value })
@@ -206,6 +204,7 @@ export default function CampaignForm({
               <Label htmlFor="sub_message">Subtitle</Label>
               <Input
                 id="sub_message"
+                placeholder="Join the community and start earning rewards!"
                 value={formData?.sub_message ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, sub_message: e.target.value })
@@ -239,7 +238,7 @@ export default function CampaignForm({
                 </Label>
               )}
               <div className="space-y-2">
-                {!metrics ? (
+                {!metrics?.length ? (
                   <Skeleton
                     className="
                       w-full
@@ -250,7 +249,7 @@ export default function CampaignForm({
                 "
                   />
                 ) : (
-                  metrics.map((metric) => (
+                  metrics?.map((metric) => (
                     <Badge key={metric.id} variant="outline">
                       {metric.name}
                     </Badge>
@@ -262,7 +261,7 @@ export default function CampaignForm({
             <Accordion type="single" collapsible>
               <AccordionItem value="item-1">
                 <AccordionTrigger>Overall Styling</AccordionTrigger>
-                <AccordionContent>
+                <AccordionContent className="p-2">
                   <div className="space-y-2">
                     <Label>Desktop Position</Label>
                     <Select
@@ -285,7 +284,7 @@ export default function CampaignForm({
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
+                  </div><br/>
                   <div className="space-y-2">
                     <Label>Mobile Position</Label>
                     <Select
@@ -311,8 +310,7 @@ export default function CampaignForm({
                     <label className="text-sm text-gray-500">
                       Select None to disable the notification on mobile
                     </label>
-                  </div>
-
+                  </div><br/>
                   <div className="space-y-2">
                     <Label htmlFor="fontFamily">Font Family</Label>
                     <Input
@@ -322,7 +320,7 @@ export default function CampaignForm({
                         handleStylingChange("fontFamily", e.target.value)
                       }
                     />
-                  </div>
+                  </div><br/>
                   <div className="space-y-2">
                     <Label htmlFor="titleColor">Title Color</Label>
                     <Input
@@ -333,7 +331,7 @@ export default function CampaignForm({
                         handleStylingChange("titleColor", e.target.value)
                       }
                     />
-                  </div>
+                  </div><br/>
                   <div className="space-y-2">
                     <Label htmlFor="subtitleColor">Subtitle Color</Label>
                     <Input
@@ -344,7 +342,7 @@ export default function CampaignForm({
                         handleStylingChange("subtitleColor", e.target.value)
                       }
                     />
-                  </div>
+                  </div><br/>
                   <div className="space-y-2">
                     <Label htmlFor="backgroundColor">Background Color</Label>
                     <Input
@@ -355,7 +353,7 @@ export default function CampaignForm({
                         handleStylingChange("backgroundColor", e.target.value)
                       }
                     />
-                  </div>
+                  </div><br/>
                   <div className="space-y-2">
                     <Label htmlFor="border">Border</Label>
                     <Input
@@ -365,7 +363,7 @@ export default function CampaignForm({
                         handleStylingChange("border", e.target.value)
                       }
                     />
-                  </div>
+                  </div><br/>
                   <div className="space-y-2">
                     <Label htmlFor="borderRadius">Border Radius</Label>
                     <Input
@@ -375,7 +373,7 @@ export default function CampaignForm({
                         handleStylingChange("borderRadius", e.target.value)
                       }
                     />
-                  </div>
+                  </div><br/>
                   <div className="space-y-2">
                     <Label htmlFor="boxShadow">Box Shadow</Label>
                     <Input
@@ -385,12 +383,12 @@ export default function CampaignForm({
                         handleStylingChange("boxShadow", e.target.value)
                       }
                     />
-                  </div>
+                  </div><br/>
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-2">
                 <AccordionTrigger>Icon Styling</AccordionTrigger>
-                <AccordionContent>
+                <AccordionContent className="p-2">
                   <Tabs defaultValue="predefined">
                     <TabsList>
                       <TabsTrigger value="predefined">Predefined</TabsTrigger>
@@ -441,8 +439,7 @@ export default function CampaignForm({
                         }}
                       />
                     </TabsContent>
-                  </Tabs>
-
+                  </Tabs><br/>
                   <div className="space-y-2">
                     <Label htmlFor="iconBackgroundColor">
                       Icon Background Color
@@ -458,7 +455,7 @@ export default function CampaignForm({
                         )
                       }
                     />
-                  </div>
+                  </div><br/>
                   <div className="space-y-2">
                     <Label htmlFor="iconColor">Icon Color</Label>
                     <Input
@@ -469,18 +466,18 @@ export default function CampaignForm({
                         handleStylingChange("iconColor", e.target.value)
                       }
                     />
-                  </div>
+                  </div><br/>
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-3">
                 <AccordionTrigger>Where to show it</AccordionTrigger>
-                <AccordionContent>
+                <AccordionContent className="p-2">
                   {/* Allowed hostnames. Add as badges */}
                   <div className="space-y-2">
-                    <Label>Allowed Hostnames</Label>
+                    <Label>Allowed Domains</Label>
                     <p className="text-sm text-gray-500">
-                      Specify hostnames where this campaign is allowed to run.
-                      Hostnames should not include protocols (e.g., use
+                      Specify domains where this campaign is allowed to run.
+                      Domains should not include protocols (e.g., use
                       example.com instead of https://example.com).
                     </p>
 
@@ -508,7 +505,7 @@ export default function CampaignForm({
                     {/* Input for Adding New Hostnames */}
                     <div className="flex items-center space-x-2 mt-2">
                       <Input
-                        placeholder="Add a hostname (e.g., example.com)"
+                        placeholder="Add a domain (e.g., example.com)"
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault(); // Prevent form submission
@@ -560,15 +557,15 @@ export default function CampaignForm({
                         Add
                       </Button>
                     </div>
-                  </div>
+                  </div><br/>
 
                   {/* Pathnames */}
                   <div className="space-y-2">
-                    <Label>Allowed Pathnames</Label>
+                    <Label>Allowed Pages</Label>
                     <p className="text-sm text-gray-500">
-                      Specify pathnames where this campaign is allowed to run.
+                      Specify on which pages this campaign is allowed to run.
                       You can use regex for advanced matching (e.g.,{" "}
-                      <code>^/metrics$</code>).
+                      <code>^/metrics$</code>). By default, all pages are allowed.
                     </p>
 
                     {/* Existing Pathnames as Badges */}
@@ -669,12 +666,12 @@ export default function CampaignForm({
                         Add
                       </Button>
                     </div>
-                  </div>
+                  </div><br/>
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-4">
                 <AccordionTrigger>When to show it</AccordionTrigger>
-                <AccordionContent>
+                <AccordionContent className="p-2">
                   <div className="space-y-2">
                     <Label htmlFor="delay">Delay</Label>
                     <br />
@@ -691,7 +688,7 @@ export default function CampaignForm({
                         })
                       }
                     />
-                  </div>
+                  </div><br/>
                   <div className="space-y-2">
                     <Label htmlFor="delay">Timer</Label>
                     <br />
@@ -710,7 +707,7 @@ export default function CampaignForm({
                         })
                       }
                     />
-                  </div>
+                  </div><br/>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -774,10 +771,10 @@ export default function CampaignForm({
                       type: "swaps",
                       verifications: [],
                       subscriptionPlan: "free", //todo adapt to user plan
-                      message: formData?.message ?? "",
+                      message: formData?.message ?? "Your message here",
+                      subMessage: formData?.sub_message ?? "Your sub message here",
                       iconName: (formData?.iconName as IconName) ?? undefined,
                       iconSrc: formData?.iconSrc ?? undefined,
-                      subMessage: formData?.sub_message ?? "",
                       styling: {
                         ...defaultStyling,
                         ...(formData?.styling as NotificationStylingRequired),

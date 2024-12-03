@@ -127,7 +127,8 @@ export type NotificationResponse = z.infer<typeof notificationResponseSchema>;
 function renderTextWithMetricStyles(
   text: string,
   baseColor: string,
-  availableMetricNames: Set<string>
+  availableMetricNames: Set<string>,
+  fontSize = "14px"
 ): HTMLDivElement {
   if (
     !availableMetricNames.size ||
@@ -137,12 +138,14 @@ function renderTextWithMetricStyles(
   ) {
     const span = document.createElement("div");
     span.textContent = text;
+    span.style.fontSize = fontSize;
     span.style.color = baseColor;
 
     return span;
   }
 
   const container = document.createElement("div");
+  container.style.fontSize = fontSize;
   const regex = /{(.*?)}/g;
   const parts = text.split(regex);
 
@@ -302,6 +305,36 @@ export const createNotification = (
     }
   }
 
+  // Close button
+  const closeButton = document.createElement("button");
+  closeButton.textContent = "✕";
+  closeButton.style.position = "absolute";
+  closeButton.style.top = "50%";
+  closeButton.style.right = "20px";
+  closeButton.style.transform = "translateY(-50%)";
+  closeButton.style.background = "none";
+  closeButton.style.border = "none";
+  closeButton.style.cursor = "pointer";
+  closeButton.style.fontSize = "16px";
+  closeButton.style.color = "#888";
+  closeButton.style.transition = "color 0.2s ease, transform 0.2s ease"; // Smooth transitions
+
+  // Hover styles
+  closeButton.addEventListener("mouseenter", () => {
+    closeButton.style.color = "#555"; // Darker color on hover
+    closeButton.style.transform = "translateY(-50%) scale(1.2)"; // Slightly enlarge
+  });
+
+  closeButton.addEventListener("mouseleave", () => {
+    closeButton.style.color = "#888"; // Original color
+    closeButton.style.transform = "translateY(-50%) scale(1)"; // Reset size
+  });
+
+  // Add close functionality
+  closeButton.addEventListener("click", () => {
+    notification.remove();
+  });
+
   // Icon container
   const iconContainer = document.createElement("div");
   iconContainer.style.width = "50px";
@@ -373,7 +406,8 @@ export const createNotification = (
     subtitle = renderTextWithMetricStyles(
       params.subMessage,
       params.styling.subtitleColor,
-      metrics
+      metrics,
+      "10px"
     );
   else {
     subtitle = document.createElement("p");
@@ -533,6 +567,7 @@ export const createNotification = (
   }
 
   // Assemble the notification
+  notification.appendChild(closeButton);
   notification.appendChild(iconContainer);
   notification.appendChild(textContainer);
 

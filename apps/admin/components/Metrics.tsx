@@ -82,7 +82,7 @@ export default function MetricsManager() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {metrics.map((metric) => (
+                {metrics?.map((metric) => (
                   <TableRow key={metric.id}>
                     <TableCell>{metric.name}</TableCell>
                     <TableCell>{metric.description}</TableCell>

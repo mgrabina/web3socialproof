@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import ContractVerificationDialog from "@/components/ContractOwnershipVerificationDialog";
+import { LoadingTable } from "@/components/LoadingTable";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -10,24 +12,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { CheckCircle, AlertTriangle } from "lucide-react";
 import { SelectContract } from "@web3socialproof/db";
-import ContractVerificationDialog from "@/components/ContractOwnershipVerificationDialog";
-import { LoadingTable } from "@/components/LoadingTable";
-import { shortenAddress } from "@web3socialproof/shared/utils/evm";
 import {
   addressToExplorerUrl,
   chainIdToName,
   isChainIdSupported,
 } from "@web3socialproof/shared/constants/chains";
+import { shortenAddress } from "@web3socialproof/shared/utils/evm";
+import { AlertTriangle, CheckCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function ContractsVerificationManager() {
   const [contracts, setContracts] = useState<SelectContract[]>([]);
@@ -89,12 +83,16 @@ export default function ContractsVerificationManager() {
       <Card className="w-full max-w-4xl mx-auto">
         <CardHeader>
           <CardTitle>Contracts</CardTitle>
+          <label className="text-sm text-gray-600">
+            We ask everyone to verify the ownership of each contract used in
+            metrics, to ensure nobody can impersonate others.
+          </label>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <LoadingTable></LoadingTable>
           ) : contracts.length === 0 ? (
-            <p>No contracts found.</p>
+            <p>No contracts used in metrics yet.</p>
           ) : (
             <Table>
               <TableHeader>

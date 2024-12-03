@@ -1,29 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import {
-  createConfig,
-  custom,
-  useAccount,
-  useConnect,
-  useSignMessage,
-  WagmiProvider,
-} from "wagmi";
-import { mainnet } from "wagmi/chains";
+import { env } from "@/lib/constants";
+import { getTrpcClientForClient } from "@/utils/trpc/client";
 import {
   ConnectButton,
+  getDefaultConfig,
   RainbowKitProvider,
   useAccountModal,
 } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
-import { getTrpcClientForClient } from "@/utils/trpc/client";
-import { env } from "@/lib/constants";
-import { getDefaultConfig } from "@rainbow-me/rainbowkit";
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import { Check, Copy } from "lucide-react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { shortenAddress } from "@web3socialproof/shared/utils/evm";
+import { Check, Copy } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useAccount, useConnect, useSignMessage, WagmiProvider } from "wagmi";
+import { mainnet } from "wagmi/chains";
 
 export default function ContractVerification({
   chainId,
@@ -167,8 +160,8 @@ function ContractOwnershipVerificationContainer({
   return (
     <div className="space-y-4">
       <label className="block">
-        Please sign the verification code with the wallet used to deploy the
-        contract to verify your ownership.
+        To verify the ownership of this contract, we need to signed a code
+        generated for you, using the contract deployer wallet.
       </label>
       <div className="space-y-2 text-gray-500">
         <p>Chain ID: {chainId}</p>
@@ -177,10 +170,35 @@ function ContractOwnershipVerificationContainer({
           <p className="text-sm mt-2">Verification Code: {verificationCode}</p>
         )}
       </div>
+
+      <div className="flex items-center space-x-2 mt-4">
+        <label className="block text-sm text-gray-500">
+          In case you were not the deployer, get a shareable link for a
+          teammate:
+        </label>
+        <Button
+          variant="outline"
+          className="flex items-center space-x-2"
+          onClick={handleCopyLink}
+        >
+          {copied ? (
+            <>
+              <Check className="w-4 h-4" />
+              <span>Copied!</span>
+            </>
+          ) : (
+            <>
+              <Copy className="w-4 h-4" />
+              <span>Copy Link</span>
+            </>
+          )}
+        </Button>
+      </div>
+
       <div className="flex items-center space-x-4">
         <div className="flex-grow">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Custom Signature
+            Insert a custom signature generated somewhere else
           </label>
           <input
             type="text"
@@ -226,29 +244,10 @@ function ContractOwnershipVerificationContainer({
           </label>
         </>
       )}
-
-      <div className="flex items-center space-x-2 mt-4">
-        <label className="block text-sm text-gray-500">
-          Get a shareable link for a teammate:
-        </label>
-        <Button
-          variant="outline"
-          className="flex items-center space-x-2"
-          onClick={handleCopyLink}
-        >
-          {copied ? (
-            <>
-              <Check className="w-4 h-4" />
-              <span>Copied!</span>
-            </>
-          ) : (
-            <>
-              <Copy className="w-4 h-4" />
-              <span>Copy Link</span>
-            </>
-          )}
-        </Button>
-      </div>
+      <label className="block text-sm text-gray-500 mt-2">
+        You will not make any transactions on-chain, but only sign a message
+        off-chain, so this is safe and no gas fees are involved.
+      </label>
     </div>
   );
 }

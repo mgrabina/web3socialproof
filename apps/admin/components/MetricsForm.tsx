@@ -74,7 +74,13 @@ export default function MetricsForm({
   });
 
   const handleAddEvent = () => {
-    setVariables([...(variables ?? []), currentEvent]);
+    setVariables([
+      ...(variables ?? []),
+      {
+        ...currentEvent,
+        enabled: true,
+      },
+    ]);
     setCurrentEvent({
       chain_id: 0,
       contract_address: "",
@@ -408,9 +414,12 @@ export default function MetricsForm({
                 ) : (
                   <div
                     onClick={() => setIsContractOwnershipDialogOpen(true)}
-                    className="text-sm text-red-400 opacity-75 hover:opacity-100 cursor-pointer hover:text-red-700"
+                    className="text-sm text-red-400 opacity-75 hover:opacity-100 cursor-pointer hover:text-red-700 hover:underline"
                   >
-                    <label>Verify your ownership on this contract</label>
+                    <label>
+                      We need to verify your ownership on this contract. Please
+                      click here.
+                    </label>
                   </div>
                 ))}
               <ContractVerificationDialog
@@ -620,6 +629,11 @@ export default function MetricsForm({
           <Button
             className="w-full mt-4"
             variant="default"
+            disabled={
+              !currentEvent.chain_id ||
+              !currentEvent.contract_address ||
+              !currentEvent.event_name
+            }
             onClick={handleAddEvent}
           >
             Add Event
