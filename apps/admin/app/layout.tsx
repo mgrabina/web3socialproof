@@ -1,4 +1,5 @@
 import DashboardHeader from "@/components/DashboardHeader";
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
@@ -12,7 +13,6 @@ import { onboardingSteps } from "@/lib/onboarding";
 import { generateStripeBillingPortalLink } from "@/utils/stripe/api";
 import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
 import console from "console";
-import { useEffect } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -67,6 +67,7 @@ export default async function RootLayout({
         ></script>
       </head>
       <body className={inter.className}>
+        <Analytics />
         <OnboardingProvider>
           <div>
             <DashboardHeader
