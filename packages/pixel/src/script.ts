@@ -13,6 +13,7 @@ import { trpcApiClient } from "./trpc";
 let apiKey: string | null = null;
 let env: PixelEnv = "production";
 let campaignId: number | null = null;
+let lastPathnameWithSearch: string | null = null;
 
 // Main function to initialize the widget
 async function initializeWidget() {
@@ -56,6 +57,16 @@ async function initializeWidget() {
 
     // Function to handle URL changes
     async function handleUrlChange() {
+      const currentPathnameWithSearch = `${window.location.pathname}${window.location.search}`;
+
+      // Ignore changes if only the hash changes
+      if (currentPathnameWithSearch === lastPathnameWithSearch) {
+        console.info("[Herd] Ignoring hash change.");
+        return;
+      }
+
+      lastPathnameWithSearch = currentPathnameWithSearch;
+
       if (!apiKey) {
         throw new Error("API key is missing");
       }
