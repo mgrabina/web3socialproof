@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
 import { SelectMetric } from "@web3socialproof/db";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Pause, Play, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LoadingTable } from "./LoadingTable";
@@ -57,6 +57,48 @@ export default function MetricsManager() {
     }
   };
 
+  const handlePauseMetric = async (metricId: number) => {
+    try {
+      await fetch(`/metrics/api/${metricId}/pause`, {
+        method: "POST",
+      });
+      setMetrics(
+        metrics.map((m) => (m.id === metricId ? { ...m, enabled: false } : m))
+      );
+      toast({
+        title: "Metric Paused",
+        description: "Metric paused successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to pause metric.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handlePlayMetric = async (metricId: number) => {
+    try {
+      await fetch(`/metrics/api/${metricId}/play`, {
+        method: "POST",
+      });
+      setMetrics(
+        metrics.map((m) => (m.id === metricId ? { ...m, enabled: true } : m))
+      );
+      toast({
+        title: "Metric Played",
+        description: "Metric played successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to play metric.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex justify-between items-center">
@@ -91,6 +133,24 @@ export default function MetricsManager() {
                       {metric.enabled ? "Active" : "Paused"}
                     </TableCell>
                     <TableCell className="text-right">
+                      {/* Pause or Play */}
+                      {metric.enabled ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handlePauseMetric(metric.id)}
+                        >
+                          <Pause className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handlePlayMetric(metric.id)}
+                        >
+                          <Play className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"

@@ -18,7 +18,7 @@ export async function DELETE(
 
   try {
     await db.delete(apiKeyTable).where(eq(apiKeyTable.api_key, key));
-    return new NextResponse(null, { status: 204 });
+    return new NextResponse(null, { status: 200 });
   } catch (error) {
     console.error(error);
     return new NextResponse(null, { status: 500 });
