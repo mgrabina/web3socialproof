@@ -525,6 +525,7 @@ export default function MetricsForm({
                     handleEventChange("topic_index", topicIndex);
                     handleEventChange("data_key", undefined); // Clear data field
                   } else {
+                    // todo: CHECK DATA KEY INDEXING SHOULD NOT WORK 
                     handleEventChange("data_key", value);
                     handleEventChange("topic_index", undefined); // Clear topic
                   }

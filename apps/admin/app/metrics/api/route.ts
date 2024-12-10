@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
   const newMetric: InsertMetric = {
     name: metric.name,
     description: metric.description || "",
-    enabled: metric.enabled || "true",
+    enabled: true,
     calculation_type: metric.calculation_type || "count",
     protocol_id: protocol.id,
     created_at: new Date().toISOString(),
@@ -83,7 +83,9 @@ export async function POST(req: NextRequest) {
       contract_address: variable.contract_address,
       event_name: variable.event_name,
       topic_index:
-        variable.topic_index === "N/A"
+        !variable.topic_index && !variable.data_key
+          ? 1
+          : variable.topic_index === "N/A"
           ? null
           : parseInt(variable.topic_index, 10),
       data_key: variable.data_key,

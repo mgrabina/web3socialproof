@@ -70,6 +70,7 @@ export const verifySupabaseToken = async (token: string) => {
   const { data: userFromSupabase, error } = await client.auth.getUser(token);
 
   if (error) {
+    console.error("Error fetching user ", error);
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "Invalid token",
@@ -77,6 +78,7 @@ export const verifySupabaseToken = async (token: string) => {
   }
 
   if (!userFromSupabase.user.email) {
+    console.error("Invalid user, email not found"); 
     throw new TRPCError({
       code: "BAD_REQUEST",
       message: "Invalid user",
@@ -86,6 +88,7 @@ export const verifySupabaseToken = async (token: string) => {
   const user = await getUser(userFromSupabase.user.email);
 
   if (!user.protocol_id) {
+    console.error("User not associated with a protocol");
     throw new TRPCError({
       code: "BAD_REQUEST",
       message: "User not associated with a protocol",
