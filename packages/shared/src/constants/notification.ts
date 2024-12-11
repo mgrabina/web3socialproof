@@ -445,7 +445,7 @@ export const createNotification = (
           ? " by Herd"
           : ""
       }`
-    : "Please verify on-chain";
+    : "Verify on-chain";
 
   // Icon for the link
   const verificationIcon = document.createElement("img");
@@ -514,6 +514,7 @@ export const createNotification = (
   // Add hover events to ensure menu remains visible when moving between elements
   let isHovering = false;
 
+  // TODO ; CHECK HOVERING NOT WORKING
   const showTooltip = () => {
     tooltipContainer.style.display = "block";
   };

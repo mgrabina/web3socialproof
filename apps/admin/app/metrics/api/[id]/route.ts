@@ -1,18 +1,16 @@
 // pages/api/metrics/[id].ts
-import { NextRequest, NextResponse } from "next/server";
+import { getUserProtocol } from "@/utils/database/users";
 import {
   db,
-  metricsTable,
   eq,
-  logsTable,
-  metricsVariablesTable,
-  SelectMetric,
-  SelectLog,
   inArray,
   InsertLog,
   InsertMetric,
+  logsTable,
+  metricsTable,
+  metricsVariablesTable,
 } from "@web3socialproof/db";
-import { getUserProtocol } from "@/utils/database/users";
+import { NextRequest, NextResponse } from "next/server";
 import SuperJSON from "superjson";
 
 export async function PATCH(
@@ -251,14 +249,13 @@ export async function GET(
   }
 
   // Add variables
-  const variables = await db
+  let variables = await db
     .select()
-    .from(logsTable)
-    .fullJoin(
-      metricsVariablesTable,
-      eq(logsTable.id, metricsVariablesTable.variable_id)
-    )
+    .from(metricsVariablesTable)
+    .fullJoin(logsTable, eq(metricsVariablesTable.variable_id, logsTable.id))
     .where(eq(metricsVariablesTable.metric_id, Number(id)));
+
+  console.log(variables);
 
   return NextResponse.json(
     SuperJSON.serialize({

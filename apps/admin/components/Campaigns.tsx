@@ -46,7 +46,7 @@ export default function CampaignManager() {
       });
       setCampaigns(campaigns.filter((c) => c.id !== campaignId));
       toast({
-        title: "Campaign Deleted",
+        title: "Success!",
         description: "Campaign deleted successfully.",
       });
     } catch (error) {

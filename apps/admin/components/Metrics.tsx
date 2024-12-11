@@ -45,7 +45,7 @@ export default function MetricsManager() {
       });
       setMetrics(metrics.filter((m) => m.id !== metricId));
       toast({
-        title: "Metric Deleted",
+        title: "Success!",
         description: "Metric deleted successfully.",
       });
     } catch (error) {
@@ -66,7 +66,7 @@ export default function MetricsManager() {
         metrics.map((m) => (m.id === metricId ? { ...m, enabled: false } : m))
       );
       toast({
-        title: "Metric Paused",
+        title: "Success!",
         description: "Metric paused successfully.",
       });
     } catch (error) {
@@ -87,7 +87,7 @@ export default function MetricsManager() {
         metrics.map((m) => (m.id === metricId ? { ...m, enabled: true } : m))
       );
       toast({
-        title: "Metric Played",
+        title: "Success!",
         description: "Metric played successfully.",
       });
     } catch (error) {

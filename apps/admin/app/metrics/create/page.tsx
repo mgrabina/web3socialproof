@@ -20,7 +20,7 @@ export default function CreateMetric() {
       }
 
       toast({
-        title: "Metric Created",
+        title: "Success!",
         description: "Metric created successfully.",
       });
 

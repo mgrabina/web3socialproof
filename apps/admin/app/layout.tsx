@@ -13,6 +13,7 @@ import { generateStripeBillingPortalLink } from "@/utils/stripe/api";
 import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
 import console from "console";
 import { useEffect } from "react";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -74,6 +75,7 @@ export default async function RootLayout({
               billingPortalLink={billingPortalURL}
               openRoutes={openRoutes}
             />
+            <Toaster />
             <StatusBarWrapper user={user} openRoutes={openRoutes} />
 
             {children}

@@ -69,11 +69,13 @@ export default function MetricsForm({
     event_name: "",
     topic_index: undefined,
     calculation_type: "count",
-    data_key: "",
+    data_key: undefined,
+    data_schema: undefined,
     start_block: 0,
   });
 
   const handleAddEvent = () => {
+    
     setVariables([
       ...(variables ?? []),
       {
@@ -87,7 +89,8 @@ export default function MetricsForm({
       event_name: "",
       topic_index: undefined,
       calculation_type: "count",
-      data_key: "",
+      data_key: undefined,
+      data_schema: undefined,
       start_block: 0,
     });
   };
@@ -197,6 +200,10 @@ export default function MetricsForm({
     setCurrentEvent({ ...currentEvent, [field]: value });
   };
 
+  const handleEventChanges = (values: Partial<InsertLog>) => {
+    setCurrentEvent({ ...currentEvent, ...values });
+  };
+
   const handleSubmit = async () => {
     await onSubmit({ metric: formData, variables });
   };
@@ -215,8 +222,8 @@ export default function MetricsForm({
     });
 
     toast({
-      title: "ABI Saved for future use",
-      description: "ABI saved successfully.",
+      title: "ABI Saved",
+      description: "ABI saved successfully for future use.",
     });
   };
 
@@ -274,21 +281,26 @@ export default function MetricsForm({
                   <TableHead>Chain</TableHead>
                   <TableHead>Contract Address</TableHead>
                   <TableHead>Event Name</TableHead>
-                  <TableHead>Topic Index</TableHead>
+                  <TableHead>Field</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {variables?.map((variable: any, index) => (
+                {variables?.map((variable: Partial<InsertLog>, index) => (
                   <TableRow key={index}>
                     <TableCell>
                       {chains[variable.chain_id as keyof typeof chains].name}
                     </TableCell>
                     <TableCell>
-                      {shortenAddress(variable.contract_address)}
+                      {variable.contract_address &&
+                        shortenAddress(variable.contract_address)}
                     </TableCell>
                     <TableCell>{variable.event_name}</TableCell>
-                    <TableCell>{variable.topic_index}</TableCell>
+                    <TableCell>
+                      {variable.topic_index
+                        ? `Topic ${variable.topic_index}`
+                        : variable.data_key ?? "N/A"}
+                    </TableCell>
                     <TableCell>
                       <Button
                         variant="destructive"
@@ -513,21 +525,30 @@ export default function MetricsForm({
               <Select
                 value={
                   currentEvent.topic_index !== undefined
-                    ? `Topic: ${topics[currentEvent.topic_index ?? 1]}`
+                    ? `topic-${topics[(currentEvent.topic_index ?? 1) - 1]}`
                     : currentEvent.data_key ?? undefined
                 }
                 onValueChange={(value) => {
+                  
                   // Determine if the selection is a topic or data field
-                  if (value.startsWith("Topic:")) {
+                  if (value.startsWith("topic-")) {
                     const topicIndex = topics.findIndex(
-                      (topic) => `Topic: ${topic}` === value
+                      (topic) => `topic-${topic}` === value
                     );
-                    handleEventChange("topic_index", topicIndex);
-                    handleEventChange("data_key", undefined); // Clear data field
+
+                    // Update the event with the selected topic
+                    handleEventChanges({
+                      topic_index: topicIndex + 1,
+                      data_key: undefined,
+                      data_schema: undefined,
+                    });
                   } else {
-                    // todo: CHECK DATA KEY INDEXING SHOULD NOT WORK 
-                    handleEventChange("data_key", value);
-                    handleEventChange("topic_index", undefined); // Clear topic
+                    // Handle data field selection
+                    handleEventChanges({
+                      topic_index: undefined,
+                      data_key: value,
+                      data_schema: currentEvent.event_name,
+                    });
                   }
                 }}
               >
@@ -536,10 +557,7 @@ export default function MetricsForm({
                 </SelectTrigger>
                 <SelectContent>
                   {topics.map((topic, index) => (
-                    <SelectItem
-                      key={`topic-${index}`}
-                      value={`Topic: ${topic}`}
-                    >
+                    <SelectItem key={`topic-${index}`} value={`topic-${topic}`}>
                       Topic: {topic}
                     </SelectItem>
                   ))}
@@ -563,8 +581,11 @@ export default function MetricsForm({
                   <Select
                     value={currentEvent.topic_index?.toString() || undefined}
                     onValueChange={(value) => {
-                      handleEventChange("topic_index", Number(value));
-                      handleEventChange("data_key", undefined); // Clear data field
+                      handleEventChanges({
+                        topic_index: Number(value) + 1,
+                        data_key: undefined,
+                        data_schema: undefined,
+                      });
                     }}
                   >
                     <SelectTrigger>
@@ -590,8 +611,11 @@ export default function MetricsForm({
                     value={currentEvent.data_key ?? undefined}
                     onChange={(e) => {
                       const value = e.target.value;
-                      handleEventChange("data_key", value);
-                      handleEventChange("topic_index", undefined); // Clear topic
+                      handleEventChanges({
+                        topic_index: undefined,
+                        data_key: value,
+                        data_schema: currentEvent.event_name,
+                      });
                     }}
                   />
                 </TabsContent>
@@ -633,7 +657,9 @@ export default function MetricsForm({
             disabled={
               !currentEvent.chain_id ||
               !currentEvent.contract_address ||
-              !currentEvent.event_name
+              !currentEvent.event_name ||
+              (currentEvent.topic_index == undefined &&
+                currentEvent.data_key == undefined)
             }
             onClick={handleAddEvent}
           >
