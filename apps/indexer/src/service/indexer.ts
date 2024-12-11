@@ -33,6 +33,7 @@ export async function fetchAndSaveNewEvents({
     logsToTrack = await db.select().from(logsTable);
   }
 
+  // todo - make parallel
   for (const logToTrack of logsToTrack) {
     const blockEnd = endBlock;
     let blockStart = Math.max(

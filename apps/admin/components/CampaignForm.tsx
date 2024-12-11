@@ -787,7 +787,6 @@ export default function CampaignForm({
                     {
                       campaign: 0,
                       type: "swaps",
-                      verifications: [],
                       subscriptionPlan: "free", //todo adapt to user plan
                       message: formData?.message ?? "Your message here",
                       subMessage:
@@ -798,6 +797,16 @@ export default function CampaignForm({
                         ...defaultStyling,
                         ...(formData?.styling as NotificationStylingRequired),
                       },
+                      verifications: [
+                        {
+                          chainId: 1,
+                          contractAddress:
+                            "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+                          isOwnershipVerified: true,
+                          chainName: "Ethereum",
+                          url: "https://etherscan.io/address/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+                        },
+                      ],
                     },
                     true,
                     availableMetricNames

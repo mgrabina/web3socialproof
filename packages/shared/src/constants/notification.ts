@@ -128,7 +128,7 @@ function renderTextWithMetricStyles(
   text: string,
   baseColor: string,
   availableMetricNames: Set<string>,
-  fontSize = "14px"
+  fontSize = "18px"
 ): HTMLDivElement {
   if (
     !availableMetricNames.size ||
@@ -154,8 +154,8 @@ function renderTextWithMetricStyles(
       // This is a placeholder (e.g., {METRIC})
       const isValidMetric = availableMetricNames?.has(part);
       const span = document.createElement("span");
-      span.textContent = `{${part}}`;
-      span.style.color = isValidMetric ? "#9EDF9C" : "#FA7070";
+      span.textContent = `3.5k`;
+      span.style.color = isValidMetric ? baseColor : "#FA7070";
       span.style.fontWeight = "bold";
       container.appendChild(span);
     } else {
@@ -270,7 +270,7 @@ export const createNotification = (
   notification.style.display = "flex";
   notification.style.alignItems = "center";
   notification.style.padding = "20px";
-  notification.style.overflow = "hidden";
+  // notification.style.overflow = "hidden";
   notification.style.border = params.styling.border || defaultStyling.border;
   notification.style.borderRadius =
     params.styling.borderRadius || defaultStyling.borderRadius;
@@ -278,8 +278,8 @@ export const createNotification = (
     params.styling.backgroundColor || defaultStyling.backgroundColor;
   notification.style.boxShadow =
     params.styling.boxShadow || defaultStyling.boxShadow;
-  notification.style.width = "300px";
-  notification.style.height = "85px";
+  notification.style.width = "400px";
+  notification.style.height = "120px";
   notification.style.fontFamily =
     params.styling.fontFamily || defaultStyling.fontFamily;
 
@@ -288,7 +288,7 @@ export const createNotification = (
   } else {
     // Production
     notification.style.position = "fixed";
-    notification.style.zIndex = "9999";
+    notification.style.zIndex = "999";
 
     if (isMobile()) {
       if (params.styling.mobilePosition !== "none") {
@@ -337,10 +337,10 @@ export const createNotification = (
 
   // Icon container
   const iconContainer = document.createElement("div");
-  iconContainer.style.width = "50px";
-  iconContainer.style.minWidth = "50px";
-  iconContainer.style.height = "50px";
-  iconContainer.style.minHeight = "50px";
+  iconContainer.style.width = "80px";
+  iconContainer.style.minWidth = "80px";
+  iconContainer.style.height = "80px";
+  iconContainer.style.minHeight = "80px";
   iconContainer.style.backgroundColor =
     params.styling.iconBackgroundColor || defaultStyling.iconBackgroundColor;
   iconContainer.style.borderRadius = "50%";
@@ -381,6 +381,7 @@ export const createNotification = (
   textContainer.style.overflowX = "hidden";
   textContainer.style.wordBreak = "break-word";
   textContainer.style.overflowY = "scroll";
+  textContainer.style.width = "80%";
   textContainer.style.maxHeight = "-webkit-fill-available";
 
   // Title
@@ -394,7 +395,7 @@ export const createNotification = (
   else {
     title = document.createElement("p");
     title.textContent = params.message;
-    title.style.fontSize = "14px";
+    title.style.fontSize = "18px";
     title.style.fontWeight = "bold";
     title.style.color = params.styling.titleColor;
     title.style.margin = "0";
@@ -412,7 +413,7 @@ export const createNotification = (
   else {
     subtitle = document.createElement("p");
     subtitle.textContent = params.subMessage;
-    subtitle.style.fontSize = "10px";
+    subtitle.style.fontSize = "13px";
     subtitle.style.color = params.styling.subtitleColor;
     subtitle.style.margin = "3px 0 0 0";
   }
@@ -439,6 +440,7 @@ export const createNotification = (
   verificationLink.style.cursor = "pointer";
   verificationLink.style.display = "flex";
   verificationLink.style.alignItems = "center";
+
   verificationLink.textContent = allVerified
     ? `Verified on-chain${
         params.subscriptionPlan.toLocaleLowerCase() != "enterprise"
@@ -466,7 +468,7 @@ export const createNotification = (
   tooltipContainer.style.padding = "8px";
   tooltipContainer.style.marginTop = "4px";
   tooltipContainer.style.display = "none"; // Hidden by default
-  tooltipContainer.style.zIndex = "100";
+  tooltipContainer.style.zIndex = "10000"; // Ensure it's above everything
   tooltipContainer.style.minWidth = "200px";
   tooltipContainer.style.whiteSpace = "nowrap";
 
@@ -528,6 +530,7 @@ export const createNotification = (
   verificationContainer.addEventListener("mouseenter", () => {
     isHovering = true;
     showTooltip();
+    tooltipContainer.style.display = "block";
 
     // Check for viewport overflow and adjust position
     const rect = tooltipContainer.getBoundingClientRect();
@@ -541,22 +544,25 @@ export const createNotification = (
 
   verificationContainer.addEventListener("mouseleave", () => {
     isHovering = false;
+    tooltipContainer.style.display = "none";
     setTimeout(hideTooltip, 200); // Delay hiding to allow mouse to move to the menu
   });
 
   tooltipContainer.addEventListener("mouseenter", () => {
     isHovering = true;
+    tooltipContainer.style.display = "block";
     showTooltip();
   });
 
   tooltipContainer.addEventListener("mouseleave", () => {
     isHovering = false;
+    tooltipContainer.style.display = "none";
     setTimeout(hideTooltip, 200); // Delay hiding to allow mouse to move back to the link
   });
 
   // Assemble the components
   verificationContainer.appendChild(verificationLink);
-  verificationContainer.appendChild(tooltipContainer);
+  notification.appendChild(tooltipContainer);
 
   // Assemble the text container
   textContainer.appendChild(title);
