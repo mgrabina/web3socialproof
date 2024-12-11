@@ -31,6 +31,7 @@ import {
 import { shortenAddress } from "@web3socialproof/shared/utils/evm";
 import { useEffect, useState } from "react";
 import ContractVerificationDialog from "./ContractOwnershipVerificationDialog";
+import { getEventSignatures } from "@/utils/blockchain/events";
 
 const calculationTypes = [
   { value: "count", label: "Count" },
@@ -131,14 +132,7 @@ export default function MetricsForm({
         const parsedAbi = JSON.parse(abi);
 
         // Filter for events and construct full signatures
-        const events = parsedAbi
-          .filter((item: any) => item.type === "event")
-          .map((item: any) => {
-            const inputs = item.inputs
-              .map((input: any) => input.type) // Extract types
-              .join(","); // Join types with commas
-            return `${item.name}(${inputs})`; // Construct the full event signature
-          });
+        const events = getEventSignatures(parsedAbi)
 
         setEventSignatures(events); // Save full event signatures
       } catch (error) {
