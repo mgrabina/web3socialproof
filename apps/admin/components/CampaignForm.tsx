@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { capitalize, capitalizeEachWord } from "@/utils/strings/string.utils";
 import { InsertCampaign, SelectMetric } from "@web3socialproof/db";
@@ -161,7 +162,10 @@ export default function CampaignForm({
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleStylingChange = (field: string, value: string) => {
+  const [isMobilePreview, setIsMobilePreview] = useState(false);
+  const [isVerifiedPreview, setIsVerifiedPreview] = useState(false);
+
+  const handleStylingChange = (field: string, value: any) => {
     setFormData((prev: any) => ({
       ...prev,
       styling: {
@@ -172,7 +176,7 @@ export default function CampaignForm({
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto p-6">
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
@@ -399,6 +403,22 @@ export default function CampaignForm({
               <AccordionItem value="item-2">
                 <AccordionTrigger>Icon Styling</AccordionTrigger>
                 <AccordionContent className="p-2">
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          checked={formData?.styling?.showIcon}
+                          onCheckedChange={(checked) =>
+                            handleStylingChange("showIcon", Boolean(checked))
+                          }
+                        />
+
+                        <Label htmlFor="airplane-mode">Show Icon</Label>
+                      </div>
+                    </div>
+                  </div>
+                  <br />
+
                   <Tabs defaultValue="predefined">
                     <TabsList>
                       <TabsTrigger value="predefined">Predefined</TabsTrigger>
@@ -476,6 +496,17 @@ export default function CampaignForm({
                       value={formData?.styling?.iconColor}
                       onChange={(e) =>
                         handleStylingChange("iconColor", e.target.value)
+                      }
+                    />
+                  </div>
+                  <br />
+                  <div className="space-y-2">
+                    <Label htmlFor="borderRadius">Container Radius</Label>
+                    <Input
+                      id="borderRadius"
+                      value={formData?.styling?.iconBorderRadius}
+                      onChange={(e) =>
+                        handleStylingChange("iconBorderRadius", e.target.value)
                       }
                     />
                   </div>
@@ -726,6 +757,29 @@ export default function CampaignForm({
                     />
                   </div>
                   <br />
+
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          checked={formData?.styling?.showClosingButton}
+                          onCheckedChange={(checked) =>
+                            handleStylingChange(
+                              "showClosingButton",
+                              Boolean(checked)
+                            )
+                          }
+                        />
+
+                        <Label htmlFor="airplane-mode">Closing button</Label>
+                      </div>
+                    </div>
+
+                    <label className="text-sm text-gray-500">
+                      Allow user to close the notification
+                    </label>
+                  </div>
+                  <br />
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -742,7 +796,7 @@ export default function CampaignForm({
                   setIsLoading(false); // End loading
                 }
               }}
-              disabled={isLoading} // Disable button during loading
+              disabled={isLoading || !formData?.message} // Disable button during loading
             >
               {isLoading ? (
                 <span className="flex items-center space-x-2">
@@ -780,6 +834,32 @@ export default function CampaignForm({
             <CardTitle>Preview</CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="space-y-4">
+              <label className="text-sm text-gray-500">
+                Toggle the options below to preview the notification.
+              </label>
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={isMobilePreview}
+                    onCheckedChange={() => setIsMobilePreview((prev) => !prev)}
+                  />
+                  <Label htmlFor="airplane-mode">Mobile View</Label>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={isVerifiedPreview}
+                    onCheckedChange={() =>
+                      setIsVerifiedPreview((prev) => !prev)
+                    }
+                  />
+                  <Label htmlFor="airplane-mode">Contracts Verification</Label>
+                </div>
+              </div>
+            </div>
+            <br />
             <div
               dangerouslySetInnerHTML={{
                 __html: (
@@ -802,14 +882,18 @@ export default function CampaignForm({
                           chainId: 1,
                           contractAddress:
                             "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
-                          isOwnershipVerified: true,
+                          isOwnershipVerified: false,
                           chainName: "Ethereum",
                           url: "https://etherscan.io/address/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
                         },
                       ],
                     },
-                    true,
-                    availableMetricNames
+                    {
+                      isPreview: true,
+                      isMobilePreview,
+                      isVerifiedPreview,
+                      previewMetrics: availableMetricNames,
+                    }
                   ) ?? (new HTMLElement() as any)
                 ).innerHTML,
               }}
