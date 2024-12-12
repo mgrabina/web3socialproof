@@ -1,21 +1,9 @@
-import {
-  HypersyncClient,
-  Log,
-  presetQueryLogsOfEvent,
-} from "@envio-dev/hypersync-client";
-import {
-  db,
-  desc,
-  eq,
-  inArray,
-  logsTable,
-  SelectLog,
-} from "@web3socialproof/db";
-import logger from "../utils/logger";
+import { Log, presetQueryLogsOfEvent } from "@envio-dev/hypersync-client";
+import { db, eq, inArray, logsTable, SelectLog } from "@web3socialproof/db";
+import { ethers } from "ethers";
 import keccak256 from "keccak256";
 import { createClients } from "../utils/hypersync";
-import { get } from "http";
-import { ethers } from "ethers";
+import logger from "../utils/logger";
 
 if (!process.env.HYPERSYNC_BEARER_TOKEN) {
   throw new Error("HYPERSYNC_BEARER_TOKEN environment variable not set");
@@ -45,6 +33,7 @@ export async function fetchAndSaveNewEvents({
     logsToTrack = await db.select().from(logsTable);
   }
 
+  // todo - make parallel
   for (const logToTrack of logsToTrack) {
     const blockEnd = endBlock;
     let blockStart = Math.max(
@@ -81,13 +70,16 @@ export async function fetchAndSaveNewEvents({
       ) {
         return BigInt(received.topics[config.topic_index] ?? 0);
       } else if (config.data_key) {
-        const schema = config.data_schema?.split(",") ?? [];
-        if (!schema || schema.length === 0) {
+        const schema = config.data_schema;
+        const schemaItems = config.data_schema?.split(",") ?? [];
+        if (!schema || !schemaItems || schemaItems.length === 0) {
           logger.error(`No schema found for variable ${config.id}`);
           return 0n;
         }
         // Find the index of data_key within the schema
-        const keyIndex = schema.findIndex((key) => key === config.data_key);
+        const keyIndex = schemaItems.findIndex(
+          (key) => key === config.data_key?.split(".")[0]
+        );
         if (keyIndex === -1) {
           logger.error(
             `data_key ${config.data_key} not found in schema for variable ${config.id}`
@@ -100,7 +92,7 @@ export async function fetchAndSaveNewEvents({
         }
 
         const decoder = ethers.AbiCoder.defaultAbiCoder();
-        const decodedData = decoder.decode(schema, received.data);
+        const decodedData = decoder.decode([schema], received.data);
         return BigInt(decodedData[keyIndex]);
       }
 

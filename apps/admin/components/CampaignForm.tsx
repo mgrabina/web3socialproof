@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { capitalize, capitalizeEachWord } from "@/utils/strings/string.utils";
 import { InsertCampaign, SelectMetric } from "@web3socialproof/db";
@@ -75,7 +76,8 @@ export default function CampaignForm({
   );
 
   useEffect(() => {
-    if (initialData && (!formData || !formData.styling)) setFormData(initialData);
+    if (initialData && (!formData || !formData.styling))
+      setFormData(initialData);
   }, [initialData, formData]);
 
   const handlePathnameAdd = () => {
@@ -160,7 +162,10 @@ export default function CampaignForm({
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleStylingChange = (field: string, value: string) => {
+  const [isMobilePreview, setIsMobilePreview] = useState(false);
+  const [isVerifiedPreview, setIsVerifiedPreview] = useState(false);
+
+  const handleStylingChange = (field: string, value: any) => {
     setFormData((prev: any) => ({
       ...prev,
       styling: {
@@ -171,7 +176,7 @@ export default function CampaignForm({
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto p-6">
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
@@ -193,7 +198,7 @@ export default function CampaignForm({
               <Label htmlFor="message">Title</Label>
               <Input
                 id="message"
-                placeholder="${METRIC} staked in Protocol!"
+                placeholder="{METRIC} staked in Protocol!"
                 value={formData?.message ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, message: e.target.value })
@@ -284,7 +289,8 @@ export default function CampaignForm({
                         ))}
                       </SelectContent>
                     </Select>
-                  </div><br/>
+                  </div>
+                  <br />
                   <div className="space-y-2">
                     <Label>Mobile Position</Label>
                     <Select
@@ -310,7 +316,8 @@ export default function CampaignForm({
                     <label className="text-sm text-gray-500">
                       Select None to disable the notification on mobile
                     </label>
-                  </div><br/>
+                  </div>
+                  <br />
                   <div className="space-y-2">
                     <Label htmlFor="fontFamily">Font Family</Label>
                     <Input
@@ -320,7 +327,8 @@ export default function CampaignForm({
                         handleStylingChange("fontFamily", e.target.value)
                       }
                     />
-                  </div><br/>
+                  </div>
+                  <br />
                   <div className="space-y-2">
                     <Label htmlFor="titleColor">Title Color</Label>
                     <Input
@@ -331,7 +339,8 @@ export default function CampaignForm({
                         handleStylingChange("titleColor", e.target.value)
                       }
                     />
-                  </div><br/>
+                  </div>
+                  <br />
                   <div className="space-y-2">
                     <Label htmlFor="subtitleColor">Subtitle Color</Label>
                     <Input
@@ -342,7 +351,8 @@ export default function CampaignForm({
                         handleStylingChange("subtitleColor", e.target.value)
                       }
                     />
-                  </div><br/>
+                  </div>
+                  <br />
                   <div className="space-y-2">
                     <Label htmlFor="backgroundColor">Background Color</Label>
                     <Input
@@ -353,7 +363,8 @@ export default function CampaignForm({
                         handleStylingChange("backgroundColor", e.target.value)
                       }
                     />
-                  </div><br/>
+                  </div>
+                  <br />
                   <div className="space-y-2">
                     <Label htmlFor="border">Border</Label>
                     <Input
@@ -363,7 +374,8 @@ export default function CampaignForm({
                         handleStylingChange("border", e.target.value)
                       }
                     />
-                  </div><br/>
+                  </div>
+                  <br />
                   <div className="space-y-2">
                     <Label htmlFor="borderRadius">Border Radius</Label>
                     <Input
@@ -373,7 +385,8 @@ export default function CampaignForm({
                         handleStylingChange("borderRadius", e.target.value)
                       }
                     />
-                  </div><br/>
+                  </div>
+                  <br />
                   <div className="space-y-2">
                     <Label htmlFor="boxShadow">Box Shadow</Label>
                     <Input
@@ -383,12 +396,29 @@ export default function CampaignForm({
                         handleStylingChange("boxShadow", e.target.value)
                       }
                     />
-                  </div><br/>
+                  </div>
+                  <br />
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-2">
                 <AccordionTrigger>Icon Styling</AccordionTrigger>
                 <AccordionContent className="p-2">
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          checked={formData?.styling?.showIcon}
+                          onCheckedChange={(checked) =>
+                            handleStylingChange("showIcon", Boolean(checked))
+                          }
+                        />
+
+                        <Label htmlFor="airplane-mode">Show Icon</Label>
+                      </div>
+                    </div>
+                  </div>
+                  <br />
+
                   <Tabs defaultValue="predefined">
                     <TabsList>
                       <TabsTrigger value="predefined">Predefined</TabsTrigger>
@@ -439,7 +469,8 @@ export default function CampaignForm({
                         }}
                       />
                     </TabsContent>
-                  </Tabs><br/>
+                  </Tabs>
+                  <br />
                   <div className="space-y-2">
                     <Label htmlFor="iconBackgroundColor">
                       Icon Background Color
@@ -455,7 +486,8 @@ export default function CampaignForm({
                         )
                       }
                     />
-                  </div><br/>
+                  </div>
+                  <br />
                   <div className="space-y-2">
                     <Label htmlFor="iconColor">Icon Color</Label>
                     <Input
@@ -466,7 +498,19 @@ export default function CampaignForm({
                         handleStylingChange("iconColor", e.target.value)
                       }
                     />
-                  </div><br/>
+                  </div>
+                  <br />
+                  <div className="space-y-2">
+                    <Label htmlFor="borderRadius">Container Radius</Label>
+                    <Input
+                      id="borderRadius"
+                      value={formData?.styling?.iconBorderRadius}
+                      onChange={(e) =>
+                        handleStylingChange("iconBorderRadius", e.target.value)
+                      }
+                    />
+                  </div>
+                  <br />
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-3">
@@ -506,6 +550,7 @@ export default function CampaignForm({
                     <div className="flex items-center space-x-2 mt-2">
                       <Input
                         placeholder="Add a domain (e.g., example.com)"
+                        id="domain-input"
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault(); // Prevent form submission
@@ -532,10 +577,9 @@ export default function CampaignForm({
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          const input =
-                            document.querySelector<HTMLInputElement>(
-                              'input[placeholder="Add a hostname (e.g., example.com)"]'
-                            );
+                          const input = document.getElementById(
+                            "domain-input"
+                          ) as HTMLInputElement;
                           if (input) {
                             const value = input.value.trim();
                             if (value) {
@@ -557,7 +601,8 @@ export default function CampaignForm({
                         Add
                       </Button>
                     </div>
-                  </div><br/>
+                  </div>
+                  <br />
 
                   {/* Pathnames */}
                   <div className="space-y-2">
@@ -565,7 +610,8 @@ export default function CampaignForm({
                     <p className="text-sm text-gray-500">
                       Specify on which pages this campaign is allowed to run.
                       You can use regex for advanced matching (e.g.,{" "}
-                      <code>^/metrics$</code>). By default, all pages are allowed.
+                      <code>^/metrics$</code>). By default, all pages are
+                      allowed.
                     </p>
 
                     {/* Existing Pathnames as Badges */}
@@ -601,6 +647,7 @@ export default function CampaignForm({
                     <div className="flex items-center space-x-2 mt-2">
                       <Input
                         placeholder="Add a pathname or regex (e.g., ^/metrics$)"
+                        id="pathname-input"
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault(); // Prevent form submission
@@ -634,10 +681,9 @@ export default function CampaignForm({
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          const input =
-                            document.querySelector<HTMLInputElement>(
-                              'input[placeholder="Add a pathname or regex (e.g., ^/metrics$)"]'
-                            );
+                          const input = document.getElementById(
+                            "pathname-input"
+                          ) as HTMLInputElement;
                           if (input) {
                             const value = input.value.trim();
                             // const isRegex =
@@ -666,7 +712,8 @@ export default function CampaignForm({
                         Add
                       </Button>
                     </div>
-                  </div><br/>
+                  </div>
+                  <br />
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-4">
@@ -688,7 +735,8 @@ export default function CampaignForm({
                         })
                       }
                     />
-                  </div><br/>
+                  </div>
+                  <br />
                   <div className="space-y-2">
                     <Label htmlFor="delay">Timer</Label>
                     <br />
@@ -707,7 +755,31 @@ export default function CampaignForm({
                         })
                       }
                     />
-                  </div><br/>
+                  </div>
+                  <br />
+
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          checked={formData?.styling?.showClosingButton}
+                          onCheckedChange={(checked) =>
+                            handleStylingChange(
+                              "showClosingButton",
+                              Boolean(checked)
+                            )
+                          }
+                        />
+
+                        <Label htmlFor="airplane-mode">Closing button</Label>
+                      </div>
+                    </div>
+
+                    <label className="text-sm text-gray-500">
+                      Allow user to close the notification
+                    </label>
+                  </div>
+                  <br />
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -724,7 +796,7 @@ export default function CampaignForm({
                   setIsLoading(false); // End loading
                 }
               }}
-              disabled={isLoading} // Disable button during loading
+              disabled={isLoading || !formData?.message} // Disable button during loading
             >
               {isLoading ? (
                 <span className="flex items-center space-x-2">
@@ -762,6 +834,32 @@ export default function CampaignForm({
             <CardTitle>Preview</CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="space-y-4">
+              <label className="text-sm text-gray-500">
+                Toggle the options below to preview the notification.
+              </label>
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={isMobilePreview}
+                    onCheckedChange={() => setIsMobilePreview((prev) => !prev)}
+                  />
+                  <Label htmlFor="airplane-mode">Mobile View</Label>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={isVerifiedPreview}
+                    onCheckedChange={() =>
+                      setIsVerifiedPreview((prev) => !prev)
+                    }
+                  />
+                  <Label htmlFor="airplane-mode">Contracts Verification</Label>
+                </div>
+              </div>
+            </div>
+            <br />
             <div
               dangerouslySetInnerHTML={{
                 __html: (
@@ -769,19 +867,33 @@ export default function CampaignForm({
                     {
                       campaign: 0,
                       type: "swaps",
-                      verifications: [],
                       subscriptionPlan: "free", //todo adapt to user plan
                       message: formData?.message ?? "Your message here",
-                      subMessage: formData?.sub_message ?? "Your sub message here",
+                      subMessage:
+                        formData?.sub_message ?? "Your sub message here",
                       iconName: (formData?.iconName as IconName) ?? undefined,
                       iconSrc: formData?.iconSrc ?? undefined,
                       styling: {
                         ...defaultStyling,
                         ...(formData?.styling as NotificationStylingRequired),
                       },
+                      verifications: [
+                        {
+                          chainId: 1,
+                          contractAddress:
+                            "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+                          isOwnershipVerified: false,
+                          chainName: "Ethereum",
+                          url: "https://etherscan.io/address/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+                        },
+                      ],
                     },
-                    true,
-                    availableMetricNames
+                    {
+                      isPreview: true,
+                      isMobilePreview,
+                      isVerifiedPreview,
+                      previewMetrics: availableMetricNames,
+                    }
                   ) ?? (new HTMLElement() as any)
                 ).innerHTML,
               }}

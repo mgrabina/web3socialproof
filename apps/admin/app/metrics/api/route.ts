@@ -37,7 +37,13 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { metric, variables } = await req.json();
+  const {
+    metric,
+    variables,
+  }: {
+    metric: any;
+    variables: any[];
+  } = await req.json();
 
   const protocol = await getUserProtocol();
 
@@ -69,12 +75,14 @@ export async function POST(req: NextRequest) {
       .values(newMetric)
       .returning();
 
-    if (!variables) {
+    if (!variables?.length) {
       return NextResponse.json(
         { metric: insertedMetric, variables: [] },
         { status: 201 }
       );
     }
+
+    console.debug("Inserting variables");
 
     // Prepare variables for bulk insert
     const variableRecords: InsertLog[] = variables?.map((variable: any) => ({
@@ -82,8 +90,9 @@ export async function POST(req: NextRequest) {
       chain_id: parseInt(variable.chain_id, 10),
       contract_address: variable.contract_address,
       event_name: variable.event_name,
+      calculation_type: variable.calculation_type || "count",
       topic_index:
-        !variable.topic_index && !variable.data_key
+        !variable.topic_index && !variable.data_key?.length
           ? 1
           : variable.topic_index === "N/A"
           ? null
@@ -96,7 +105,7 @@ export async function POST(req: NextRequest) {
     }));
 
     let insertedVariables;
-    if (!variableRecords?.length) {
+    if (variableRecords?.length) {
       // Bulk insert variables and get inserted IDs
       insertedVariables = await db
         .insert(logsTable)

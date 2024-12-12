@@ -4,9 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { OnboardingName } from "@/lib/onboarding";
-import { Eye, NotepadText, Star, TrendingUp } from "lucide-react";
+import { DollarSign, Eye, NotepadText, TrendingUp } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
+  Area,
+  AreaChart,
+  CartesianGrid,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -15,6 +19,12 @@ import {
   YAxis,
 } from "recharts";
 import IntegrationGuide from "./IntegrationGuide";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "./ui/chart";
 
 export default function Dashboard() {
   const [data, setData] = useState<any>(null);
@@ -67,8 +77,35 @@ export default function Dashboard() {
     totalImpressions,
     totalConversions,
     dailyImpressions,
-    mostImpressiveMetric,
+    dailyConversions,
   } = data;
+
+  type dailyData = {
+    date: string;
+    count?: number;
+  };
+  // Join daily impressions and conversions by date
+  const chartData = dailyImpressions.map((impression: dailyData) => {
+    const conversion = dailyConversions.find(
+      (conversion: dailyData) => conversion.date === impression.date
+    );
+    return {
+      date: impression.date,
+      impressions: impression.count,
+      conversions: conversion?.count,
+    };
+  });
+
+  const chartConfig = {
+    impressions: {
+      label: "Impressions",
+      color: "hsl(var(--chart-1))",
+    },
+    conversions: {
+      label: "Conversions",
+      color: "hsl(var(--chart-1))",
+    },
+  } satisfies ChartConfig;
 
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-navy-900 to-navy-950">
@@ -116,11 +153,23 @@ export default function Dashboard() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium">Total Conversions</p>
-                    <Star className="h-4 w-4 text-blue-500" />
+                    <DollarSign className="h-4 w-4 text-blue-500" />
                   </div>
-                  <p className="text-2xl font-bold">
-                    {totalConversions?.value ?? "Integrate to see"}
-                  </p>
+                  {totalConversions?.value ? (
+                    <p className="text-2xl font-bold">
+                      {totalConversions?.value}
+                    </p>
+                  ) : (
+                    <Link
+                      className="
+                    text-blue-500 hover:text-blue-700
+                    "
+                      href="https://docs.gobyherd.com/campaigns/beta-conversions"
+                      target="_blank"
+                    >
+                      Integrate
+                    </Link>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -129,6 +178,37 @@ export default function Dashboard() {
             <Card>
               <CardContent className="pt-4">
                 <h2 className="text-lg font-semibold">Daily Impressions</h2>
+
+                <ChartContainer config={chartConfig}>
+                  <AreaChart
+                    data={chartData}
+                    margin={{
+                      left: 12,
+                      right: 12,
+                    }}
+                  >
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="month"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      tickFormatter={(value) => value.slice(0, 3)}
+                    />
+                    <ChartTooltip
+                      cursor={false}
+                      content={<ChartTooltipContent indicator="line" />}
+                    />
+                    <Area
+                      dataKey="desktop"
+                      type="natural"
+                      fill="var(--color-desktop)"
+                      fillOpacity={0.4}
+                      stroke="var(--color-desktop)"
+                    />
+                  </AreaChart>
+                </ChartContainer>
+
                 <ResponsiveContainer width="100%" height={300} className="pt-2">
                   <LineChart data={dailyImpressions}>
                     {/* <CartesianGrid strokeDasharray="3 3" /> */}

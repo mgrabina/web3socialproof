@@ -9,6 +9,7 @@ import "./globals.css";
 import { OnboardingProvider } from "@/components/OnboardingProvider";
 import { NextStep } from "@/components/OnboardingStep";
 import StatusBarWrapper from "@/components/StatusBarWrapper";
+import { Toaster } from "@/components/ui/toaster";
 import { onboardingSteps } from "@/lib/onboarding";
 import { generateStripeBillingPortalLink } from "@/utils/stripe/api";
 import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
@@ -75,6 +76,7 @@ export default async function RootLayout({
               billingPortalLink={billingPortalURL}
               openRoutes={openRoutes}
             />
+            <Toaster />
             <StatusBarWrapper user={user} openRoutes={openRoutes} />
 
             {children}

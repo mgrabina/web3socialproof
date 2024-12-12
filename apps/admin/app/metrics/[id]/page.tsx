@@ -53,7 +53,7 @@ export default function EditMetric() {
       }
 
       toast({
-        title: "Metric Updated",
+        title: "Success!",
         description: "Metric updated successfully.",
       });
 
