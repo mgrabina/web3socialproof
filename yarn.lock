@@ -5049,7 +5049,7 @@ __metadata:
     eslint-config-next: "npm:14.2.5"
     framer-motion: "npm:^11.11.17"
     html-react-parser: "npm:^5.1.18"
-    lucide-react: "npm:^0.428.0"
+    lucide-react: "npm:^0.468.0"
     next: "npm:14.2.5"
     nextstepjs: "npm:^1.2.2"
     nodemon: "npm:^3.0.2"
@@ -5062,7 +5062,7 @@ __metadata:
     react-dom: "npm:^18"
     react-icons: "npm:^5.3.0"
     react-syntax-highlighter: "npm:^15.6.1"
-    recharts: "npm:^2.13.3"
+    recharts: "npm:^2.14.1"
     stripe: "npm:^16.9.0"
     superjson: "npm:^2.2.1"
     tailwind-merge: "npm:^2.5.2"
@@ -11892,12 +11892,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lucide-react@npm:^0.428.0":
-  version: 0.428.0
-  resolution: "lucide-react@npm:0.428.0"
+"lucide-react@npm:^0.468.0":
+  version: 0.468.0
+  resolution: "lucide-react@npm:0.468.0"
   peerDependencies:
     react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc
-  checksum: 902e2c44f8de99d5f005b289a8cbbf17f290bf8de2f3f4ba0f38a2c3dc08b1ae15bc8e50ac8fdc4ebffdb1a72ddf14f315c88210b21d61740a0ed9834f37ba52
+  checksum: b61907e20c529a6040e43901ba3e4dbcae226b7f9faf9a3c03ccbd3acab1b8241d309e481d6103eca584ed21fb1471204d6d729539079c09ab3313174bf40efc
   languageName: node
   linkType: hard
 
@@ -14609,9 +14609,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"recharts@npm:^2.13.3":
-  version: 2.13.3
-  resolution: "recharts@npm:2.13.3"
+"recharts@npm:^2.14.1":
+  version: 2.14.1
+  resolution: "recharts@npm:2.14.1"
   dependencies:
     clsx: "npm:^2.0.0"
     eventemitter3: "npm:^4.0.1"
@@ -14624,7 +14624,7 @@ __metadata:
   peerDependencies:
     react: ^16.0.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 0871fbd281c341a45700a7b8d585e5aae6b77d7e8d5fa810ff92c3f0256f905c8d9eaab15be29cd6aa34dde6e899d13a91964a08ea66a643b6884f7374f3060d
+  checksum: b64750be74fc8d2cb41570b86711a1309db330de188c3b3b68c74c112349bd36ff3f2234ea7ccf3571cc12d4a53e7c17a35dee3818ac140adb515f6ea25f6a01
   languageName: node
   linkType: hard
 

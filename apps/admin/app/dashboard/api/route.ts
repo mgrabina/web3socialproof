@@ -97,12 +97,32 @@ export async function GET(req: NextRequest) {
       .groupBy(sql`date(impressions_table.timestamp)`) // Group by the date part
       .orderBy(sql`date(impressions_table.timestamp)`); // Ensure proper ordering
 
+      const dailyConversions = await db
+      .select({
+        date: sql`date(conversions_table.timestamp)`.as("date"),
+        count: sql`COUNT(DISTINCT ${conversionsTable.id})`.as("count"),
+      })
+      .from(conversionsTable)
+      .leftJoin(
+        campaignsTable,
+        eq(conversionsTable.campaign_id, campaignsTable.id)
+      )
+      .where(
+        and(
+          eq(campaignsTable.protocol_id, protocolId),
+          gte(conversionsTable.timestamp, startDate)
+        )
+      )
+      .groupBy(sql`date(conversions_table.timestamp)`) // Group by the date part
+      .orderBy(sql`date(conversions_table.timestamp)`); // Ensure proper ordering
+
     return NextResponse.json({
       totalCampaigns: totalCampaigns,
       totalMetrics: totalMetrics,
       totalImpressions: totalImpressions,
       totalConversions: totalConversions,
       dailyImpressions,
+      dailyConversions,
       mostImpressiveMetric:
         mostImpressiveMetric.length === 0
           ? undefined
