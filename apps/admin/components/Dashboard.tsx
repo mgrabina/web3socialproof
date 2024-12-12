@@ -103,7 +103,7 @@ export default function Dashboard() {
     },
     conversions: {
       label: "Conversions",
-      color: "hsl(var(--chart-1))",
+      color: "hsl(var(--chart-2))",
     },
   } satisfies ChartConfig;
 
@@ -189,7 +189,7 @@ export default function Dashboard() {
                   >
                     <CartesianGrid vertical={false} />
                     <XAxis
-                      dataKey="month"
+                      dataKey="date"
                       tickLine={false}
                       axisLine={false}
                       tickMargin={8}
@@ -200,31 +200,21 @@ export default function Dashboard() {
                       content={<ChartTooltipContent indicator="line" />}
                     />
                     <Area
-                      dataKey="desktop"
+                      dataKey="impressions"
                       type="natural"
-                      fill="var(--color-desktop)"
+                      fill="var(--color-impressions)"
                       fillOpacity={0.4}
-                      stroke="var(--color-desktop)"
+                      stroke="var(--color-impressions)"
+                    />
+                    <Area
+                      dataKey="conversions"
+                      type="natural"
+                      fill="var(--color-conversions)"
+                      fillOpacity={0.4}
+                      stroke="var(--color-conversions)"
                     />
                   </AreaChart>
                 </ChartContainer>
-
-                <ResponsiveContainer width="100%" height={300} className="pt-2">
-                  <LineChart data={dailyImpressions}>
-                    {/* <CartesianGrid strokeDasharray="3 3" /> */}
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line
-                      type="monotone"
-                      dataKey="count"
-                      stroke="#8884d8"
-                      activeDot={{ r: 8 }}
-                      isAnimationActive={true}
-                      animationDuration={1500}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
               </CardContent>
             </Card>
           </div>
