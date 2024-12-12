@@ -339,7 +339,7 @@ export const createNotification = (
   notification.style.boxShadow =
     params.styling.boxShadow || defaultStyling.boxShadow;
   notification.style.width = responsiveStyles.width;
-  notification.style.height = responsiveStyles.height;
+  // notification.style.height = responsiveStyles.height;
   notification.style.fontFamily =
     params.styling.fontFamily || defaultStyling.fontFamily;
 

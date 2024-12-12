@@ -3,12 +3,20 @@
 import { HelpCircle, Menu } from "lucide-react";
 import Link from "next/link";
 
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+} from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
 import { User } from "@supabase/supabase-js";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import DashboardHeaderProfileDropdown from "./DashboardHeaderProfileDropdown";
+import { Badge } from "./ui/badge";
+import { navigationMenuTriggerStyle } from "./ui/navigation-menu";
 
 export default function DashboardHeader({
   user,
@@ -60,22 +68,33 @@ export default function DashboardHeader({
           {/* <Suspense fallback={<Badge variant="outline" className="mr-2"><Skeleton className="w-[50px] h-[20px] rounded-full" /></Badge>}>
                         <Badge variant="outline" className="mr-2 min-w-[60px]">{stripePlan}</Badge>
                     </Suspense> */}
-          <nav className="flex items-center space-x-6 text-sm font-medium">
-            <Link
-              className="transition-colors hover:text-foreground/80 text-foreground"
-              href="/metrics"
-              id="header-metrics-link"
-            >
-              Metrics
-            </Link>
-            <Link
-              className="transition-colors hover:text-foreground/80 text-foreground"
-              href="/campaigns"
-              id="header-campaigns-link"
-            >
-              Campaigns
-            </Link>
-          </nav>
+          {/* <nav className="flex items-center space-x-6 text-sm font-medium"> */}
+          <NavigationMenu orientation="horizontal">
+            <NavigationMenuList>
+              <NavigationMenuItem id="header-metrics-link">
+                <Link href="/metrics" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Metrics
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem id="header-campaigns-link">
+                <Link href="/campaigns" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Campaigns
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem className="opacity-50" id="header-experiments-link">
+                <Link href="#"  legacyBehavior passHref>
+                  <NavigationMenuLink  className={navigationMenuTriggerStyle()}>
+                    Experiments {" "} <Badge variant="outline">Soon</Badge>
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+          {/* </nav> */}
         </div>
         <Button variant="outline" size="icon" className="mr-2 md:hidden">
           <Menu className="h-5 w-5" />
