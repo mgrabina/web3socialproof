@@ -139,10 +139,10 @@ export const verifyContract = async (input: {
   const creator = creatorAndCreationTx.contractCreator;
   const signer = ethers.verifyMessage(code.code, input.signature);
 
-  if (signer !== creator) {
+  if (signer.toLowerCase() !== creator.toLowerCase()) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
-      message: "Signature does not match",
+      message: "Signature's signer does not match deployer.",
     });
   }
 
