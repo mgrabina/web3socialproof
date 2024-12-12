@@ -7,17 +7,7 @@ import { OnboardingName } from "@/lib/onboarding";
 import { DollarSign, Eye, NotepadText, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import IntegrationGuide from "./IntegrationGuide";
 import {
   ChartConfig,
@@ -177,10 +167,13 @@ export default function Dashboard() {
             {/* Graph */}
             <Card>
               <CardContent className="pt-4">
-                <h2 className="text-lg font-semibold">Daily Impressions</h2>
-
+                <h2 className="text-lg font-semibold">Daily Performance</h2>
+                <label className="text-muted-foreground">
+                  Impressions and Conversions
+                </label>
+                <br />
                 <ChartContainer config={chartConfig}>
-                  <AreaChart
+                  <LineChart
                     data={chartData}
                     margin={{
                       left: 12,
@@ -193,27 +186,38 @@ export default function Dashboard() {
                       tickLine={false}
                       axisLine={false}
                       tickMargin={8}
-                      tickFormatter={(value) => value.slice(0, 3)}
                     />
+                    <YAxis
+                      min={0}
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      allowDecimals={false}
+                      max={Math.max(
+                        ...chartData.map((d: any) => d.impressions),
+                        ...chartData.map((d: any) => d.conversions)
+                      )}
+                    />
+
                     <ChartTooltip
                       cursor={false}
                       content={<ChartTooltipContent indicator="line" />}
                     />
-                    <Area
+                    <Line
                       dataKey="impressions"
                       type="natural"
                       fill="var(--color-impressions)"
                       fillOpacity={0.4}
                       stroke="var(--color-impressions)"
                     />
-                    <Area
+                    <Line
                       dataKey="conversions"
                       type="natural"
                       fill="var(--color-conversions)"
                       fillOpacity={0.4}
                       stroke="var(--color-conversions)"
                     />
-                  </AreaChart>
+                  </LineChart>
                 </ChartContainer>
               </CardContent>
             </Card>
