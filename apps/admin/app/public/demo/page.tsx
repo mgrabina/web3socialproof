@@ -1,11 +1,22 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import {
   createNotification,
   defaultStyling,
 } from "@web3socialproof/shared/constants";
+import { ArrowRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAsync } from "react-async";
@@ -26,28 +37,40 @@ export type AICustomization = {
 };
 
 export default function ScreenshotPreview() {
-  const [configLoading, setConfigLoading] = useState(true);
+  const [configLoading, setConfigLoading] = useState(false);
   const [screenshot, setScreenshot] = useState<string | null>(null);
   const [config, setConfig] = useState<AICustomization | null>(null);
   const [notification, setNotification] = useState<HTMLElement | null>(null);
 
-  const dimensions = {
-    width: innerWidth,
-    height: innerHeight,
-  };
+  const [dimensions, setDimensions] = useState<
+    | {
+        width: number;
+        height: number;
+      }
+    | null
+  >(null);
+
+  useEffect(() => {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+  }, []);
 
   const router = useRouter();
 
   const params = useSearchParams();
   const urlParam = params.get("url");
-  const targetUrl = urlParam?.includes("http")
+  const targetUrl = !urlParam?.length
+    ? undefined
+    : urlParam?.includes("http")
     ? urlParam
     : `https://${urlParam}`;
 
   const [customUrlParam, setCustomUrlParam] = useState("");
 
   const handleGenerateConfig = async () => {
-    if (!targetUrl) {
+    if (!targetUrl || !dimensions?.height || !dimensions?.width) {
       return;
     }
 
@@ -78,14 +101,11 @@ export default function ScreenshotPreview() {
     }
   };
 
-  useAsync({
-    promiseFn: async () => {
-      if (targetUrl && dimensions.height && dimensions.width) {
-        await Promise.all([handleGenerateConfig()]);
-      }
-    },
-    watch: [targetUrl, dimensions],
-  });
+  useEffect(() => {
+    if (targetUrl && dimensions?.height && dimensions?.width) {
+      handleGenerateConfig().catch(console.error)
+    }
+  }, [targetUrl, dimensions?.height, dimensions?.width]);
 
   useEffect(() => {
     if (configLoading === true || !config) {
@@ -117,26 +137,43 @@ export default function ScreenshotPreview() {
     );
   }, [config, configLoading]);
 
+  const handleGenerate = () => {
+    if (customUrlParam) {
+      router.push(`/public/demo?url=${encodeURIComponent(customUrlParam)}`);
+    }
+  };
+
   if (!targetUrl) {
     // Show input that redirects to the same page with the url param
     return (
-      <div className="flex items-center justify-center h-screen">
-        <input
-          type="text"
-          placeholder="Enter a URL"
-          className="border"
-          onChange={(e) => setCustomUrlParam(e.target.value)}
-          value={customUrlParam}
-        />
-        <button
-          onClick={() => {
-            if (customUrlParam) {
-              router.push("/public/demo?url=" + customUrlParam);
-            }
-          }}
-        >
-          Generate
-        </button>
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>URL Generator</CardTitle>
+            <CardDescription>
+              Enter a URL to generate a custom demo page
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col space-y-4">
+              <Input
+                type="url"
+                placeholder="https://example.com"
+                value={customUrlParam}
+                onChange={(e) => setCustomUrlParam(e.target.value)}
+                className="flex-grow"
+              />
+              <Button
+                onClick={handleGenerate}
+                disabled={!customUrlParam}
+                className="w-full"
+              >
+                Generate
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -144,10 +181,26 @@ export default function ScreenshotPreview() {
   return (
     <div>
       <div className="w-full h-6 bg-yellow-100 p-4 flex justify-center items-center">
-        <span className="text-black text-center">
-          This demo is generated using IA based on the branding and storytelling
-          of your site.
-        </span>
+        {configLoading ? (
+          <span className="text-gray-800 text-center">
+            Generating a demo based on the branding and storytelling of your
+            site. This may take a few seconds.
+          </span>
+        ) : (
+          <span className="text-gray-800 text-center">
+            This demo is generated using IA based on the branding and
+            storytelling of your site. Makes sense? Lets{" "}
+            <a
+              className="
+            text-blue-600 hover:underline hover:text-blue-800 transition-all
+            "
+              href="https://app.gobyherd.com"
+            >
+              do an AB test
+            </a>{" "}
+            and see if it works!
+          </span>
+        )}
       </div>
       {notification && (
         <div
