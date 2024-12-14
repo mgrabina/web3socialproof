@@ -1,7 +1,6 @@
 import { getUserProtocol } from "@/utils/database/users";
 import {
   and,
-  campaignsTable,
   conversionsTable,
   db,
   desc,
@@ -12,6 +11,7 @@ import {
   metricsTable,
   metricsVariablesTable,
   sql,
+  variantsTable,
 } from "@web3socialproof/db";
 import dayjs from "dayjs";
 import { NextRequest, NextResponse } from "next/server";
@@ -28,10 +28,10 @@ export async function GET(req: NextRequest) {
 
     const protocolId = protocol.id;
 
-    // Fetch total campaigns, metrics, and impressions
-    const totalCampaigns = await db.$count(
-      campaignsTable,
-      eq(campaignsTable.protocol_id, protocolId)
+    // Fetch total variants, metrics, and impressions
+    const totalVariants = await db.$count(
+      variantsTable,
+      eq(variantsTable.protocol_id, protocolId)
     );
     const totalMetrics = await db.$count(
       metricsTable,
@@ -43,10 +43,10 @@ export async function GET(req: NextRequest) {
         .select()
         .from(impressionsTable)
         .fullJoin(
-          campaignsTable,
-          eq(impressionsTable.campaign_id, campaignsTable.id)
+          variantsTable,
+          eq(impressionsTable.variant_id, variantsTable.id)
         )
-        .where(eq(campaignsTable.protocol_id, protocolId))
+        .where(eq(variantsTable.protocol_id, protocolId))
         .as("subquery")
     );
 
@@ -85,31 +85,31 @@ export async function GET(req: NextRequest) {
       })
       .from(impressionsTable)
       .leftJoin(
-        campaignsTable,
-        eq(impressionsTable.campaign_id, campaignsTable.id)
+        variantsTable,
+        eq(impressionsTable.variant_id, variantsTable.id)
       )
       .where(
         and(
-          eq(campaignsTable.protocol_id, protocolId),
+          eq(variantsTable.protocol_id, protocolId),
           gte(impressionsTable.timestamp, startDate)
         )
       )
       .groupBy(sql`date(impressions_table.timestamp)`) // Group by the date part
       .orderBy(sql`date(impressions_table.timestamp)`); // Ensure proper ordering
 
-      const dailyConversions = await db
+    const dailyConversions = await db
       .select({
         date: sql`date(conversions_table.timestamp)`.as("date"),
         count: sql`COUNT(DISTINCT ${conversionsTable.id})`.as("count"),
       })
       .from(conversionsTable)
       .leftJoin(
-        campaignsTable,
-        eq(conversionsTable.campaign_id, campaignsTable.id)
+        variantsTable,
+        eq(conversionsTable.variant_id, variantsTable.id)
       )
       .where(
         and(
-          eq(campaignsTable.protocol_id, protocolId),
+          eq(variantsTable.protocol_id, protocolId),
           gte(conversionsTable.timestamp, startDate)
         )
       )
@@ -117,7 +117,7 @@ export async function GET(req: NextRequest) {
       .orderBy(sql`date(conversions_table.timestamp)`); // Ensure proper ordering
 
     return NextResponse.json({
-      totalCampaigns: totalCampaigns,
+      totalVariants: totalVariants,
       totalMetrics: totalMetrics,
       totalImpressions: totalImpressions,
       totalConversions: totalConversions,

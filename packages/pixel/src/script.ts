@@ -12,7 +12,7 @@ import { trpcApiClient } from "./trpc";
 // Variables to store apiKey and env for use in other functions
 let apiKey: string | null = null;
 let env: PixelEnv = "production";
-let campaignId: number | null = null;
+let variantId: number | null = null;
 let lastPathnameWithSearch: string | null = null;
 
 // Main function to initialize the widget
@@ -75,7 +75,7 @@ async function initializeWidget() {
       const notification = await trpcApiClient(
         env,
         apiKey
-      ).campaigns.getNotification.query({});
+      ).experiments.getNotification.query({});
 
       if (!notification) {
         console.info("[Herd] No notification to show.");
@@ -85,7 +85,7 @@ async function initializeWidget() {
         return;
       }
 
-      campaignId = notification.campaign;
+      variantId = notification.variant;
 
       const shouldHide =
         isMobile() && notification.styling.mobilePosition === "none";
@@ -99,8 +99,8 @@ async function initializeWidget() {
         showNotification(notification);
 
         // Track the impression after showing the notification
-        await trpcApiClient(env, apiKey).campaigns.trackImpression.mutate({
-          campaignId: notification.campaign,
+        await trpcApiClient(env, apiKey).experiments.trackImpression.mutate({
+          variantId: notification.variant,
           session: getSessionId(),
           user: getUserId(),
         });
@@ -147,10 +147,10 @@ async function trackConversion(id?: string) {
     }
 
     // Send conversion data to the server
-    await trpcApiClient(env, apiKey).campaigns.trackConversion.mutate({
+    await trpcApiClient(env, apiKey).experiments.trackConversion.mutate({
       session: getSessionId(),
       user: getUserId(),
-      campaignId: campaignId ?? undefined,
+      variantId: variantId ?? undefined,
       hostname: window.location.hostname,
       pathname: window.location.pathname,
       elementId: id,

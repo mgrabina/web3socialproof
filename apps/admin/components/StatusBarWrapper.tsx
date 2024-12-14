@@ -5,11 +5,11 @@ import { User } from "@supabase/supabase-js";
 import {
   and,
   apiKeyTable,
-  campaignsTable,
   contractsTable,
   db,
   eq,
   impressionsTable,
+  variantsTable,
 } from "@web3socialproof/db";
 
 const getStatusBarConfig = async (): Promise<StatusBarConfig> => {
@@ -56,10 +56,10 @@ const getStatusBarConfig = async (): Promise<StatusBarConfig> => {
         .select()
         .from(impressionsTable)
         .leftJoin(
-          campaignsTable,
-          eq(impressionsTable.campaign_id, campaignsTable.id)
+          variantsTable,
+          eq(impressionsTable.variant_id, variantsTable.id)
         )
-        .where(eq(campaignsTable.protocol_id, protocol.id))
+        .where(eq(variantsTable.protocol_id, protocol.id))
     ).length > 0;
 
   if (!hasImpressions) {
@@ -116,10 +116,10 @@ const getStatusBarConfig = async (): Promise<StatusBarConfig> => {
       <>
         Everything looks good! You can{" "}
         <a
-          href="/campaigns"
+          href="/variants"
           className="underline text-blue-600 hover:text-blue-800"
         >
-          create a new campaign
+          create a new variant
         </a>{" "}
         .
       </>
@@ -137,11 +137,11 @@ export default async function StatusBarWrapper({
   const { status, message } = await getStatusBarConfig();
 
   return (
-      <StatusBar
-        status={status}
-        message={message}
-        user={user}
-        openRoutes={openRoutes}
-      />
+    <StatusBar
+      status={status}
+      message={message}
+      user={user}
+      openRoutes={openRoutes}
+    />
   );
 }

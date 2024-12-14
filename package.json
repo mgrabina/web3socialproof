@@ -10,6 +10,12 @@
     "services/*"
   ],
   "scripts": {
+    "build:admin": "yarn workspace @web3socialproof/admin build",
+    "dev:admin": "yarn workspace @web3socialproof/admin dev",
+    "start:admin": "yarn workspace @web3socialproof/admin start",
+    "build:backend": "yarn workspace @web3socialproof/backend build",
+    "dev:backend": "yarn workspace @web3socialproof/backend dev",
+    "start:backend": "yarn workspace @web3socialproof/backend start",
     "prepare": "husky",
     "run": "turbo run watch",
     "migrate-db": "yarn workspace @web3socialproof/db migrate"

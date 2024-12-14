@@ -19,9 +19,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { toast } from "@/hooks/use-toast";
 import { capitalize, capitalizeEachWord } from "@/utils/strings/string.utils";
-import { InsertCampaign, SelectMetric } from "@web3socialproof/db";
+import { InsertVariant, SelectMetric } from "@web3socialproof/db";
 import {
   createNotification,
   defaultStyling,
@@ -31,16 +30,15 @@ import {
   iconsSvgs,
   MobilePositions,
   NotificationStylingRequired,
-} from "@web3socialproof/shared/constants/notification";
+} from "@web3socialproof/shared";
 import parse from "html-react-parser";
 import { useEffect, useState } from "react";
 import { Skeleton } from "./ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
-interface CampaignFormProps {
+interface VariantsFormProps {
   initialData?: {
     name?: string;
-    type: string;
     message?: string;
     sub_message?: string;
     styling: any;
@@ -54,20 +52,19 @@ interface CampaignFormProps {
   onSubmit: (data: any) => Promise<void>;
 }
 
-export default function CampaignForm({
+export default function VariantsForm({
   initialData = {
-    type: "swaps",
     iconName: "flame",
     styling: { ...defaultStyling },
     hostnames: [] as string[],
     pathnames: [] as string[],
   },
   onSubmit,
-}: CampaignFormProps) {
+}: VariantsFormProps) {
   const [formData, setFormData] =
     useState<
       Partial<
-        (InsertCampaign & { styling: NotificationStylingRequired }) | undefined
+        (InsertVariant & { styling: NotificationStylingRequired }) | undefined
       >
     >();
   const [metrics, setMetrics] = useState<SelectMetric[] | undefined>();
@@ -87,24 +84,24 @@ export default function CampaignForm({
     }));
   };
 
-  const handlePathnameChange = (index: number, value: string) => {
-    const updatedPathnames = [...(formData?.pathnames ?? [])];
-    updatedPathnames[index] = value;
-    setFormData((prev: any) => ({
-      ...prev,
-      pathnames: updatedPathnames,
-    }));
-  };
+  // const handlePathnameChange = (index: number, value: string) => {
+  //   const updatedPathnames = [...(formData?.pathnames ?? [])];
+  //   updatedPathnames[index] = value;
+  //   setFormData((prev: any) => ({
+  //     ...prev,
+  //     pathnames: updatedPathnames,
+  //   }));
+  // };
 
-  const handlePathnameRemove = (index: number) => {
-    const updatedPathnames = formData?.pathnames?.filter(
-      (_: any, i: number) => i !== index
-    );
-    setFormData((prev: any) => ({
-      ...prev,
-      pathnames: updatedPathnames,
-    }));
-  };
+  // const handlePathnameRemove = (index: number) => {
+  //   const updatedPathnames = formData?.pathnames?.filter(
+  //     (_: any, i: number) => i !== index
+  //   );
+  //   setFormData((prev: any) => ({
+  //     ...prev,
+  //     pathnames: updatedPathnames,
+  //   }));
+  // };
 
   const isValidRegex = (value: string): boolean => {
     if (value.startsWith("^") && value.endsWith("$")) {
@@ -125,24 +122,24 @@ export default function CampaignForm({
     }));
   };
 
-  const handleHostnameChange = (index: number, value: string) => {
-    const updatedHostnames = [...(formData?.hostnames ?? [])];
-    updatedHostnames[index] = value;
-    setFormData((prev: any) => ({
-      ...prev,
-      hostnames: updatedHostnames,
-    }));
-  };
+  // const handleHostnameChange = (index: number, value: string) => {
+  //   const updatedHostnames = [...(formData?.hostnames ?? [])];
+  //   updatedHostnames[index] = value;
+  //   setFormData((prev: any) => ({
+  //     ...prev,
+  //     hostnames: updatedHostnames,
+  //   }));
+  // };
 
-  const handleHostnameRemove = (index: number) => {
-    const updatedHostnames = formData?.hostnames?.filter(
-      (_: any, i: number) => i !== index
-    );
-    setFormData((prev: any) => ({
-      ...prev,
-      hostnames: updatedHostnames,
-    }));
-  };
+  // const handleHostnameRemove = (index: number) => {
+  //   const updatedHostnames = formData?.hostnames?.filter(
+  //     (_: any, i: number) => i !== index
+  //   );
+  //   setFormData((prev: any) => ({
+  //     ...prev,
+  //     hostnames: updatedHostnames,
+  //   }));
+  // };
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -180,14 +177,14 @@ export default function CampaignForm({
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Campaign Details</CardTitle>
+            <CardTitle>Variant Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 overflow-y-scroll max-h-[750px]">
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
-                placeholder="A unique name to easily identify your campaign"
+                placeholder="A unique name to easily identify your variant"
                 value={formData?.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
@@ -516,16 +513,14 @@ export default function CampaignForm({
               <AccordionItem value="item-3">
                 <AccordionTrigger>Where to show it</AccordionTrigger>
                 <AccordionContent className="p-2">
-                  {/* Allowed hostnames. Add as badges */}
-                  <div className="space-y-2">
+                  {/* <div className="space-y-2">
                     <Label>Allowed Domains</Label>
                     <p className="text-sm text-gray-500">
-                      Specify domains where this campaign is allowed to run.
+                      Specify domains where this variant is allowed to run.
                       Domains should not include protocols (e.g., use
                       example.com instead of https://example.com).
                     </p>
 
-                    {/* Existing Hostnames as Badges */}
                     <div className="flex flex-wrap gap-2">
                       {formData?.hostnames?.map(
                         (hostname: string, index: number) => (
@@ -546,7 +541,6 @@ export default function CampaignForm({
                       )}
                     </div>
 
-                    {/* Input for Adding New Hostnames */}
                     <div className="flex items-center space-x-2 mt-2">
                       <Input
                         placeholder="Add a domain (e.g., example.com)"
@@ -603,18 +597,15 @@ export default function CampaignForm({
                     </div>
                   </div>
                   <br />
-
-                  {/* Pathnames */}
                   <div className="space-y-2">
                     <Label>Allowed Pages</Label>
                     <p className="text-sm text-gray-500">
-                      Specify on which pages this campaign is allowed to run.
-                      You can use regex for advanced matching (e.g.,{" "}
+                      Specify on which pages this variant is allowed to run. You
+                      can use regex for advanced matching (e.g.,{" "}
                       <code>^/metrics$</code>). By default, all pages are
                       allowed.
                     </p>
 
-                    {/* Existing Pathnames as Badges */}
                     <div className="flex flex-wrap gap-2">
                       {formData?.pathnames?.map(
                         (pathname: string, index: number) => {
@@ -643,7 +634,6 @@ export default function CampaignForm({
                       )}
                     </div>
 
-                    {/* Input for Adding New Pathnames */}
                     <div className="flex items-center space-x-2 mt-2">
                       <Input
                         placeholder="Add a pathname or regex (e.g., ^/metrics$)"
@@ -713,7 +703,7 @@ export default function CampaignForm({
                       </Button>
                     </div>
                   </div>
-                  <br />
+                  <br /> */}
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-4">
@@ -791,7 +781,7 @@ export default function CampaignForm({
                 try {
                   await onSubmit(formData); // Perform the form submission
                 } catch (error) {
-                  console.error("Error saving campaign:", error);
+                  console.error("Error saving variant:", error);
                 } finally {
                   setIsLoading(false); // End loading
                 }
@@ -823,7 +813,7 @@ export default function CampaignForm({
                   <span>Saving...</span>
                 </span>
               ) : (
-                "Save Campaign"
+                "Save Variant"
               )}
             </Button>
           </CardContent>
@@ -865,8 +855,8 @@ export default function CampaignForm({
                 __html: (
                   createNotification(
                     {
-                      campaign: 0,
-                      type: "swaps",
+                      variantId: 0,
+                      experimentId: 0,
                       subscriptionPlan: "free", //todo adapt to user plan
                       message: formData?.message ?? "Your message here",
                       subMessage:

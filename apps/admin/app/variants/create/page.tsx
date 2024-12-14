@@ -1,27 +1,27 @@
 "use client";
 
-import CampaignForm from "@/components/CampaignForm";
+import VariantsForm from "@/components/VariantsForm";
 import { useRouter } from "next/navigation";
 
-export default function CreateCampaign() {
+export default function CreateVariant() {
   const router = useRouter();
 
   const handleCreate = async (formData: any) => {
     try {
-      const response = await fetch("/campaigns/api", {
+      const response = await fetch("/variants/api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       if (response.ok) {
-        router.push("/campaigns");
+        router.push("/variants");
       } else {
-        throw new Error("Failed to create campaign");
+        throw new Error("Failed to create variant");
       }
     } catch (error) {
       console.error("Error:", error);
     }
   };
 
-  return <CampaignForm onSubmit={handleCreate} />;
+  return <VariantsForm onSubmit={handleCreate} />;
 }

@@ -3,7 +3,7 @@ import { createNotification, notificationId } from "@web3socialproof/shared";
 import { AppRouter } from "../../../apps/backend/src/trpc/router";
 
 type NotificationOutput =
-  inferRouterOutputs<AppRouter>["campaigns"]["getNotification"];
+  inferRouterOutputs<AppRouter>["experiments"]["getNotification"];
 
 // Function to show a notification on the page
 export function showNotification(params: NotificationOutput): void {

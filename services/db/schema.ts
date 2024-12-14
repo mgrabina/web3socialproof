@@ -26,8 +26,8 @@ export const usersTable = pgTable("users_table", {
   protocol_id: integer("protocol_id").references(() => protocolTable.id), // Foreign key to protocol
 });
 
-// Campaigns Table with Relation to Protocol Table
-export const campaignsTable = pgTable("campaigns_table", {
+// Variants Table with Relation to Protocol Table
+export const variantsTable = pgTable("variants_table", {
   id: serial("id").primaryKey(),
   protocol_id: integer("protocol_id").references(() => protocolTable.id), // Foreign key to protocol
   name: text("name").notNull(),
@@ -38,16 +38,36 @@ export const campaignsTable = pgTable("campaigns_table", {
   iconName: text("iconName"),
   delay: integer("delay"),
   timer: integer("timer"),
+  styling: json("styling"),
 
   created_at: timestamp({ mode: "string" }).notNull(),
   updated_at: timestamp({ mode: "string" }).notNull(),
-  enabled: boolean("enabled").notNull(),
-  type: text("type").notNull(),
-  addresses: text("addresses"),
+});
+
+export const experimentsTable = pgTable("experiments_table", {
+  id: serial("id").primaryKey(),
+  protocol_id: integer("protocol_id").references(() => protocolTable.id), // Foreign key to protocol
+  name: text("name").notNull(),
+
   hostnames: text("hostnames").array(),
   pathnames: text("pathnames").array(),
-  styling: json("styling"),
+
+  created_at: timestamp({ mode: "string" }).notNull().defaultNow(),
+  updated_at: timestamp({ mode: "string" }).notNull().defaultNow(),
+  enabled: boolean("enabled").notNull().default(true),
 });
+
+export const variantsPerExperimentTable = pgTable(
+  "variants_per_experiment_table",
+  {
+    id: serial("id").primaryKey(),
+    experiment_id: integer("experiment_id")
+      .references(() => experimentsTable.id)
+      .notNull(), // Foreign key to experiment
+    variant_id: integer("variant_id").references(() => variantsTable.id),
+    percentage: integer("percentage").notNull(),
+  }
+);
 
 // API Key Table with Relation to Protocol Table
 export const apiKeyTable = pgTable("api_key_table", {
@@ -62,9 +82,9 @@ export const apiKeyTable = pgTable("api_key_table", {
 export const impressionsTable = pgTable("impressions_table", {
   id: serial("id").primaryKey(),
   protocol: integer("protocol_id").references(() => protocolTable.id), // Foreign key to protocol
-  campaign_id: integer("campaign_id")
-    .references(() => campaignsTable.id)
-    .notNull(), // Foreign key to campaign
+  variant_id: integer("variant_id").references(() => variantsTable.id),
+  experiment_id: integer("experiment_id")
+    .references(() => experimentsTable.id),
   session: text("session").notNull(),
   user: text("user").notNull(),
   address: text("address"),
@@ -74,9 +94,10 @@ export const impressionsTable = pgTable("impressions_table", {
 export const conversionsTable = pgTable("conversions_table", {
   id: serial("id").primaryKey(),
   protocol_id: integer("protocol_id")
-    .references(() => protocolTable.id)
-    .notNull(), // Foreign key to protocol
-  campaign_id: integer("campaign_id").references(() => campaignsTable.id),
+    .references(() => protocolTable.id), // Foreign key to protocol
+  experiment_id: integer("experiment_id")
+    .references(() => experimentsTable.id),
+  variant_id: integer("variant_id").references(() => variantsTable.id),
   session: text("session").notNull(),
   user: text("user").notNull(),
   hostname: text("hostname"),
@@ -163,8 +184,16 @@ export const verificationCodesTable = pgTable("verification_codes_table", {
 // Types
 export type InsertUser = typeof usersTable.$inferInsert;
 export type SelectUser = typeof usersTable.$inferSelect;
-export type InsertCampaign = typeof campaignsTable.$inferInsert;
-export type SelectCampaign = typeof campaignsTable.$inferSelect;
+export type InsertVariant = typeof variantsTable.$inferInsert;
+export type SelectVariant = typeof variantsTable.$inferSelect;
+export type InsertExperiment = typeof experimentsTable.$inferInsert;
+export type SelectExperiment = typeof experimentsTable.$inferSelect;
+export type InsertVariantPerExperiment =
+  typeof variantsPerExperimentTable.$inferInsert;
+export type SelectVariantPerExperiment =
+  typeof variantsPerExperimentTable.$inferSelect;
+export type InsertConversion = typeof conversionsTable.$inferInsert;
+export type SelectConversion = typeof conversionsTable.$inferSelect;
 export type InsertApiKey = typeof apiKeyTable.$inferInsert;
 export type SelectApiKey = typeof apiKeyTable.$inferSelect;
 export type InsertImpression = typeof impressionsTable.$inferInsert;

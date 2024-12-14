@@ -1,15 +1,15 @@
-import { getCampaign, saveImpressionInDb } from "../sources/database";
+import { getVariant, saveImpressionInDb } from "../sources/database";
 
 export const trackImpression = async (input: {
-  campaignId: number;
+  variantId: number;
   session: string;
   user: string;
   address?: string;
 }) => {
-  const campaign = await getCampaign(input.campaignId);
+  const variant = await getVariant(input.variantId);
 
   await saveImpressionInDb({
-    campaign,
+    variant,
     address: input.address,
     session: input.session,
     user: input.user,

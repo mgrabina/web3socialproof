@@ -12,11 +12,9 @@ import { Input } from "@/components/ui/input";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
-import {
-  createNotification,
-  defaultStyling,
-} from "@web3socialproof/shared/constants";
+import { createNotification, defaultStyling } from "@web3socialproof/shared";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -97,7 +95,7 @@ export default function ScreenshotPreview() {
     if (targetUrl && dimensions?.height && dimensions?.width) {
       handleGenerateConfig().catch(console.error);
     }
-  }, [targetUrl, dimensions?.height, dimensions?.width]);
+  }, [targetUrl, dimensions?.height, dimensions?.width, handleGenerateConfig]);
 
   useEffect(() => {
     if (configLoading === true || !config) {
@@ -106,8 +104,8 @@ export default function ScreenshotPreview() {
 
     setNotification(
       createNotification({
-        campaign: 0,
-        type: "swaps",
+        variantId: 0,
+        experimentId: 0,
         subscriptionPlan: "free", //todo adapt to user plan
         message: config?.title || "10k users already joined!",
         subMessage: config?.subtitle || "Are you ready to join?",
@@ -257,10 +255,12 @@ export default function ScreenshotPreview() {
       )}
       {screenshot && (
         <div>
-          <img
+          <Image
             src={`data:image/png;base64,${screenshot}`}
             alt="Screenshot Preview"
             className="border"
+            width={dimensions?.width}
+            height={dimensions?.height}
           />
         </div>
       )}

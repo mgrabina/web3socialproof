@@ -40,24 +40,25 @@ export const onboardingSteps: Tour[] = [
         side: "top",
       },
       {
-        elementId: "header-campaigns-link",
-        title: "Campaigns to show",
+        elementId: "header-variants-link",
+        title: "Variants to show",
         side: "bottom",
         content:
-          "Here you can create, manage and monitor your extremely customized campaigns.",
+          "Here you can create, manage and monitor your extremely customized variants.",
       },
       {
         elementId: "header-metrics-link",
         title: "Your own metrics",
         content:
-          "We also track custom metrics in real-time for your campaigns. Here you can define, manage and monitor metrics automatically indexed from your contract's events such as TVL, swaps, and more.",
+          "We also track custom metrics in real-time for your variants. Here you can define, manage and monitor metrics automatically indexed from your contract's events such as TVL, swaps, and more.",
         side: "bottom",
       },
       {
         elementId: "header-user-menu",
         title: "Finally, your settings",
         side: "bottom",
-        content: "Here you can manage your account, contract ownerships, and access your API keys.",
+        content:
+          "Here you can manage your account, contract ownerships, and access your API keys.",
       },
       {
         elementId: "integration-guide",

@@ -1,6 +1,6 @@
-// pages/api/campaigns/index.ts
+// pages/api/variants/index.ts
 import { getUserProtocol } from "@/utils/database/users";
-import { campaignsTable, db, eq, InsertCampaign } from "@web3socialproof/db";
+import { db, eq, InsertVariant, variantsTable } from "@web3socialproof/db";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
@@ -14,16 +14,16 @@ export async function GET() {
       );
     }
 
-    const campaigns = await db
+    const variants = await db
       .select()
-      .from(campaignsTable)
-      .where(eq(campaignsTable.protocol_id, protocol.id));
+      .from(variantsTable)
+      .where(eq(variantsTable.protocol_id, protocol.id));
 
-    return NextResponse.json(campaigns, { status: 200 });
+    return NextResponse.json(variants, { status: 200 });
   } catch (error) {
-    console.error("Failed to fetch campaigns:", error);
+    console.error("Failed to fetch variants:", error);
     return NextResponse.json(
-      { error: "Failed to fetch campaigns." },
+      { error: "Failed to fetch variants." },
       { status: 500 }
     );
   }
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const newCampaign: InsertCampaign = {
+  const newVariant: InsertVariant = {
     name,
     message,
     sub_message,
@@ -69,23 +69,21 @@ export async function POST(req: NextRequest) {
     iconName,
     delay,
     timer,
-    enabled: true,
     protocol_id: protocol.id,
-    type,
     styling,
-    hostnames,
-    pathnames,
+    // hostnames,
+    // pathnames,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
 
   try {
-    await db.insert(campaignsTable).values(newCampaign);
-    return NextResponse.json(newCampaign, { status: 201 });
+    await db.insert(variantsTable).values(newVariant);
+    return NextResponse.json(newVariant, { status: 201 });
   } catch (error) {
-    console.error("Failed to create the campaign:", error);
+    console.error("Failed to create the variant:", error);
     return NextResponse.json(
-      { error: "Failed to create the campaign. " },
+      { error: "Failed to create the variant. " },
       { status: 500 }
     );
   }

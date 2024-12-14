@@ -62,7 +62,7 @@ export default function Dashboard() {
   }
 
   const {
-    totalCampaigns,
+    totalVariants,
     totalMetrics,
     totalImpressions,
     totalConversions,
@@ -115,10 +115,10 @@ export default function Dashboard() {
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Total Campaigns</p>
+                    <p className="text-sm font-medium">Total Variants</p>
                     <NotepadText className="h-4 w-4 text-green-500" />
                   </div>
-                  <p className="text-2xl font-bold">{totalCampaigns}</p>
+                  <p className="text-2xl font-bold">{totalVariants}</p>
                 </CardContent>
               </Card>
               <Card>
@@ -154,7 +154,7 @@ export default function Dashboard() {
                       className="
                     text-blue-500 hover:text-blue-700
                     "
-                      href="https://docs.gobyherd.com/campaigns/beta-conversions"
+                      href="https://docs.gobyherd.com/variants/beta-conversions"
                       target="_blank"
                     >
                       Integrate
@@ -261,9 +261,9 @@ export default function Dashboard() {
                   <a
                     target="_blank"
                     className="text-blue-500 hover:text-blue-700"
-                    href="/campaigns/create"
+                    href="/variants/create"
                   >
-                    campaign
+                    variant
                   </a>{" "}
                   to be executed once the script is integrated.
                 </p>

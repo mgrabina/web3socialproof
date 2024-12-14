@@ -3,13 +3,13 @@
 import { HelpCircle, Menu } from "lucide-react";
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { Button } from "@/components/ui/button";
 import { User } from "@supabase/supabase-js";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -78,17 +78,20 @@ export default function DashboardHeader({
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
-              <NavigationMenuItem id="header-campaigns-link">
-                <Link href="/campaigns" legacyBehavior passHref>
+              <NavigationMenuItem id="header-variants-link">
+                <Link href="/variants" legacyBehavior passHref>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Campaigns
+                    Variants
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
-              <NavigationMenuItem className="opacity-50" id="header-experiments-link">
-                <Link href="#"  legacyBehavior passHref>
-                  <NavigationMenuLink  className={navigationMenuTriggerStyle()}>
-                    Experiments {" "} <Badge variant="outline">Soon</Badge>
+              <NavigationMenuItem
+                className="opacity-50"
+                id="header-experiments-link"
+              >
+                <Link href="#" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Experiments <Badge variant="outline">Soon</Badge>
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>

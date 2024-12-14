@@ -1,9 +1,9 @@
 "use client";
 
 import MetricsForm from "@/components/MetricsForm";
-import { useParams, useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import { SelectLog, SelectMetric } from "@web3socialproof/db";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function EditMetric() {
@@ -19,7 +19,7 @@ export default function EditMetric() {
   >();
 
   useEffect(() => {
-    const fetchCampaign = async () => {
+    const fetchVariant = async () => {
       try {
         const response = await fetch(`/metrics/api/${id}`);
         let data: {
@@ -34,10 +34,10 @@ export default function EditMetric() {
 
         setInitialData(data);
       } catch (error) {
-        console.error("Error fetching campaign:", error);
+        console.error("Error fetching variant:", error);
       }
     };
-    fetchCampaign();
+    fetchVariant();
   }, [id, router]);
 
   const handleEdit = async (formData: any) => {

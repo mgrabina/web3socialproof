@@ -40,7 +40,7 @@ export const decorateNotification = async (
   options?: NotificationOptions
 ): Promise<NotificationResponse | undefined> => {
   if (!options) return undefined;
-  
+
   // Prioritize user configured styling
   const styling = {
     ...defaultStyling,
@@ -53,8 +53,8 @@ export const decorateNotification = async (
   const subMessageReplaced = await replaceMetricsInString(options.subMessage);
 
   return {
-    campaign: options.campaign,
-    type: options.type,
+    variantId: options.variantId,
+    experimentId: options.experimentId,
     message: messageReplaced.str,
     subMessage: subMessageReplaced.str,
     iconName: options.iconName,
