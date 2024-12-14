@@ -272,8 +272,8 @@ const responsiveStyling = {
     titleFontSize: "16px",
     subtitleFontSize: "11px",
     verificationFontSize: "9px",
-    width: "300px",
-    height: "70px",
+    width: "400px",
+    height: "100px",
     padding: "15px",
     iconContainerWidth: "65px",
     iconContainerHeight: "65px",
@@ -286,7 +286,7 @@ const responsiveStyling = {
     subtitleFontSize: "13px",
     verificationFontSize: "11px",
     width: "400px",
-    height: "80px",
+    height: "120px",
     padding: "20px",
     iconContainerWidth: "80px",
     iconContainerHeight: "80px",
@@ -339,7 +339,7 @@ export const createNotification = (
   notification.style.boxShadow =
     params.styling.boxShadow || defaultStyling.boxShadow;
   notification.style.minWidth = responsiveStyles.width;
-  notification.style.height = responsiveStyles.height;
+  // notification.style.height = responsiveStyles.height;
   notification.style.fontFamily =
     params.styling.fontFamily || defaultStyling.fontFamily;
 
