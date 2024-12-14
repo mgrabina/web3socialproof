@@ -4,7 +4,7 @@ import OpenAI from "openai";
 import puppeteer from "puppeteer-core";
 import sharp from "sharp";
 
-export const maxDuration = 20; // Or whatever timeout you want
+export const maxDuration = 60; // Or whatever timeout you want
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY, // Set your OpenAI API key in .env.local
