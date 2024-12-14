@@ -6,7 +6,7 @@ import {
   createNotification,
   defaultStyling,
 } from "@web3socialproof/shared/constants";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAsync } from "react-async";
 
@@ -36,11 +36,15 @@ export default function ScreenshotPreview() {
     height: innerHeight,
   };
 
+  const router = useRouter();
+
   const params = useSearchParams();
   const urlParam = params.get("url");
   const targetUrl = urlParam?.includes("http")
     ? urlParam
     : `https://${urlParam}`;
+
+  const [customUrlParam, setCustomUrlParam] = useState("");
 
   const handleGenerateConfig = async () => {
     if (!targetUrl) {
@@ -84,7 +88,7 @@ export default function ScreenshotPreview() {
   });
 
   useEffect(() => {
-    if (configLoading === true) {
+    if (configLoading === true || !config) {
       return;
     }
 
@@ -113,6 +117,30 @@ export default function ScreenshotPreview() {
     );
   }, [config, configLoading]);
 
+  if (!targetUrl) {
+    // Show input that redirects to the same page with the url param
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <input
+          type="text"
+          placeholder="Enter a URL"
+          className="border"
+          onChange={(e) => setCustomUrlParam(e.target.value)}
+          value={customUrlParam}
+        />
+        <button
+          onClick={() => {
+            if (customUrlParam) {
+              router.push("/public/demo?url=" + customUrlParam);
+            }
+          }}
+        >
+          Generate
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="w-full h-6 bg-yellow-100 p-4 flex justify-center items-center">
@@ -121,14 +149,12 @@ export default function ScreenshotPreview() {
           of your site.
         </span>
       </div>
-      {notification ? (
+      {notification && (
         <div
           dangerouslySetInnerHTML={{
             __html: notification.innerHTML,
           }}
         ></div>
-      ) : (
-        <span></span>
       )}
 
       {configLoading && (

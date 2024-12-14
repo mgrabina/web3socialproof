@@ -1,7 +1,10 @@
+import chromium from "@sparticuz/chromium-min";
 import Vibrant from "node-vibrant";
 import OpenAI from "openai";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 import sharp from "sharp";
+
+export const maxDuration = 20; // Or whatever timeout you want
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY, // Set your OpenAI API key in .env.local
@@ -54,10 +57,24 @@ export async function GET(req: any) {
 
   try {
     // Launch Puppeteer
+    // const browser = await puppeteer.launch({
+    //   headless: true,
+    //   args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    // });
+
+    const isLocal = !!process.env.CHROME_EXECUTABLE_PATH;
+    const tarFile =
+      "https://usiih8uwuwoozjy2.public.blob.vercel-storage.com/Chromium%20v126.0.0%20pack-hQUHmxFfkH5w8gVBeap0ykn9K2nZmv.tar";
+
     const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: isLocal ? puppeteer.defaultArgs() : chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath:
+        process.env.CHROME_EXECUTABLE_PATH ||
+        (await chromium.executablePath(tarFile)),
+      headless: chromium.headless,
     });
+
     const page = await browser.newPage();
 
     // Set the viewport to the provided dimensions
