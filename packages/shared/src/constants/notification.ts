@@ -338,9 +338,8 @@ export const createNotification = (
     params.styling.backgroundColor || defaultStyling.backgroundColor;
   notification.style.boxShadow =
     params.styling.boxShadow || defaultStyling.boxShadow;
-  // notification.style.width = responsiveStyles.width;
-  // TODO CHECK
-  // notification.style.height = responsiveStyles.height;
+  notification.style.minWidth = responsiveStyles.width;
+  notification.style.height = responsiveStyles.height;
   notification.style.fontFamily =
     params.styling.fontFamily || defaultStyling.fontFamily;
 
