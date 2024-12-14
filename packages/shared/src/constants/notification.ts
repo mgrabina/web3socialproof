@@ -338,7 +338,7 @@ export const createNotification = (
     params.styling.backgroundColor || defaultStyling.backgroundColor;
   notification.style.boxShadow =
     params.styling.boxShadow || defaultStyling.boxShadow;
-  notification.style.width = responsiveStyles.width;
+  // notification.style.width = responsiveStyles.width;
   // TODO CHECK
   // notification.style.height = responsiveStyles.height;
   notification.style.fontFamily =
@@ -441,7 +441,7 @@ export const createNotification = (
   textContainer.style.overflowY = "scroll";
   textContainer.style.paddingLeft = params.styling.showIcon ? "1em" : "0";
   textContainer.style.marginLeft = params.styling.showIcon ? "0" : "2em";
-  textContainer.style.width = "80%";
+  // textContainer.style.width = "80%";
   textContainer.style.maxHeight = "-webkit-fill-available";
 
   // Title
