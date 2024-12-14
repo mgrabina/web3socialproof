@@ -81,11 +81,11 @@ export default function ScreenshotPreview() {
 
       setConfig(JSON.parse(config));
       setScreenshot(screenshot);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error:", error);
       toast({
-        title: "Error",
-        description: "Failed to generate configuration: " + error,
+        title: error,
+        description: "Please refresh or try again later",
         variant: "destructive",
       });
     } finally {
