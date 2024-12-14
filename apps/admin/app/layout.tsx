@@ -47,8 +47,6 @@ export default async function RootLayout({
     "/public",
   ];
 
-  console.info("URL", PUBLIC_URL());
-
   const HERD_API_KEY = "sk_test_51sxGqT3cQ3FiKPoJbHPCCJ6qq7I06XvIc";
 
   return (

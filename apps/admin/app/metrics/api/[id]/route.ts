@@ -255,8 +255,6 @@ export async function GET(
     .fullJoin(logsTable, eq(metricsVariablesTable.variable_id, logsTable.id))
     .where(eq(metricsVariablesTable.metric_id, Number(id)));
 
-  console.log(variables);
-
   return NextResponse.json(
     SuperJSON.serialize({
       metric: metric[0],

@@ -82,8 +82,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.debug("Inserting variables");
-
     // Prepare variables for bulk insert
     const variableRecords: InsertLog[] = variables?.map((variable: any) => ({
       protocol_id: protocol.id,
