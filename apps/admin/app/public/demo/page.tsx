@@ -62,7 +62,7 @@ export default function ScreenshotPreview() {
   const [customUrlParam, setCustomUrlParam] = useState("");
 
   const handleGenerateConfig = async () => {
-    if (!targetUrl || !dimensions?.height || !dimensions?.width) {
+    if (!targetUrl?.length || !dimensions?.height || !dimensions?.width) {
       return;
     }
 
@@ -172,20 +172,18 @@ export default function ScreenshotPreview() {
 
   return (
     <div>
-      <div className="w-full h-6 bg-yellow-100 p-4 flex justify-center items-center">
+      <div className="w-full h-auto bg-yellow-100 p-4 flex flex-col sm:flex-row justify-center items-center text-center sm:text-left">
         {configLoading ? (
-          <span className="text-gray-800 text-center">
+          <span className="text-gray-800">
             Generating a demo based on the branding and storytelling of your
             site. This may take a few seconds.
           </span>
         ) : (
-          <span className="text-gray-800 text-center">
+          <span className="text-gray-800">
             This demo is generated using IA based on the branding and
             storytelling of your site. Makes sense? Lets{" "}
             <a
-              className="
-            text-blue-600 hover:underline hover:text-blue-800 transition-all
-            "
+              className="text-blue-600 hover:underline hover:text-blue-800 transition-all"
               href="https://app.gobyherd.com"
             >
               do an AB test
@@ -194,6 +192,7 @@ export default function ScreenshotPreview() {
           </span>
         )}
       </div>
+
       {notification && (
         <div
           dangerouslySetInnerHTML={{

@@ -48,6 +48,23 @@ export async function GET(req: any) {
     });
   }
 
+  if (!process.env.OPENAI_API_KEY) {
+    return new Response(
+      JSON.stringify({ error: "OpenAI API key is required" }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  if (!url) {
+    return new Response(JSON.stringify({ error: "URL is required" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   let cuttedFirstSection,
     fullPageScreenshot,
     colorPalette,
@@ -56,12 +73,6 @@ export async function GET(req: any) {
     openAIResponse;
 
   try {
-    // Launch Puppeteer
-    // const browser = await puppeteer.launch({
-    //   headless: true,
-    //   args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    // });
-
     const isLocal = !!process.env.CHROME_EXECUTABLE_PATH;
     const tarFile =
       "https://usiih8uwuwoozjy2.public.blob.vercel-storage.com/Chromium%20v126.0.0%20pack-hQUHmxFfkH5w8gVBeap0ykn9K2nZmv.tar";
