@@ -10,6 +10,7 @@ import {
 } from "@web3socialproof/db";
 import {
   isIconName,
+  isSubscriptionPlan,
   NotificationOptions,
   NotificationStylingOptional,
 } from "@web3socialproof/shared/constants";
@@ -28,6 +29,13 @@ export const getExperimentVariant = async ({
     });
   }
 
+  if (!isSubscriptionPlan(protocol.plan)) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Invalid subscription plan.",
+    });
+  }
+
   // Check if there are experiments
   let experiments = await db
     .select()
@@ -40,7 +48,7 @@ export const getExperimentVariant = async ({
     );
 
   // Validate Hosts
-  experiments = experiments.filter((experiment) => {
+  const experimentsForHost = experiments.filter((experiment) => {
     if (!experiment.hostnames?.length) {
       // Allow all hosts
       return true;
@@ -49,13 +57,13 @@ export const getExperimentVariant = async ({
     return experiment.hostnames?.includes(hostname);
   });
 
-  if (experiments.length === 0) {
+  if (experimentsForHost.length === 0) {
     return undefined;
   }
 
   // Select Experiment aleatory from available experiments
   const experiment =
-    experiments[Math.floor(Math.random() * experiments.length)];
+    experimentsForHost[Math.floor(Math.random() * experimentsForHost.length)];
 
   // Get Experiment Variants
   let variantsWithPercentages = await db
@@ -63,42 +71,51 @@ export const getExperimentVariant = async ({
     .from(variantsPerExperimentTable)
     .where(eq(variantsPerExperimentTable.experiment_id, experiment.id));
 
+  if (variantsWithPercentages.length === 0) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "No variants found for the experiment.",
+    });
+  }
+
   // Select Variant aleatory based on percentages of each variant
   const totalPercentage = variantsWithPercentages.reduce(
     (acc, variant) => acc + variant.percentage,
     0
   );
   const randomPercentage = Math.floor(Math.random() * totalPercentage);
-  let currentPercentage = 0;
-  let selectedVariant = variantsWithPercentages[0];
+  let selectedVariantFromExperiment;
 
   // Select the variant based on the random number
   let cumulativePercentage = 0;
   for (const variant of variantsWithPercentages) {
     cumulativePercentage += variant.percentage;
     if (randomPercentage < cumulativePercentage) {
-      selectedVariant = variant;
+      selectedVariantFromExperiment = variant;
       break;
     }
   }
-  if (!selectedVariant) {
+  if (!selectedVariantFromExperiment) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "Could not choose variant.",
     });
   }
 
-  if (!selectedVariant.variant_id) {
+  if (!selectedVariantFromExperiment.variant_id) {
     // No variant selected - testing without herd mode
-    // todo check
-    return undefined;
+    return {
+      experimentId: experiment.id,
+      pathnames: experiment.pathnames ?? undefined,
+      subscriptionPlan: protocol.plan,
+    };
   }
 
   // Get Variant Details
   const variant = await db
     .select()
     .from(variantsTable)
-    .where(eq(variantsTable.id, selectedVariant.variant_id))
+    .where(eq(variantsTable.id, selectedVariantFromExperiment.variant_id))
     .limit(1);
 
   const variantToPrint = variant[0];

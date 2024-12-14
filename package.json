@@ -16,6 +16,7 @@
     "build:backend": "yarn workspace @web3socialproof/backend build",
     "dev:backend": "yarn workspace @web3socialproof/backend dev",
     "start:backend": "yarn workspace @web3socialproof/backend start",
+    "build:pixel": "yarn workspace @web3socialproof/pixel build",
     "prepare": "husky",
     "run": "turbo run watch",
     "migrate-db": "yarn workspace @web3socialproof/db migrate"

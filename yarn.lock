@@ -5807,6 +5807,7 @@ __metadata:
     "@trpc/client": "npm:^11.0.0-rc.608"
     "@trpc/server": "npm:^11.0.0-rc.608"
     "@web3socialproof/shared": "workspace:*"
+    dotenv: "npm:^16.4.7"
     esbuild: "npm:^0.24.0"
     nodemon: "npm:^3.0.2"
     superjson: "npm:^2.2.1"
@@ -8451,6 +8452,13 @@ __metadata:
   version: 16.4.5
   resolution: "dotenv@npm:16.4.5"
   checksum: 55a3134601115194ae0f924e54473459ed0d9fc340ae610b676e248cca45aa7c680d86365318ea964e6da4e2ea80c4514c1adab5adb43d6867fb57ff068f95c8
+  languageName: node
+  linkType: hard
+
+"dotenv@npm:^16.4.7":
+  version: 16.4.7
+  resolution: "dotenv@npm:16.4.7"
+  checksum: f13bfe97db88f0df4ec505eeffb8925ec51f2d56a3d0b6d916964d8b4af494e6fb1633ba5d09089b552e77ab2a25de58d70259b2c5ed45ec148221835fc99a0c
   languageName: node
   linkType: hard
 

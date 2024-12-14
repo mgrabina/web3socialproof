@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { shortenAddress } from "../utils/evm";
-import { createSvgIcon, isMobile } from "../utils/notification";
+import { createSvgIcon } from "../utils/notification";
 
 export const DestkopPositions = [
   "bottom-right",
@@ -81,18 +80,26 @@ export const defaultStyling: NotificationStylingRequired = {
   showIcon: true,
 };
 
+export const subscriptionPlanSchema = z.enum(["free", "pro", "enterprise"]);
+export type SubscriptionPlan = z.infer<typeof subscriptionPlanSchema>;
+export const isSubscriptionPlan = (plan: string): plan is SubscriptionPlan => {
+  const ret = subscriptionPlanSchema.safeParse(plan);
+  return ret.success;
+};
+
 export const notificationOptionsSchema = z.object({
-  variantId: z.number(),
   experimentId: z.number(),
-  message: z.string(),
-  subMessage: z.string(),
+  pathnames: z.array(z.string()).optional(),
+  subscriptionPlan: subscriptionPlanSchema,
+
+  variantId: z.number().optional(),
+  message: z.string().optional(),
+  subMessage: z.string().optional(),
   iconName: z.enum(iconNames).optional(),
   iconSrc: z.string().optional(),
   delay: z.number().optional(),
   timer: z.number().optional(),
-  subscriptionPlan: z.string(),
-  styling: notificationStylingSchemaOptional,
-  pathnames: z.array(z.string()).optional(),
+  styling: notificationStylingSchemaOptional.optional(),
 });
 export type NotificationOptions = z.infer<typeof notificationOptionsSchema>;
 
@@ -105,22 +112,33 @@ export const verificationInfoSchema = z.object({
 });
 
 export type VerificationInfo = z.infer<typeof verificationInfoSchema>;
-
-export const notificationResponseSchema = z.object({
+export const variantSchema = z.object({
   variantId: z.number(),
-  experimentId: z.number(),
+  message: z.string(),
+  subMessage: z.string(),
   iconName: z.enum(iconNames).optional(),
   iconSrc: z.string().optional(),
   delay: z.number().optional(),
   timer: z.number().optional(),
-  message: z.string(),
-  subMessage: z.string(),
-  verifications: z.array(verificationInfoSchema),
   styling: notificationStylingSchemaRequired,
-  subscriptionPlan: z.string(),
+
+  verifications: z.array(verificationInfoSchema),
+});
+export type Variant = z.infer<typeof variantSchema>;
+
+export const experimentSchema = z.object({
+  experimentId: z.number(),
   pathnames: z.array(z.string()).optional(),
 });
-export type NotificationResponse = z.infer<typeof notificationResponseSchema>;
+export type Experiment = z.infer<typeof experimentSchema>;
+
+export const herdSchema = z.object({
+  subscriptionPlan: subscriptionPlanSchema,
+  variant: variantSchema.optional(),
+  experiment: experimentSchema,
+});
+
+export type HerdNotificationType = z.infer<typeof herdSchema>;
 
 export type IconAttributes = {
   viewBox?: string;
@@ -221,7 +239,5 @@ export const defaultPreviewConfig = {
   isVerifiedPreview: false,
   previewMetrics: new Set<string>(),
 };
-
-
 
 export const notificationId = "herd-notification";

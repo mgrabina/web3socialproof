@@ -85,7 +85,8 @@ export const getApiKey = async (apiKey: string) => {
 };
 
 export const saveImpressionInDb = async (input: {
-  variant: SelectVariant;
+  experimentId: number;
+  variantId?: number;
   user: string;
   session: string;
   address?: string;
@@ -95,7 +96,8 @@ export const saveImpressionInDb = async (input: {
     .values({
       session: input.session,
       user: input.user,
-      variant_id: input.variant.id,
+      variant_id: input.variantId,
+      experiment_id: input.experimentId,
       address: input.address,
     })
     .returning();
@@ -110,6 +112,7 @@ export const saveImpressionInDb = async (input: {
 
 export const saveConversionInDb = async (input: {
   protocolId: number;
+  experimentId: number;
   variantId?: number;
   user: string;
   session: string;
@@ -124,6 +127,7 @@ export const saveConversionInDb = async (input: {
       session: input.session,
       user: input.user,
       variant_id: input.variantId,
+      experiment_id: input.experimentId,
       hostname: input.hostname,
       pathname: input.pathname,
       element_id: input.elementId,

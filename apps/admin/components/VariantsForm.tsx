@@ -855,28 +855,32 @@ export default function VariantsForm({
                 __html: (
                   createNotification(
                     {
-                      variantId: 0,
-                      experimentId: 0,
-                      subscriptionPlan: "free", //todo adapt to user plan
-                      message: formData?.message ?? "Your message here",
-                      subMessage:
-                        formData?.sub_message ?? "Your sub message here",
-                      iconName: (formData?.iconName as IconName) ?? undefined,
-                      iconSrc: formData?.iconSrc ?? undefined,
-                      styling: {
-                        ...defaultStyling,
-                        ...(formData?.styling as NotificationStylingRequired),
-                      },
-                      verifications: [
-                        {
-                          chainId: 1,
-                          contractAddress:
-                            "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
-                          isOwnershipVerified: false,
-                          chainName: "Ethereum",
-                          url: "https://etherscan.io/address/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+                      variant: {
+                        message: formData?.message ?? "Your message here",
+                        subMessage:
+                          formData?.sub_message ?? "Your sub message here",
+                        iconName: (formData?.iconName as IconName) ?? undefined,
+                        iconSrc: formData?.iconSrc ?? undefined,
+                        styling: {
+                          ...defaultStyling,
+                          ...(formData?.styling as NotificationStylingRequired),
                         },
-                      ],
+                        verifications: [
+                          {
+                            chainId: 1,
+                            contractAddress:
+                              "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+                            isOwnershipVerified: false,
+                            chainName: "Ethereum",
+                            url: "https://etherscan.io/address/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+                          },
+                        ],
+                        variantId: 0,
+                      },
+                      experiment: {
+                        experimentId: 0,
+                      },
+                      subscriptionPlan: "free", //todo adapt to user plan
                     },
                     {
                       isPreview: true,

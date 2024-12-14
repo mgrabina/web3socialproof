@@ -1,16 +1,16 @@
 import { TRPCError } from "@trpc/server";
-import { getExperimentVariant } from "../../services/experiments";
 import { z } from "zod";
 import { pixelProcedure, router } from "..";
-import { notificationResponseSchema } from "../../../../../packages/shared/src/constants/notification";
+import { herdSchema } from "../../../../../packages/shared/src/constants/notification";
 import { trackConversion } from "../../services/conversions";
 import { decorateNotification } from "../../services/decorator";
+import { getExperimentVariant } from "../../services/experiments";
 import { trackImpression } from "../../services/impressions";
 
 export const experimentsRouter = router({
   getNotification: pixelProcedure
     .input(z.object({}))
-    .output(notificationResponseSchema.optional())
+    .output(herdSchema.optional())
     .query(async ({ ctx, input }) => {
       // Todo: get user data to improve the notification (e.g. wallet, device, language, etc.)
 
@@ -34,7 +34,8 @@ export const experimentsRouter = router({
   trackImpression: pixelProcedure
     .input(
       z.object({
-        variantId: z.number(),
+        experimentId: z.number(),
+        variantId: z.number().optional(),
         session: z.string(),
         user: z.string(),
         address: z.string().optional(),
@@ -42,6 +43,7 @@ export const experimentsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       await trackImpression({
+        experimentId: input.experimentId,
         variantId: input.variantId,
         session: input.session,
         user: input.user,
@@ -52,6 +54,7 @@ export const experimentsRouter = router({
   trackConversion: pixelProcedure
     .input(
       z.object({
+        experimentId: z.number(),
         variantId: z.number().optional(),
         session: z.string(),
         user: z.string(),
@@ -65,6 +68,7 @@ export const experimentsRouter = router({
 
       await trackConversion({
         protocol: protocol.id,
+        experimentId: input.experimentId,
         variantId: input.variantId,
         session: input.session,
         user: input.user,

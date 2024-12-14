@@ -1,12 +1,17 @@
 import {
   defaultStyling,
+  HerdNotificationType,
   NotificationOptions,
-  NotificationResponse,
   VerificationInfo,
 } from "@web3socialproof/shared/constants/notification";
 import { getMetricValue } from "./metrics";
 
-const replaceMetricsInString = async (str: string) => {
+const replaceMetricsInString = async (str?: string) => {
+  if (!str) return {
+    str: "",
+    verifications: [],
+  };
+
   const matches = str.match(/{(.*?)}/g);
   if (!matches)
     return {
@@ -38,8 +43,18 @@ const replaceMetricsInString = async (str: string) => {
 
 export const decorateNotification = async (
   options?: NotificationOptions
-): Promise<NotificationResponse | undefined> => {
+): Promise<HerdNotificationType | undefined> => {
   if (!options) return undefined;
+
+  if (!options.variantId) {
+    return {
+      subscriptionPlan: options.subscriptionPlan,
+      experiment: {
+        experimentId: options.experimentId,
+        pathnames: options.pathnames,
+      },
+    };
+  }
 
   // Prioritize user configured styling
   const styling = {
@@ -53,20 +68,24 @@ export const decorateNotification = async (
   const subMessageReplaced = await replaceMetricsInString(options.subMessage);
 
   return {
-    variantId: options.variantId,
-    experimentId: options.experimentId,
-    message: messageReplaced.str,
-    subMessage: subMessageReplaced.str,
-    iconName: options.iconName,
-    iconSrc: options.iconSrc,
-    delay: options.delay,
-    timer: options.timer,
-    styling,
-    verifications: [
-      ...messageReplaced.verifications,
-      ...subMessageReplaced.verifications,
-    ],
+    variant: {
+      variantId: options.variantId,
+      message: messageReplaced.str,
+      subMessage: subMessageReplaced.str,
+      iconName: options.iconName,
+      iconSrc: options.iconSrc,
+      delay: options.delay,
+      timer: options.timer,
+      styling,
+      verifications: [
+        ...messageReplaced.verifications,
+        ...subMessageReplaced.verifications,
+      ],
+    },
+    experiment: {
+      experimentId: options.experimentId,
+      pathnames: options.pathnames,
+    },
     subscriptionPlan: options.subscriptionPlan,
-    pathnames: options.pathnames,
   };
 };

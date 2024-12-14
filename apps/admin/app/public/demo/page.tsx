@@ -104,25 +104,29 @@ export default function ScreenshotPreview() {
 
     setNotification(
       createNotification({
-        variantId: 0,
-        experimentId: 0,
-        subscriptionPlan: "free", //todo adapt to user plan
-        message: config?.title || "10k users already joined!",
-        subMessage: config?.subtitle || "Are you ready to join?",
-        iconName: "flame",
-        styling: {
-          ...defaultStyling,
-          ...config,
-        },
-        verifications: [
-          {
-            chainId: 1,
-            contractAddress: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
-            isOwnershipVerified: true,
-            chainName: "Ethereum",
-            url: "https://etherscan.io/address/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+        variant: {
+          variantId: 0,
+          message: config?.title || "10k users already joined!",
+          subMessage: config?.subtitle || "Are you ready to join?",
+          iconName: "flame",
+          styling: {
+            ...defaultStyling,
+            ...config,
           },
-        ],
+          verifications: [
+            {
+              chainId: 1,
+              contractAddress: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+              isOwnershipVerified: true,
+              chainName: "Ethereum",
+              url: "https://etherscan.io/address/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+            },
+          ],
+        },
+        experiment: {
+          experimentId: 0,
+        },
+        subscriptionPlan: "free", //todo adapt to user plan
       })
     );
   }, [config, configLoading]);

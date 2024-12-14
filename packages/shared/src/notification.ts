@@ -1,5 +1,5 @@
 import {
-  NotificationResponse,
+  HerdNotificationType,
   PreviewConfig,
   defaultPreviewConfig,
   defaultStyling,
@@ -12,12 +12,18 @@ import {
 import { isMobile, renderTextWithMetricStyles, shortenAddress } from "./utils";
 
 export const createNotification = (
-  params: NotificationResponse,
+  params: HerdNotificationType,
   previewConfigs: Partial<PreviewConfig> = defaultPreviewConfig
 ): HTMLElement | null => {
   if (typeof document === "undefined") {
     return null;
   }
+
+  if (!params.variant) {
+    console.error("[Herd] Empty variant.");
+    return null;
+  }
+
   const { isPreview, isMobilePreview, isVerifiedPreview, previewMetrics } = {
     ...defaultPreviewConfig,
     ...previewConfigs,
@@ -33,17 +39,17 @@ export const createNotification = (
   notification.style.alignItems = "center";
   notification.style.padding = responsiveStyles.padding;
   // notification.style.overflow = "hidden";
-  notification.style.border = params.styling.border || defaultStyling.border;
+  notification.style.border = params.variant?.styling.border || defaultStyling.border;
   notification.style.borderRadius =
-    params.styling.borderRadius || defaultStyling.borderRadius;
+    params.variant?.styling.borderRadius || defaultStyling.borderRadius;
   notification.style.backgroundColor =
-    params.styling.backgroundColor || defaultStyling.backgroundColor;
+    params.variant?.styling.backgroundColor || defaultStyling.backgroundColor;
   notification.style.boxShadow =
-    params.styling.boxShadow || defaultStyling.boxShadow;
+    params.variant?.styling.boxShadow || defaultStyling.boxShadow;
   notification.style.minWidth = responsiveStyles.width;
   // notification.style.height = responsiveStyles.height;
   notification.style.fontFamily =
-    params.styling.fontFamily || defaultStyling.fontFamily;
+    params.variant?.styling.fontFamily || defaultStyling.fontFamily;
 
   if (isPreview) {
     notification.style.position = "relative";
@@ -53,16 +59,16 @@ export const createNotification = (
     notification.style.zIndex = "999";
 
     if (isMobile()) {
-      if (params.styling.mobilePosition !== "none") {
+      if (params.variant?.styling.mobilePosition !== "none") {
         Object.assign(
           notification.style,
-          positions[params.styling.mobilePosition]
+          positions[params.variant?.styling.mobilePosition]
         );
       }
     } else {
       Object.assign(
         notification.style,
-        positions[params.styling.desktopPosition]
+        positions[params.variant?.styling.desktopPosition]
       );
     }
   }
@@ -102,30 +108,30 @@ export const createNotification = (
   iconContainer.style.width = responsiveStyles.iconContainerWidth;
   iconContainer.style.height = responsiveStyles.iconContainerHeight;
   iconContainer.style.backgroundColor =
-    params.styling.iconBackgroundColor || defaultStyling.iconBackgroundColor;
-  iconContainer.style.borderRadius = params.styling.iconBorderRadius;
+    params.variant?.styling.iconBackgroundColor || defaultStyling.iconBackgroundColor;
+  iconContainer.style.borderRadius = params.variant?.styling.iconBorderRadius;
   iconContainer.style.display = "flex";
   iconContainer.style.alignItems = "center";
   iconContainer.style.justifyContent = "center";
 
   // Icon
   let icon;
-  if (params.iconSrc) {
+  if (params.variant?.iconSrc) {
     icon = document.createElement("img");
-    icon.src = params.iconSrc || "https://www.svgrepo.com/show/13210/flame.svg";
+    icon.src = params.variant?.iconSrc || "https://www.svgrepo.com/show/13210/flame.svg";
     icon.alt = "Notification Icon";
-  } else if (params.iconName && isIconName(params.iconName)) {
-    icon = iconsSvgs[params.iconName]();
+  } else if (params.variant?.iconName && isIconName(params.variant?.iconName)) {
+    icon = iconsSvgs[params.variant?.iconName]();
     if (icon) {
-      icon.style.fill = params.styling.iconColor || defaultStyling.iconColor;
-      icon.style.color = params.styling.iconColor || defaultStyling.iconColor;
+      icon.style.fill = params.variant?.styling.iconColor || defaultStyling.iconColor;
+      icon.style.color = params.variant?.styling.iconColor || defaultStyling.iconColor;
     }
   } else {
     // Default icon
     icon = iconsSvgs.flame();
     if (icon) {
-      icon.style.fill = params.styling.iconColor || defaultStyling.iconColor;
-      icon.style.color = params.styling.iconColor || defaultStyling.iconColor;
+      icon.style.fill = params.variant?.styling.iconColor || defaultStyling.iconColor;
+      icon.style.color = params.variant?.styling.iconColor || defaultStyling.iconColor;
     }
   }
   if (icon) {
@@ -140,8 +146,8 @@ export const createNotification = (
   textContainer.style.overflowX = "hidden";
   textContainer.style.wordBreak = "break-word";
   textContainer.style.overflowY = "scroll";
-  textContainer.style.paddingLeft = params.styling.showIcon ? "1em" : "0";
-  textContainer.style.marginLeft = params.styling.showIcon ? "0" : "2em";
+  textContainer.style.paddingLeft = params.variant?.styling.showIcon ? "1em" : "0";
+  textContainer.style.marginLeft = params.variant?.styling.showIcon ? "0" : "2em";
   // textContainer.style.width = "80%";
   textContainer.style.maxHeight = "-webkit-fill-available";
 
@@ -149,18 +155,18 @@ export const createNotification = (
   let title;
   if (previewMetrics.size)
     title = renderTextWithMetricStyles(
-      params.message,
-      params.styling.titleColor,
+      params.variant?.message,
+      params.variant?.styling.titleColor,
       previewMetrics,
       responsiveStyles.titleFontSize,
       "bold"
     );
   else {
     title = document.createElement("p");
-    title.textContent = params.message;
+    title.textContent = params.variant?.message;
     title.style.fontSize = responsiveStyles.titleFontSize;
     title.style.fontWeight = "bold";
-    title.style.color = params.styling.titleColor;
+    title.style.color = params.variant?.styling.titleColor;
     title.style.margin = "0";
   }
 
@@ -168,17 +174,17 @@ export const createNotification = (
   let subtitle;
   if (previewMetrics.size)
     subtitle = renderTextWithMetricStyles(
-      params.subMessage,
-      params.styling.subtitleColor,
+      params.variant?.subMessage,
+      params.variant?.styling.subtitleColor,
       previewMetrics,
       responsiveStyles.subtitleFontSize,
       "normal"
     );
   else {
     subtitle = document.createElement("p");
-    subtitle.textContent = params.subMessage;
+    subtitle.textContent = params.variant?.subMessage;
     subtitle.style.fontSize = responsiveStyles.subtitleFontSize;
-    subtitle.style.color = params.styling.subtitleColor;
+    subtitle.style.color = params.variant?.styling.subtitleColor;
     subtitle.style.margin = "3px 0 0 0";
   }
 
@@ -191,7 +197,7 @@ export const createNotification = (
   // Determine if all verifications are ownership verified
   const allVerified = isVerifiedPreview
     ? true
-    : params.verifications.every((v) => v.isOwnershipVerified);
+    : params.variant?.verifications.every((v) => v.isOwnershipVerified);
   const textColor = allVerified ? "#4a63e7" : "#d8a200"; // Blue if verified, dark yellow otherwise
   const iconSrcIfVerified = (verified: boolean) =>
     verified
@@ -239,7 +245,7 @@ export const createNotification = (
   tooltipContainer.style.whiteSpace = "nowrap";
 
   // Populate the hover menu with verification links
-  params.verifications.forEach((v) => {
+  params.variant?.verifications.forEach((v) => {
     const verificationItem = document.createElement("div");
     verificationItem.style.display = "flex";
     verificationItem.style.justifyContent = "space-between";
@@ -333,18 +339,18 @@ export const createNotification = (
   // Assemble the text container
   textContainer.appendChild(title);
   textContainer.appendChild(subtitle);
-  if (params.verifications.length) {
+  if (params.variant?.verifications.length) {
     // Only add the verification container if there are verifications
 
     textContainer.appendChild(verificationContainer);
   }
 
   // Assemble the notification
-  if (params.styling.showClosingButton) {
+  if (params.variant?.styling.showClosingButton) {
     notification.appendChild(closeButton);
   }
 
-  if (params.styling.showIcon) {
+  if (params.variant?.styling.showIcon) {
     notification.appendChild(iconContainer);
   }
 

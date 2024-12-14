@@ -3,8 +3,10 @@ const path = require("path");
 const TerserPlugin = require("terser-webpack-plugin");
 const webpack = require("webpack");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+require("dotenv").config();
 
 module.exports = {
+  mode: process.env.RAILWAY_ENVIRONMENT_NAME || "development",
   entry: "./src/script.ts", // Entry point for your TypeScript file
   output: {
     filename: "script.min.js",
@@ -29,7 +31,7 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      "process.env.NODE_ENV": JSON.stringify("production"), // Set NODE_ENV to 'production'
+      // "process.env.NODE_ENV": JSON.stringify("production"), // Set NODE_ENV to 'production'
       "process.env": JSON.stringify({}), // Define process.env as an empty object
       process: JSON.stringify({}), // Define process as an empty object
     }),
