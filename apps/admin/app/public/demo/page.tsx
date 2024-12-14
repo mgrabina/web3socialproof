@@ -120,7 +120,7 @@ export default function ScreenshotPreview() {
           {
             chainId: 1,
             contractAddress: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
-            isOwnershipVerified: false,
+            isOwnershipVerified: true,
             chainName: "Ethereum",
             url: "https://etherscan.io/address/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
           },
