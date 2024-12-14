@@ -19,7 +19,6 @@ import {
 import { ArrowRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useAsync } from "react-async";
 
 export type AICustomization = {
   fontFamily: "string";
@@ -42,30 +41,23 @@ export default function ScreenshotPreview() {
   const [config, setConfig] = useState<AICustomization | null>(null);
   const [notification, setNotification] = useState<HTMLElement | null>(null);
 
-  const [dimensions, setDimensions] = useState<
-    | {
-        width: number;
-        height: number;
-      }
-    | null
-  >(null);
+  const [dimensions, setDimensions] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
 
   useEffect(() => {
-      setDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
+    setDimensions({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
   }, []);
 
   const router = useRouter();
 
   const params = useSearchParams();
   const urlParam = params.get("url");
-  const targetUrl = !urlParam?.length
-    ? undefined
-    : urlParam?.includes("http")
-    ? urlParam
-    : `https://${urlParam}`;
+  const targetUrl = urlParam;
 
   const [customUrlParam, setCustomUrlParam] = useState("");
 
@@ -93,7 +85,7 @@ export default function ScreenshotPreview() {
       console.error("Error:", error);
       toast({
         title: "Error",
-        description: "Failed to generate configuration.",
+        description: "Failed to generate configuration: " + error,
         variant: "destructive",
       });
     } finally {
@@ -103,7 +95,7 @@ export default function ScreenshotPreview() {
 
   useEffect(() => {
     if (targetUrl && dimensions?.height && dimensions?.width) {
-      handleGenerateConfig().catch(console.error)
+      handleGenerateConfig().catch(console.error);
     }
   }, [targetUrl, dimensions?.height, dimensions?.width]);
 
@@ -143,7 +135,7 @@ export default function ScreenshotPreview() {
     }
   };
 
-  if (!targetUrl) {
+  if (!targetUrl?.length) {
     // Show input that redirects to the same page with the url param
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">

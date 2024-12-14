@@ -80,8 +80,22 @@ export async function GET(req: any) {
     // Set the viewport to the provided dimensions
     await page.setViewport({ width, height });
 
+    const withSchema = url.startsWith("http://") || url.startsWith("https://");
+
+    const urlWithSchema = withSchema ? url : `https://${url}`;
+
+    // Check if url is valid
+    try {
+      Boolean(new URL(urlWithSchema));
+    } catch (e) {
+      return new Response(JSON.stringify({ error: "Invalid URL" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     // Navigate to the URL
-    await page.goto(url, { waitUntil: "networkidle2" });
+    await page.goto(urlWithSchema, { waitUntil: "networkidle2" });
 
     // Take a screenshot
     fullPageScreenshot = await page.screenshot({
