@@ -11,81 +11,81 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
+import { useUserContext } from "@/lib/context/useUserContext";
+import { createSupabaseClientForClientSide } from "@/utils/supabase/client";
 import { SelectVariant } from "@web3socialproof/db";
-import { Edit, Pause, Play, Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useAsync } from "react-async";
 import { LoadingTable } from "./LoadingTable";
 
 export default function VariantManager() {
   const [variants, setVariants] = useState<SelectVariant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const supabase = createSupabaseClientForClientSide();
+  const { protocol } = useUserContext();
 
-  useEffect(() => {
-    async function fetchVariants() {
-      setIsLoading(true);
-      try {
-        const response = await fetch("/variants/api");
-        const data = await response.json();
+  useAsync(async () => {
+    const fetchVariants = async () => {
+      if (!protocol) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch user protocol.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-        if (response.ok) setVariants(data);
-      } catch (error) {
-        console.error("Error fetching variants:", error);
-      } finally {
+      const { data, error } = await supabase
+        .from("variants_table")
+        .select("*")
+        .eq("protocol_id", protocol?.id);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch variants.",
+          variant: "destructive",
+        });
+      } else {
+        setVariants(data);
         setIsLoading(false);
       }
-    }
+    };
+
+    setIsLoading(true);
     fetchVariants();
-  }, []);
+    setIsLoading(false);
+  }, [protocol]);
 
   const handleDeleteVariant = async (variantId: number) => {
-    try {
-      await fetch(`/variants/api/${variantId}`, {
-        method: "DELETE",
-      });
-      setVariants(variants.filter((c) => c.id !== variantId));
-      toast({
-        title: "Success!",
-        description: "Variant deleted successfully.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete variant.",
-        variant: "destructive",
-      });
+    async function deleteVariant(variantId: number) {
+      const { error } = await supabase
+        .from("variants_table")
+        .delete()
+        .eq("id", variantId);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to delete variant.",
+          variant: "destructive",
+        });
+
+        return;
+      }
+
+      setVariants((prevVariants) =>
+        prevVariants?.filter((c) => c.id !== variantId)
+      );
     }
+
+    setIsLoading(true);
+    await deleteVariant(variantId);
+    setIsLoading(false);
   };
-
-  // const handleToggleVariantStatus = async (variant: SelectVariant) => {
-  //   try {
-  //     const updatedVariant = { ...variant, enabled: !variant.enabled };
-  //     await fetch(`/variants/api/${variant.id}`, {
-  //       method: "PATCH",
-
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(updatedVariant),
-  //     });
-  //     setVariants((prevVariants) =>
-  //       prevVariants?.map((c) => (c.id === variant.id ? updatedVariant : c))
-  //     );
-  //     toast({
-  //       title: `Variant ${variant.enabled ? "Paused" : "Activated"}`,
-  //       description: `Variant "${variant.name}" has been ${
-  //         variant.enabled ? "paused" : "activated"
-  //       }.`,
-  //     });
-  //   } catch (error) {
-  //     toast({
-  //       title: "Error",
-  //       description: "Failed to update variant status.",
-  //       variant: "destructive",
-  //     });
-  //   }
-  // };
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -101,7 +101,7 @@ export default function VariantManager() {
           {isLoading ? (
             <LoadingTable />
           ) : (
-            <Table>
+            <Table className="pt-4">
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
@@ -131,7 +131,7 @@ export default function VariantManager() {
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      
+
                       {/* Delete Button */}
                       <Button
                         variant="ghost"

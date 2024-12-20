@@ -11,6 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
+import { useUserContext } from "@/lib/context/useUserContext";
+import { createSupabaseClientForClientSide } from "@/utils/supabase/client";
 import { SelectMetric } from "@web3socialproof/db";
 import { Edit, Pause, Play, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -21,33 +23,72 @@ export default function MetricsManager() {
   const [metrics, setMetrics] = useState<SelectMetric[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const supabase = createSupabaseClientForClientSide();
+  const { protocol } = useUserContext();
 
   useEffect(() => {
     async function fetchMetrics() {
-      setIsLoading(true);
       try {
-        const response = await fetch("/metrics/api");
-        const data = await response.json();
-        setMetrics(data);
+        setIsLoading(true);
+        if (!protocol?.id) {
+          throw new Error("No protocol found.");
+        }
+
+        let { data: metrics, error } = await supabase
+          .from("metrics_table")
+          .select()
+          .filter("protocol_id", "eq", protocol?.id);
+        if (error || !metrics) throw error;
+
+        const parsed = metrics.map((m) => ({
+          ...m,
+          ...(m.last_calculated !== null
+            ? { last_calculated: new Date(m.last_calculated) }
+            : { last_calculated: null }),
+        }));
+
+        setMetrics(parsed);
+        setIsLoading(false);
       } catch (error) {
-        console.error("Error fetching metrics:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch metrics.",
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
     }
     fetchMetrics();
-  }, []);
+  }, [protocol]);
 
   const handleDeleteMetric = async (metricId: number) => {
+    // using supabase
+    async function deleteMetric(metricId: number) {
+      const { error } = await supabase
+        .from("metrics_table")
+        .delete()
+        .eq("id", metricId);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to delete metric.",
+          variant: "destructive",
+        });
+      } else {
+        setMetrics(metrics.filter((m) => m.id !== metricId));
+        toast({
+          title: "Success!",
+          description: "Metric deleted successfully.",
+        });
+      }
+    }
+
     try {
-      await fetch(`/metrics/api/${metricId}`, {
-        method: "DELETE",
-      });
-      setMetrics(metrics.filter((m) => m.id !== metricId));
-      toast({
-        title: "Success!",
-        description: "Metric deleted successfully.",
-      });
+      setIsLoading(true);
+      await deleteMetric(metricId);
+      setIsLoading(false);
     } catch (error) {
       toast({
         title: "Error",
@@ -57,43 +98,38 @@ export default function MetricsManager() {
     }
   };
 
-  const handlePauseMetric = async (metricId: number) => {
-    try {
-      await fetch(`/metrics/api/${metricId}/pause`, {
-        method: "POST",
-      });
-      setMetrics(
-        metrics.map((m) => (m.id === metricId ? { ...m, enabled: false } : m))
-      );
-      toast({
-        title: "Success!",
-        description: "Metric paused successfully.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to pause metric.",
-        variant: "destructive",
-      });
-    }
-  };
+  const handlePauseOrPlayMetric = async (metric: SelectMetric) => {
+    async function pauseOrPlayMetric(metricId: number, enabled: boolean) {
+      const { error } = await supabase
+        .from("metrics_table")
+        .update({ enabled })
+        .eq("id", metricId);
 
-  const handlePlayMetric = async (metricId: number) => {
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to update metric.",
+          variant: "destructive",
+        });
+      } else {
+        setMetrics((prevMetrics) =>
+          prevMetrics.map((m) => (m.id === metricId ? { ...m, enabled } : m))
+        );
+        toast({
+          title: "Success!",
+          description: `Metric ${enabled ? "enabled" : "paused"} successfully.`,
+        });
+      }
+    }
+
     try {
-      await fetch(`/metrics/api/${metricId}/play`, {
-        method: "POST",
-      });
-      setMetrics(
-        metrics.map((m) => (m.id === metricId ? { ...m, enabled: true } : m))
-      );
-      toast({
-        title: "Success!",
-        description: "Metric played successfully.",
-      });
+      setIsLoading(true);
+      await pauseOrPlayMetric(metric.id, !metric.enabled);
+      setIsLoading(false);
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to play metric.",
+        description: "Failed to update metric.",
         variant: "destructive",
       });
     }
@@ -138,7 +174,7 @@ export default function MetricsManager() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handlePauseMetric(metric.id)}
+                          onClick={() => handlePauseOrPlayMetric(metric)}
                         >
                           <Pause className="h-4 w-4" />
                         </Button>
@@ -146,7 +182,7 @@ export default function MetricsManager() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handlePlayMetric(metric.id)}
+                          onClick={() => handlePauseOrPlayMetric(metric)}
                         >
                           <Play className="h-4 w-4" />
                         </Button>

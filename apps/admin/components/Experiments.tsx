@@ -20,7 +20,9 @@ import {
 import { Edit, Pause, Play, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useAsync } from "react-async";
 import { LoadingTable } from "./LoadingTable";
+import { Skeleton } from "./ui/skeleton";
 
 export default function ExperimentManager() {
   const [experiments, setExperiments] = useState<SelectExperiment[] | null>();
@@ -28,6 +30,19 @@ export default function ExperimentManager() {
     SelectVariantPerExperiment[] | null
   >();
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingStatistics, setLoadingStatistics] = useState(false);
+  const [impressionsPerExperiment, setImpressionsPerExperiment] =
+    useState<Record<number, number> | null>();
+  const [conversionsPerExperiment, setConversionsPerExperiment] = useState<
+    Record<
+      number,
+      {
+        withVariant: number;
+        withoutVariant: number;
+      } | null
+    >
+  >();
+
   const router = useRouter();
   const supabase = createSupabaseClientForClientSide();
   const { protocol } = useUserContext();
@@ -126,6 +141,108 @@ export default function ExperimentManager() {
     }
   };
 
+  useAsync(async () => {
+    if (!protocol) {
+      return;
+    }
+
+    const fetchImpressionsPerExperiment = async () => {
+      setLoadingStatistics(true);
+      try {
+        const { data, error } = await supabase
+          .from("impressions_table")
+          .select("*")
+          .eq("protocol_id", protocol?.id)
+          .in(
+            "experiment_id",
+            experiments?.map((e) => e.id).filter((id) => id !== undefined) || []
+          );
+
+        if (error) {
+          throw error;
+        }
+
+        setImpressionsPerExperiment(
+          data?.reduce((acc, impression) => {
+            if (!impression.experiment_id) {
+              return acc;
+            }
+
+            if (impression.experiment_id in acc) {
+              acc[impression.experiment_id] += 1;
+            } else {
+              acc[impression.experiment_id] = 1;
+            }
+            return acc;
+          }, {} as Record<number, number>)
+        );
+
+        const { data: conversions, error: conversionError } = await supabase
+          .from("conversions_table")
+          .select("*")
+          .eq("protocol_id", protocol?.id)
+          .in(
+            "experiment_id",
+            experiments?.map((e) => e.id).filter((id) => id !== undefined) || []
+          );
+
+        if (conversionError) {
+          throw conversionError;
+        }
+
+        setConversionsPerExperiment(
+          conversions?.reduce(
+            (acc, conversion) => {
+              if (!conversion.experiment_id) {
+                return acc;
+              }
+
+              if (conversion.experiment_id in acc) {
+                if (conversion.variant_id !== null) {
+                  acc[conversion.experiment_id].withVariant += 1;
+                } else {
+                  acc[conversion.experiment_id].withoutVariant += 1;
+                }
+              } else {
+                if (conversion.variant_id !== null) {
+                  acc[conversion.experiment_id] = {
+                    withVariant: 1,
+                    withoutVariant: 0,
+                  };
+                } else {
+                  acc[conversion.experiment_id] = {
+                    withVariant: 0,
+                    withoutVariant: 1,
+                  };
+                }
+              }
+              return acc;
+            },
+            {} as Record<
+              number,
+              {
+                withVariant: number;
+                withoutVariant: number;
+              }
+            >
+          )
+        );
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch experiment results.",
+          variant: "destructive",
+        });
+
+        console.error("Error fetching experiment results:", error);
+      } finally {
+        setLoadingStatistics(false);
+      }
+    };
+
+    fetchImpressionsPerExperiment();
+  }, [protocol, experiments]);
+
   return (
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex justify-between items-center">
@@ -146,7 +263,9 @@ export default function ExperimentManager() {
                   <TableHead>Name</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Variants</TableHead>
-                  <TableHead>Creation Date</TableHead>
+                  <TableHead>Domains</TableHead>
+                  <TableHead>Impressions</TableHead>
+                  <TableHead>Result</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -162,8 +281,27 @@ export default function ExperimentManager() {
                         (v) => v.experiment_id === experiment.id
                       ).length || "0"}
                     </TableCell>
+                    <TableCell>{experiment.hostnames}</TableCell>
                     <TableCell>
-                      {new Date(experiment.created_at).toLocaleString()}
+                      {loadingStatistics ? (
+                        <Skeleton className="w-16 h-4" />
+                      ) : (
+                        impressionsPerExperiment?.[experiment.id]
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {loadingStatistics ? (
+                        <Skeleton className="w-16 h-4" />
+                      ) : conversionsPerExperiment?.[experiment.id] != null ? `${(
+                        (conversionsPerExperiment[experiment.id]!.withVariant /
+                          conversionsPerExperiment[experiment.id]!
+                            .withoutVariant) *
+                          100 -
+                        100
+                      )}%` : (
+                        "No data"
+                      )}
+                      
                     </TableCell>
                     <TableCell className="text-right flex space-x-2 justify-end">
                       {/* Edit Button */}
@@ -171,7 +309,7 @@ export default function ExperimentManager() {
                         variant="ghost"
                         size="sm"
                         onClick={() =>
-                          router.push(`/experiments/${experiment.id}`)
+                          router.push(`/experiments/create/${experiment.id}`)
                         }
                       >
                         <Edit className="h-4 w-4" />
