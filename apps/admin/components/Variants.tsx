@@ -131,18 +131,7 @@ export default function VariantManager() {
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      {/* Pause/Resume Button */}
-                      {/* <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleToggleVariantStatus(variant)}
-                      >
-                        {variant.enabled ? (
-                          <Pause className="h-4 w-4" />
-                        ) : (
-                          <Play className="h-4 w-4" />
-                        )}
-                      </Button> */}
+                      
                       {/* Delete Button */}
                       <Button
                         variant="ghost"

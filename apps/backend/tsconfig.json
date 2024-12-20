@@ -6,7 +6,6 @@
     "paths": {
       "@web3socialproof/db": ["../../services/db/index.ts"],
       "@web3socialproof/shared/*": ["../../packages/shared/src/*"],
-      
     },
     "allowJs": true,
     "strict": true,

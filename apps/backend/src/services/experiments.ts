@@ -13,7 +13,7 @@ import {
   isSubscriptionPlan,
   NotificationOptions,
   NotificationStylingOptional,
-} from "@web3socialproof/shared/constants";
+} from "@web3socialproof/shared/constants/notification";
 
 export const getExperimentVariant = async ({
   hostname,

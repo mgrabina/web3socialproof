@@ -10,27 +10,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User } from "@supabase/supabase-js";
 import {
-  HelpingHand,
   Key,
   LogOut,
-  LucideBadgeHelp,
-  MessageCircle,
-  PhoneCall,
   ReceiptText,
   User as UserIcon,
   Verified,
 } from "lucide-react";
 import Link from "next/link";
-import { FaTelegram, FaTelegramPlane } from "react-icons/fa";
+import { FaTelegramPlane } from "react-icons/fa";
 
-export default function DashboardHeaderProfileDropdown({
-  billingPortalLink,
-}: {
-  user: User | null;
-  billingPortalLink?: string;
-}) {
+export default function DashboardHeaderProfileDropdown({billingPortalLink}: { billingPortalLink?: string }) {
   return (
     <nav className="flex items-center">
       {/* <Button variant="ghost" size="icon" className="mr-2">
@@ -68,7 +58,9 @@ export default function DashboardHeaderProfileDropdown({
           <Link href="#">
             <DropdownMenuItem>
               <ReceiptText className="mr-2 h-4 w-4" />
-              <Link target="_blank" href={billingPortalLink ?? "#"}>Billing</Link>
+              <Link target="_blank" href={billingPortalLink ?? "#"}>
+                Billing
+              </Link>
             </DropdownMenuItem>
           </Link>
 

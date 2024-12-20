@@ -3,17 +3,15 @@ import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
-import { env, getPixelServerByEnvironment, PUBLIC_URL } from "@/lib/constants";
+import { env, getPixelServerByEnvironment } from "@/lib/constants";
 import "./globals.css";
 // import { headers } from "next/headers";
 import { OnboardingProvider } from "@/components/OnboardingProvider";
-import { NextStep } from "@/components/OnboardingStep";
+import { Onboarding } from "@/components/OnboardingStep";
 import StatusBarWrapper from "@/components/StatusBarWrapper";
 import { Toaster } from "@/components/ui/toaster";
-import { onboardingSteps } from "@/lib/onboarding";
-import { generateStripeBillingPortalLink } from "@/utils/stripe/api";
-import { createSupabaseClientForServerSide } from "@/utils/supabase/server";
-import console from "console";
+import { getServerContext } from "@/lib/context/serverContext";
+import { generateStripeBillingPortalFromProtocolServerSide } from "@/utils/stripe/api";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,26 +25,11 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // const isLogged = await isUserLogged();
+  const { session, user, protocol } = await getServerContext();
 
-  const supabase = createSupabaseClientForServerSide();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-  const billingPortalURL = user
-    ? await generateStripeBillingPortalLink(user?.email!)
+  const billingPortalLink = protocol
+    ? await generateStripeBillingPortalFromProtocolServerSide(protocol)
     : undefined;
-
-  const openRoutes = [
-    "/login",
-    "/signup",
-    "/forgot-password",
-    "/reset-password",
-    "/subscribe",
-    "/public",
-  ];
-
   const HERD_API_KEY = "sk_test_51sxGqT3cQ3FiKPoJbHPCCJ6qq7I06XvIc";
 
   return (
@@ -69,18 +52,15 @@ export default async function RootLayout({
         <Analytics />
         <OnboardingProvider>
           <div>
-            <DashboardHeader
-              user={user}
-              billingPortalLink={billingPortalURL}
-              openRoutes={openRoutes}
-            />
-            <Toaster />
-            <StatusBarWrapper user={user} openRoutes={openRoutes} />
+            <DashboardHeader billingPortalLink={billingPortalLink} />
+            <StatusBarWrapper />
 
+            {/* Content */}
             {children}
           </div>
 
-          <NextStep steps={onboardingSteps} />
+          <Toaster />
+          <Onboarding />
         </OnboardingProvider>
       </body>
     </html>

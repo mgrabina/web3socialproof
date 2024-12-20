@@ -1,7 +1,6 @@
 import StatusBar, { StatusBarConfig } from "@/components/StatusBar";
 
 import { getUserProtocol } from "@/utils/database/users";
-import { User } from "@supabase/supabase-js";
 import {
   and,
   apiKeyTable,
@@ -127,21 +126,8 @@ const getStatusBarConfig = async (): Promise<StatusBarConfig> => {
   };
 };
 
-export default async function StatusBarWrapper({
-  user,
-  openRoutes,
-}: {
-  user: User | null;
-  openRoutes: string[];
-}) {
+export default async function StatusBarWrapper({}: {}) {
   const { status, message } = await getStatusBarConfig();
 
-  return (
-    <StatusBar
-      status={status}
-      message={message}
-      user={user}
-      openRoutes={openRoutes}
-    />
-  );
+  return <StatusBar status={status} message={message} />;
 }

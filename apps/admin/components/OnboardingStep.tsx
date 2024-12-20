@@ -2,11 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { useOnboarding } from "@/hooks/useOnboarding";
-import { Tour } from "@/lib/onboarding";
+import { onboardingSteps } from "@/lib/onboarding";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export const NextStep = ({ steps }: { steps: Tour[] }) => {
+export const Onboarding = () => {
   const { currentTour, currentStepIndex, next, prev, stop } = useOnboarding();
   const [highlightRect, setHighlightRect] = useState<{
     top: number;
@@ -14,6 +14,7 @@ export const NextStep = ({ steps }: { steps: Tour[] }) => {
     width: number;
     height: number;
   } | null>(null);
+  const steps = onboardingSteps;
 
   useEffect(() => {
     if (!currentTour) return;

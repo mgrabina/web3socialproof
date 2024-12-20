@@ -1,5 +1,11 @@
 import { env, PUBLIC_URL } from "@/lib/constants";
-import { db, eq, protocolTable, usersTable } from "@web3socialproof/db";
+import {
+  db,
+  eq,
+  protocolTable,
+  SelectProtocol,
+  usersTable,
+} from "@web3socialproof/db";
 import { Stripe } from "stripe";
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -70,7 +76,7 @@ export async function createStripeCheckoutSession(email: string) {
   return customerSession.client_secret;
 }
 
-export async function generateStripeBillingPortalLink(email: string) {
+export async function generateStripeBillingPortalLinkServerSide(email: string) {
   const user = await db
     .select()
     .from(usersTable)
@@ -83,6 +89,16 @@ export async function generateStripeBillingPortalLink(email: string) {
 
   const portalSession = await stripe.billingPortal.sessions.create({
     customer: protocol[0].stripe_id!,
+    return_url: `${PUBLIC_URL()}`,
+  });
+  return portalSession.url;
+}
+
+export async function generateStripeBillingPortalFromProtocolServerSide(
+  protocol: SelectProtocol
+) {
+  const portalSession = await stripe.billingPortal.sessions.create({
+    customer: protocol.stripe_id!,
     return_url: `${PUBLIC_URL()}`,
   });
   return portalSession.url;

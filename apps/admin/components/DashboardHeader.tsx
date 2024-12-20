@@ -10,25 +10,22 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { User } from "@supabase/supabase-js";
+import { openRoutes } from "@/lib/constants";
+import { useUserContext } from "@/lib/context/useUserContext";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import DashboardHeaderProfileDropdown from "./DashboardHeaderProfileDropdown";
-import { Badge } from "./ui/badge";
 import { navigationMenuTriggerStyle } from "./ui/navigation-menu";
 
 export default function DashboardHeader({
-  user,
   billingPortalLink,
-  openRoutes,
 }: {
-  user: User | null;
   billingPortalLink?: string;
-  openRoutes: string[];
 }) {
   const [isLogged, setIsLogged] = useState(false);
   const pathname = usePathname();
+  const { user } = useUserContext();
 
   useEffect(() => {
     // Check if the current route is an open route
@@ -85,13 +82,10 @@ export default function DashboardHeader({
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
-              <NavigationMenuItem
-                className="opacity-50"
-                id="header-experiments-link"
-              >
-                <Link href="#" legacyBehavior passHref>
+              <NavigationMenuItem id="header-experiments-link">
+                <Link href="/experiments" legacyBehavior passHref>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Experiments <Badge variant="outline">Soon</Badge>
+                    Experiments
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
@@ -121,10 +115,7 @@ export default function DashboardHeader({
             <HelpCircle className="mr-2 h-4 w-4" />
           </Link>
 
-          <DashboardHeaderProfileDropdown
-            user={user}
-            billingPortalLink={billingPortalLink}
-          />
+          <DashboardHeaderProfileDropdown billingPortalLink={billingPortalLink} />
         </div>
       </div>
     </header>
