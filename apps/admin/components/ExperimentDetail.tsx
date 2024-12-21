@@ -184,7 +184,9 @@ export default function ExperimentDetail({ id }: { id: number }) {
       }
     }
 
-    if (!id) fetchExperiment();
+    if (!id) return;
+
+    fetchExperiment();
   }, [id, supabase]);
 
   async function fetchVariants() {
@@ -231,7 +233,7 @@ export default function ExperimentDetail({ id }: { id: number }) {
   useEffect(() => {
     async function fetchData() {
       setVariantsDataLoading(true);
-      const response = await fetch(`/experiment/${id}/api`);
+      const response = await fetch(`/experiments/${id}/api`);
       const result: {
         totalImpressions: number;
         totalConversions: number;
@@ -368,15 +370,15 @@ export default function ExperimentDetail({ id }: { id: number }) {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Start Date
-                </CardTitle>
+                <CardTitle className="text-sm font-medium">Created</CardTitle>
                 <BarChart className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
-                  {experiment?.created_at}
-                </div>
+                {experiment?.created_at && (
+                  <div className="text-2xl font-bold">
+                    {new Date(experiment?.created_at).toLocaleDateString()}
+                  </div>
+                )}
               </CardContent>
             </Card>
             <Card>
@@ -414,85 +416,98 @@ export default function ExperimentDetail({ id }: { id: number }) {
             </Card>
           </div>
 
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-2">Experiment Results</h3>
-            <ExperimentChart
-              isLoading={variantsDataLoading}
-              variants={variantsData}
-            />
-          </div>
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-2">Detailed Metrics</h3>
-            <ExperimentTable
-              isLoading={variantsDataLoading}
-              variants={variantsData}
-            />
-          </div>
-
-          {/* Big Line chart with all variants evolution */}
-
-          {variantsDataLoading ? (
-            <Skeleton className="h-64" />
+          {totalImpressions && totalImpressions > 0 ? (
+            <>
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-2">
+                  Experiment Results
+                </h3>
+                <ExperimentChart
+                  isLoading={variantsDataLoading}
+                  variants={variantsData}
+                />
+              </div>
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-2">Detailed Metrics</h3>
+                <ExperimentTable
+                  isLoading={variantsDataLoading}
+                  variants={variantsData}
+                />
+              </div>
+            </>
           ) : (
-            <Card>
-              <CardContent className="pt-4">
-                <h2 className="text-lg font-semibold">Daily Performance</h2>
-                <label className="text-muted-foreground">
-                  Variants Evolution
-                </label>
-                <br />
-                <ChartContainer config={chartConfig}>
-                  <LineChart
-                    data={chartData}
-                    margin={{
-                      left: 12,
-                      right: 12,
-                    }}
-                  >
-                    <CartesianGrid vertical={false} />
-                    <XAxis
-                      dataKey="date"
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                    />
-                    <YAxis
-                      min={0}
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                      allowDecimals={false}
-                      max={Math.max(
-                        ...(chartData?.map((d: any) => d.impressions) ?? []),
-                        ...(chartData?.map((d: any) => d.conversions) ?? [])
-                      )}
-                    />
-
-                    <ChartTooltip
-                      cursor={false}
-                      content={<ChartTooltipContent indicator="line" />}
-                    />
-                    <Line
-                      dataKey="impressions"
-                      type="natural"
-                      fill="var(--color-impressions)"
-                      fillOpacity={0.4}
-                      stroke="var(--color-impressions)"
-                    />
-                    <Line
-                      dataKey="conversions"
-                      type="natural"
-                      fill="var(--color-conversions)"
-                      fillOpacity={0.4}
-                      stroke="var(--color-conversions)"
-                    />
-                  </LineChart>
-                </ChartContainer>
-              </CardContent>
-            </Card>
+            <div className="mt-6">
+              <h3 className="text-lg mb-2">
+                No data available. Are you sure that the pixel is properly
+                integrated in the selected domains?
+              </h3>
+            </div>
           )}
-        </CardContent>
+        </CardContent>{" "}
       </Card>
+
+      {!!totalImpressions &&
+        totalImpressions > 0 &&
+        (variantsDataLoading ? (
+          <Skeleton className="h-64" />
+        ) : (
+          <Card>
+            <CardContent className="pt-4">
+              <h2 className="text-lg font-semibold">Daily Performance</h2>
+              <label className="text-muted-foreground">
+                Variants Evolution
+              </label>
+              <br />
+              <ChartContainer config={chartConfig}>
+                <LineChart
+                  data={chartData}
+                  margin={{
+                    left: 12,
+                    right: 12,
+                  }}
+                >
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="date"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                  />
+                  <YAxis
+                    min={0}
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    allowDecimals={false}
+                    max={Math.max(
+                      ...(chartData?.map((d: any) => d.impressions) ?? []),
+                      ...(chartData?.map((d: any) => d.conversions) ?? [])
+                    )}
+                  />
+
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent indicator="line" />}
+                  />
+                  <Line
+                    dataKey="impressions"
+                    type="natural"
+                    fill="var(--color-impressions)"
+                    fillOpacity={0.4}
+                    stroke="var(--color-impressions)"
+                  />
+                  <Line
+                    dataKey="conversions"
+                    type="natural"
+                    fill="var(--color-conversions)"
+                    fillOpacity={0.4}
+                    stroke="var(--color-conversions)"
+                  />
+                </LineChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+        ))}
     </div>
   );
 }

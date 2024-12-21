@@ -49,8 +49,6 @@ interface VariantsFormProps {
     iconName?: string | null;
     delay?: number | null;
     timer?: number | null;
-    hostnames?: string[] | null;
-    pathnames?: string[] | null;
   };
   onSubmit: (data: any) => Promise<void>;
 }
@@ -59,8 +57,6 @@ export default function VariantsForm({
   initialData = {
     iconName: "flame",
     styling: { ...defaultStyling },
-    hostnames: [] as string[],
-    pathnames: [] as string[],
   },
   onSubmit,
 }: VariantsFormProps) {

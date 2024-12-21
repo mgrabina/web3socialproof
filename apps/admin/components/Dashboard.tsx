@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import useLocalStorage from "@/hooks/useLocalStorage";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useUserContext } from "@/lib/context/useUserContext";
 import { OnboardingName } from "@/lib/onboarding";
@@ -24,8 +25,9 @@ export default function Dashboard() {
     dailyConversions: { date: string; count: number }[];
   } | null>();
   const [dailyInfoLoading, setDailyInfoLoading] = useState(true);
-  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(
-    Boolean(localStorage.getItem(OnboardingName))
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useLocalStorage(
+    OnboardingName,
+    false
   );
   const supabase = createSupabaseClientForClientSide();
   const { user, protocol } = useUserContext();
@@ -115,11 +117,15 @@ export default function Dashboard() {
 
   const onboarding = useOnboarding();
 
+  const hasIntegrated = !totalImpressionsLoading && totalImpressions && totalImpressions > 0;
+
   useEffect(() => {
-    if (!hasSeenOnboarding && !anythingLoading) {
-      setHasSeenOnboarding(true);
-      localStorage.setItem(OnboardingName, "true");
+    if (hasSeenOnboarding !== true && !hasIntegrated) {
       onboarding?.start(OnboardingName);
+
+      setTimeout(() => {
+        setHasSeenOnboarding(true);
+      }, 3000);
     }
   }, [hasSeenOnboarding, onboarding, anythingLoading]);
 
@@ -166,7 +172,7 @@ export default function Dashboard() {
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-navy-900 to-navy-950">
       <div className="flex-1 p-8">
-        {!!totalImpressions && totalImpressions > 0 ? (
+        {hasIntegrated ? (
           <div className="mx-auto max-w-6xl space-y-8">
             {/* Header */}
             <div className="flex items-center justify-between">
@@ -312,10 +318,7 @@ export default function Dashboard() {
           </div>
         ) : (
           <>
-            <Card
-              className="w-full mx-auto border border-gray-200 shadow-md mb-8"
-              id="integration-guide"
-            >
+            <Card className="w-full mx-auto border border-gray-200 shadow-md mb-8">
               <CardHeader className="border-b border-gray-200 p-4 bg-gray-50">
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-xl font-semibold text-gray-800">

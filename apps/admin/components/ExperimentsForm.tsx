@@ -50,15 +50,13 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
   >();
   const [availableVariants, setAvailableVariants] = useState<SelectVariant[]>();
   const [loadingAvailableVariants, setLoadingAvailableVariants] =
-    useState(false);
+    useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
   const { protocol } = useUserContext();
   const supabase = createSupabaseClientForClientSide();
 
   const router = useRouter();
 
-  
-  
   useEffect(() => {
     async function fetchExperiment(_id: number) {
       try {
@@ -67,22 +65,22 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
           .select()
           .eq("id", _id)
           .single();
-  
+
         if (error || !experiment) {
           throw error;
         }
-  
+
         setExperiment(experiment);
-  
+
         const { data: variants, error: variantsError } = await supabase
           .from("variants_per_experiment_table")
           .select()
           .eq("experiment_id", _id);
-  
+
         if (variantsError || !variants) {
           throw variantsError;
         }
-  
+
         setVariants(variants);
       } catch (error) {
         console.error("Error fetching experiment:", error);
@@ -95,7 +93,7 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
         setHasLoaded(true);
       }
     }
-    
+
     if (paramId !== undefined) {
       fetchExperiment(paramId);
     } else {
@@ -110,12 +108,12 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
         .from("variants_table")
         .select()
         .filter("protocol_id", "eq", protocol?.id);
-  
+
       setLoadingAvailableVariants(false);
       if (error || !availableVariants) {
         throw error;
       }
-  
+
       setAvailableVariants(availableVariants);
     }
 
@@ -161,6 +159,8 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
   };
 
   const handleSubmit = async () => {
+    console.log("Submitting experiment:", experiment);
+
     if (!experiment) {
       return;
     }
@@ -184,6 +184,8 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
         return;
       }
 
+      console.log(experiment);
+
       // Create
       const { data, error } = await supabase
         .from("experiments_table")
@@ -193,7 +195,8 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
           protocol_id: protocol?.id,
           enabled: experiment.enabled === undefined ? true : experiment.enabled,
         })
-        .returns<SelectExperiment>();
+        .select()
+        .single();
 
       experimentId = data?.id;
     }
@@ -248,8 +251,8 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
     }
 
     toast({
-      title: "Experiment Updated",
-      description: "Experiment updated successfully.",
+      title: `Experiment ${paramId ? "Updated" : "Created"} successfully`,
+      description: `Redirecting to experiments overview page...`,
     });
 
     router.push("/experiments");
@@ -305,7 +308,10 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
               id="name"
               placeholder="Swaps Experiment AB Testing"
               value={experiment?.name ?? undefined}
-              onChange={(e) => ({ ...experiment, name: e.target.value })}
+              onChange={(e) => {
+                const value = e.target.value;
+                setExperiment((prev) => ({ ...prev, name: value }));
+              }}
             />
           </div>
 
@@ -351,7 +357,7 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
                     </TableRow>
                   )
                 )}
-                {!variants?.length && (
+                {!variants?.length && !loadingAvailableVariants && (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center">
                       No variants added yet
@@ -667,15 +673,25 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
                   <SelectValue placeholder="Select Variant" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableVariants?.map((variant) => (
-                    <SelectItem key={variant.id} value={variant.id.toString()}>
-                      {variant.name}
+                  {availableVariants
+                    ?.filter(
+                      (v: any) =>
+                        !variants?.map((v) => v.variant_id).includes(v.id)
+                    ) // Filter out variants already added
+                    .map((variant) => (
+                      <SelectItem
+                        key={variant.id}
+                        value={variant.id.toString()}
+                      >
+                        {variant.name}
+                      </SelectItem>
+                    ))}
+                  {/* Empty Variant for AB Testing if not added yet  */}
+                  {!variants?.map((v) => v.variant_id).includes(null) && (
+                    <SelectItem key={0} value={"0"}>
+                      Empty Variant (for AB Testing)
                     </SelectItem>
-                  ))}
-                  {/* Empty Variant for AB Testing */}
-                  <SelectItem key={0} value={"0"}>
-                    Empty Variant (for AB Testing)
-                  </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             )}
@@ -687,12 +703,19 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
             <Input
               autoComplete="on"
               placeholder="50"
+              type="number"
               min={0}
               max={100}
               value={currentVariant.percentage}
-              onChange={(e) =>
-                handleVariantChange("percentage", e.target.value)
-              }
+              onChange={(e) => {
+                const value = Number(e.target.value);
+
+                if (value < 0 || value > 100) {
+                  return;
+                }
+
+                handleVariantChange("percentage", value);
+              }}
               prefix="%"
             />
           </div>
@@ -700,7 +723,7 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
           <Button
             className="w-full mt-4"
             variant="default"
-            disabled={!currentVariant.variant_id || !currentVariant.percentage}
+            disabled={!currentVariant.percentage}
             onClick={handleAddVariant}
           >
             Add Variant

@@ -1,3 +1,4 @@
+"use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Copy } from "lucide-react";
 import SyntaxHighlighter from "react-syntax-highlighter";
@@ -5,26 +6,65 @@ import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import { Button } from "./ui/button";
 
 import { toast } from "@/hooks/use-toast";
+import { useUserContext } from "@/lib/context/useUserContext";
+import { createSupabaseClientForClientSide } from "@/utils/supabase/client";
 import { SelectApiKey } from "@web3socialproof/db";
 import { useEffect, useState } from "react";
 
 export default function IntegrationGuide() {
-  const [apiKeys, setApiKeys] = useState<SelectApiKey[]>([]);
+  const [apiKey, setApiKey] = useState<SelectApiKey | null>();
   const [isLoading, setIsLoading] = useState(true); // Loading state for table
 
   const [copied, setCopied] = useState(false);
+  const supabase = createSupabaseClientForClientSide();
+  const { protocol } = useUserContext();
 
   // Fetch API keys from the server
   useEffect(() => {
     async function fetchApiKeys() {
       setIsLoading(true); // Start loading
-      const response = await fetch("/api-keys/api");
-      const keys = await response.json();
-      setApiKeys(keys);
-      setIsLoading(false); // End loading
+
+      try {
+        if (!protocol?.id) {
+          throw new Error("No protocol found.");
+        }
+
+        // Fetch API keys
+        const { data, error } = await supabase
+          .from("api_key_table")
+          .select()
+          .eq("protocol_id", protocol?.id)
+          .eq("enabled", true)
+          .single();
+
+        if (error) {
+          toast({
+            title: "Error",
+            description: "Failed to fetch API keys.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        setApiKey(data);
+      } catch (error) {
+        console.error("Failed to fetch API keys:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch API keys.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false); // End loading
+      }
     }
+
+    if (!protocol?.id) {
+      return;
+    }
+
     fetchApiKeys();
-  }, []);
+  }, [protocol, supabase]);
 
   const handleCopyKey = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -41,12 +81,15 @@ export default function IntegrationGuide() {
 
   const integrationSnippet = isLoading
     ? "Loading..."
-    : apiKeys.length
-    ? getIntegrationCode(apiKeys[0].key)
+    : apiKey
+    ? getIntegrationCode(apiKey.key)
     : "<script src='https://pixel.gobyherd.com?apiKey=YOUR_API_KEY' defer></script>";
 
   return (
-    <Card className="w-full mx-auto border border-gray-200 shadow-md" id="integration-guide">
+    <Card
+      className="w-full mx-auto border border-gray-200 shadow-md"
+      id="integration-guide"
+    >
       <CardHeader className="border-b border-gray-200 p-4 bg-gray-50">
         <div className="flex justify-between items-center">
           <CardTitle className="text-xl font-semibold text-gray-800">

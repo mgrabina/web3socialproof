@@ -10,6 +10,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { toast } from "@/hooks/use-toast";
 import { useUserContext } from "@/lib/context/useUserContext";
 import { createSupabaseClientForClientSide } from "@/utils/supabase/client";
@@ -265,7 +270,7 @@ export default function ExperimentManager() {
                   <TableHead>Name</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Variants</TableHead>
-                  <TableHead>Domains</TableHead>
+                  {/* <TableHead>Domains</TableHead> */}
                   <TableHead>Impressions</TableHead>
                   <TableHead>Result</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -290,7 +295,7 @@ export default function ExperimentManager() {
                         (v) => v.experiment_id === experiment.id
                       ).length || "0"}
                     </TableCell>
-                    <TableCell>{experiment.hostnames}</TableCell>
+                    {/* <TableCell>{experiment.hostnames}</TableCell> */}
                     <TableCell>
                       {loadingStatistics ? (
                         <Skeleton className="w-16 h-4" />
@@ -316,52 +321,87 @@ export default function ExperimentManager() {
                     </TableCell>
                     <TableCell className="text-right flex space-x-2 justify-end">
                       {/* Eye Button for details */}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          router.push(`/experiments/${experiment.id}`)
-                        }
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              router.push(`/experiments/${experiment.id}`)
+                            }
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Details & Results</p>
+                        </TooltipContent>
+                      </Tooltip>
 
                       {/* Edit Button */}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          router.push(`/experiments/create/${experiment.id}`)
-                        }
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              router.push(
+                                `/experiments/create/${experiment.id}`
+                              )
+                            }
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Edit</p>
+                        </TooltipContent>
+                      </Tooltip>
                       {/* Pause/Resume Button */}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleToggleExperimentStatus(experiment)}
-                      >
-                        {experiment.enabled ? (
-                          <Pause className="h-4 w-4" />
-                        ) : (
-                          <Play className="h-4 w-4" />
-                        )}
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              handleToggleExperimentStatus(experiment)
+                            }
+                          >
+                            {experiment.enabled ? (
+                              <Pause className="h-4 w-4" />
+                            ) : (
+                              <Play className="h-4 w-4" />
+                            )}
+                          </Button>{" "}
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{experiment.enabled ? "Pause" : "Play"}</p>
+                        </TooltipContent>
+                      </Tooltip>
                       {/* Delete Button */}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteExperiment(experiment.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-500 hover:text-red-700"
+                            onClick={() =>
+                              handleDeleteExperiment(experiment.id)
+                            }
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>{" "}
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Delete</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 ))}
                 {!experiments?.length && (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center">
+                    <TableCell colSpan={12} className="text-center">
                       No experiments found. Create a new one by clicking the
                       button above.
                     </TableCell>

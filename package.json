@@ -17,6 +17,8 @@
     "dev:backend": "yarn workspace @web3socialproof/backend dev",
     "start:backend": "yarn workspace @web3socialproof/backend start",
     "build:pixel": "yarn workspace @web3socialproof/pixel build",
+    "build:supabase:types:staging": "yarn workspace @web3socialproof/admin create-supabase-types-staging",
+    "build:supabase:types:prod": "yarn workspace @web3socialproof/admin create-supabase-types-prod",
     "prepare": "husky",
     "run": "turbo run watch",
     "migrate-db": "yarn workspace @web3socialproof/db migrate"

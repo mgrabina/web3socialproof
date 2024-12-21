@@ -40,8 +40,8 @@ export const variantsTable = pgTable("variants_table", {
   timer: integer("timer"),
   styling: json("styling"),
 
-  created_at: timestamp({ mode: "string" }).notNull(),
-  updated_at: timestamp({ mode: "string" }).notNull(),
+  created_at: timestamp({ mode: "string" }).notNull().defaultNow(),
+  updated_at: timestamp({ mode: "string" }).notNull().defaultNow(),
 });
 
 export const experimentsTable = pgTable("experiments_table", {
@@ -114,7 +114,7 @@ export const logsTable = pgTable("logs_table", {
   contract_address: text("contract_address").notNull(),
   event_name: text("event_name").notNull(),
   topic_index: integer("topic_index"), // 0-3 for 4 topics
-  data_key: text("key"),
+  key: text("key"),
   data_schema: text("data_schema"),
   start_block: integer("start_block"),
 

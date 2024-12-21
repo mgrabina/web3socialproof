@@ -151,9 +151,9 @@ export default function VariantManager() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Type</TableHead>
+                  <TableHead>Message</TableHead>
                   <TableHead>Creation Date</TableHead>
+
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -161,10 +161,7 @@ export default function VariantManager() {
                 {variants?.map((variant) => (
                   <TableRow key={variant.id}>
                     <TableCell>{variant.name}</TableCell>
-                    {/* <TableCell>
-                      {variant.enabled ? "Active" : "Paused"}
-                    </TableCell> */}
-                    {/* <TableCell>{variant.type}</TableCell> */}
+                    <TableCell>{variant.message}</TableCell>
                     <TableCell>
                       {new Date(variant.created_at).toLocaleString()}
                     </TableCell>
@@ -209,6 +206,7 @@ export default function VariantManager() {
                         <TooltipTrigger>
                           <Button
                             variant="ghost"
+                            className="text-red-500 hover:text-red-700" 
                             size="sm"
                             onClick={() => handleDeleteVariant(variant.id)}
                           >

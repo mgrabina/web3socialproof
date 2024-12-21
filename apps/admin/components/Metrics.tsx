@@ -10,6 +10,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { toast } from "@/hooks/use-toast";
 import { useUserContext } from "@/lib/context/useUserContext";
 import { createSupabaseClientForClientSide } from "@/utils/supabase/client";
@@ -25,32 +30,28 @@ export default function MetricsManager() {
   const router = useRouter();
   const { protocol } = useUserContext();
   const supabase = createSupabaseClientForClientSide();
-  
-  
+
   useEffect(() => {
-    
     async function fetchMetrics() {
       try {
         setIsLoading(true);
         if (!protocol?.id) {
           throw new Error("No protocol found.");
         }
-  
+
         let { data: metrics, error } = await supabase
           .from("metrics_table")
           .select()
           .eq("protocol_id", protocol?.id);
         if (error || !metrics) throw error;
-  
-        console.log("Metrics:", metrics);
-  
+
         const parsed = metrics.map((m) => ({
           ...m,
           ...(m.last_calculated !== null
             ? { last_calculated: new Date(m.last_calculated) }
             : { last_calculated: null }),
         }));
-  
+
         setMetrics(parsed);
         setIsLoading(false);
       } catch (error) {
@@ -75,6 +76,21 @@ export default function MetricsManager() {
   const handleDeleteMetric = async (metricId: number) => {
     // using supabase
     async function deleteMetric(metricId: number) {
+      // Find and delete logs related to the metric
+      const { data: logs, error: logsError } = await supabase
+        .from("metrics_variables_table")
+        .delete()
+        .eq("metric_id", metricId);
+
+      if (logsError) {
+        toast({
+          title: "Error",
+          description: "Failed to delete metric variables relation.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from("metrics_table")
         .delete()
@@ -181,36 +197,66 @@ export default function MetricsManager() {
                     <TableCell className="text-right">
                       {/* Pause or Play */}
                       {metric.enabled ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handlePauseOrPlayMetric(metric)}
-                        >
-                          <Pause className="h-4 w-4" />
-                        </Button>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handlePauseOrPlayMetric(metric)}
+                            >
+                              <Pause className="h-4 w-4" />
+                            </Button>{" "}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Pause</p>
+                          </TooltipContent>
+                        </Tooltip>
                       ) : (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handlePauseOrPlayMetric(metric)}
-                        >
-                          <Play className="h-4 w-4" />
-                        </Button>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handlePauseOrPlayMetric(metric)}
+                            >
+                              <Play className="h-4 w-4" />
+                            </Button>{" "}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Play</p>
+                          </TooltipContent>
+                        </Tooltip>
                       )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => router.push(`/metrics/${metric.id}`)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteMetric(metric.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => router.push(`/metrics/${metric.id}`)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Edit</p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Button
+                            variant="ghost"
+                            className="text-red-500 hover:text-red-700"
+                            size="sm"
+                            onClick={() => handleDeleteMetric(metric.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Delete</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 ))}

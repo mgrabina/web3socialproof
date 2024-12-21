@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
+import { useDebounce } from "@/hooks/useDebounce";
 import { env } from "@/lib/constants";
 import { getEventSignatures } from "@/utils/blockchain/events";
 import { getTrpcClientForClient } from "@/utils/trpc/client";
@@ -31,6 +32,7 @@ import {
 } from "@web3socialproof/shared/constants/chains";
 import { shortenAddress } from "@web3socialproof/shared/utils/evm";
 import { useEffect, useState } from "react";
+import { isAddress } from "viem";
 import ContractVerificationDialog from "./ContractOwnershipVerificationDialog";
 
 const calculationTypes = [
@@ -70,7 +72,7 @@ export default function MetricsForm({
     event_name: "",
     topic_index: undefined,
     calculation_type: "count",
-    data_key: undefined,
+    key: undefined,
     data_schema: undefined,
     start_block: 0,
   });
@@ -88,7 +90,7 @@ export default function MetricsForm({
       event_name: "",
       topic_index: undefined,
       calculation_type: "count",
-      data_key: undefined,
+      key: undefined,
       data_schema: undefined,
       start_block: 0,
     });
@@ -97,7 +99,14 @@ export default function MetricsForm({
   const [isAbiLoading, setIsAbiLoading] = useState(false);
 
   useEffect(() => {
-    if (currentEvent.chain_id && currentEvent.contract_address) {
+    console.log("testing", currentEvent.contract_address)
+    if (
+      currentEvent.chain_id &&
+      currentEvent.contract_address &&
+      currentEvent.chain_id > 0 &&
+      isAddress(currentEvent.contract_address)
+    ) {
+      console.log("sending")
       setIsAbiLoading(true);
       const fetchAbi = async () => {
         try {
@@ -291,7 +300,7 @@ export default function MetricsForm({
                     <TableCell>
                       {variable.topic_index
                         ? `Topic ${variable.topic_index}`
-                        : variable.data_key ?? "N/A"}
+                        : variable.key ?? "N/A"}
                     </TableCell>
                     <TableCell>
                       <Button
@@ -328,7 +337,7 @@ export default function MetricsForm({
                 setIsLoading(false); // Reset loading state
               }
             }}
-            disabled={isLoading} // Disable button during loading
+            disabled={isLoading || !variables?.length || !formData?.name} // Disable button during loading
           >
             {isLoading ? (
               <span className="flex items-center space-x-2">
@@ -402,7 +411,6 @@ export default function MetricsForm({
           <div className="space-y-2">
             <Label>Contract Address</Label>
             <Input
-              autoComplete="on"
               placeholder="0x1234..."
               value={currentEvent.contract_address}
               onChange={(e) =>
@@ -518,7 +526,7 @@ export default function MetricsForm({
                 value={
                   currentEvent.topic_index !== undefined
                     ? `topic-${topics[(currentEvent.topic_index ?? 1) - 1]}`
-                    : currentEvent.data_key ?? undefined
+                    : currentEvent.key ?? undefined
                 }
                 onValueChange={(value) => {
                   // Determine if the selection is a topic or data field
@@ -530,14 +538,14 @@ export default function MetricsForm({
                     // Update the event with the selected topic
                     handleEventChanges({
                       topic_index: topicIndex + 1,
-                      data_key: undefined,
+                      key: undefined,
                       data_schema: undefined,
                     });
                   } else {
                     // Handle data field selection
                     handleEventChanges({
                       topic_index: undefined,
-                      data_key: value,
+                      key: value,
                       data_schema: currentEvent.event_name,
                     });
                   }
@@ -574,7 +582,7 @@ export default function MetricsForm({
                     onValueChange={(value) => {
                       handleEventChanges({
                         topic_index: Number(value) + 1,
-                        data_key: undefined,
+                        key: undefined,
                         data_schema: undefined,
                       });
                     }}
@@ -599,12 +607,12 @@ export default function MetricsForm({
                   <Label>Data Field</Label>
                   <Input
                     placeholder="Custom Data Field"
-                    value={currentEvent.data_key ?? undefined}
+                    value={currentEvent.key ?? undefined}
                     onChange={(e) => {
                       const value = e.target.value;
                       handleEventChanges({
                         topic_index: undefined,
-                        data_key: value,
+                        key: value,
                         data_schema: currentEvent.event_name,
                       });
                     }}
@@ -650,7 +658,7 @@ export default function MetricsForm({
               !currentEvent.contract_address ||
               !currentEvent.event_name ||
               (currentEvent.topic_index == undefined &&
-                currentEvent.data_key == undefined)
+                currentEvent.key == undefined)
             }
             onClick={handleAddEvent}
           >

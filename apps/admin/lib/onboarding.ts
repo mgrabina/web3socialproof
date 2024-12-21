@@ -36,7 +36,7 @@ export const onboardingSteps: Tour[] = [
       {
         title: "Welcome to Herd!",
         content:
-          "In less than 15 minutes, you'll be up and improving your Protocol conversions. Let us guide you through our platform.",
+          "In less than 15 minutes, you'll be lifting your conversions. Let us guide you through our platform.",
         side: "top",
       },
       {

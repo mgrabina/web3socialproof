@@ -495,7 +495,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          created_at: string
+          created_at?: string
           delay?: number | null
           iconName?: string | null
           iconSrc?: string | null
@@ -506,7 +506,7 @@ export type Database = {
           styling?: Json | null
           sub_message: string
           timer?: number | null
-          updated_at: string
+          updated_at?: string
         }
         Update: {
           created_at?: string
