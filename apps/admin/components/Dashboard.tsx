@@ -3,10 +3,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOnboarding } from "@/hooks/useOnboarding";
+import { useUserContext } from "@/lib/context/useUserContext";
 import { OnboardingName } from "@/lib/onboarding";
+import { createSupabaseClientForClientSide } from "@/utils/supabase/client";
 import { DollarSign, Eye, NotepadText, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useAsync } from "react-async";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import IntegrationGuide from "./IntegrationGuide";
 import {
@@ -17,66 +20,129 @@ import {
 } from "./ui/chart";
 
 export default function Dashboard() {
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<{
+    dailyImpressions: { date: string; count: number }[];
+    dailyConversions: { date: string; count: number }[];
+  } | null>();
+  const [dailyInfoLoading, setDailyInfoLoading] = useState(true);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(
     Boolean(localStorage.getItem(OnboardingName))
   );
+  const supabase = createSupabaseClientForClientSide();
+  const { user, protocol } = useUserContext();
+
+  const [totalExperiments, setTotalExperiments] = useState<number | null>();
+  const [totalExperimentsLoading, setTotalExperimentsLoading] = useState(true);
+  const [totalMetrics, setTotalMetrics] = useState<number | null>();
+  const [totalMetricsLoading, setTotalMetricsLoading] = useState(true);
+  const [totalImpressions, setTotalImpressions] = useState<number | null>();
+  const [totalImpressionsLoading, setTotalImpressionsLoading] = useState(true);
+  const [totalConversionsWithHerd, setTotalConversionsWithHerd] = useState<
+    number | null
+  >();
+  const [totalConversionsWithHerdLoading, setTotalConversionsWithHerdLoading] =
+    useState(true);
+  const [totalConversionsWithoutHerd, setTotalConversionsWithoutHerd] =
+    useState<number | null>();
+  const [
+    totalConversionsWithoutHerdLoading,
+    setTotalConversionsWithoutHerdLoading,
+  ] = useState(true);
+
+  const [anythingLoading, setAnythingLoading] = useState(
+    totalExperimentsLoading ||
+      totalMetricsLoading ||
+      totalImpressionsLoading ||
+      totalConversionsWithHerdLoading ||
+      totalConversionsWithoutHerdLoading
+  );
+
+  useAsync(async () => {
+    if (!protocol?.id) {
+      return;
+    }
+    await Promise.all([
+      supabase
+        .from("experiments_table")
+        .select("*", { count: "exact", head: true })
+        .eq("protocol_id", protocol?.id)
+        .eq("enabled", true)
+        .then((data) => {
+          setTotalExperiments(data.count);
+          setTotalExperimentsLoading(false);
+        }),
+
+      supabase
+        .from("metrics_table")
+        .select("*", { count: "exact", head: true })
+        .eq("protocol_id", protocol?.id)
+        .eq("enabled", true)
+        .then((data) => {
+          setTotalMetrics(data.count);
+          setTotalMetricsLoading(false);
+        }),
+
+      supabase
+        .from("impressions_table")
+        .select("*", { count: "exact", head: true })
+        .eq("protocol_id", protocol?.id)
+        .then((data) => {
+          setTotalImpressions(data.count);
+          setTotalImpressionsLoading(false);
+        }),
+
+      supabase
+        .from("conversions_table")
+        .select("*", { count: "exact", head: true })
+        .eq("protocol_id", protocol?.id)
+        .not("variant_id", "is", null)
+        .then((data) => {
+          setTotalConversionsWithHerd(data.count);
+          setTotalConversionsWithHerdLoading(false);
+        }),
+
+      supabase
+        .from("conversions_table")
+        .select("*", { count: "exact", head: true })
+        .eq("protocol_id", protocol?.id)
+        .is("variant_id", null)
+        .then((data) => {
+          setTotalConversionsWithoutHerd(data.count);
+          setTotalConversionsWithoutHerdLoading(false);
+        }),
+    ]);
+  }, [protocol]);
 
   const onboarding = useOnboarding();
 
   useEffect(() => {
-    if (!hasSeenOnboarding && !loading) {
+    if (!hasSeenOnboarding && !anythingLoading) {
       setHasSeenOnboarding(true);
       localStorage.setItem(OnboardingName, "true");
       onboarding?.start(OnboardingName);
     }
-  }, [hasSeenOnboarding, onboarding, loading]);
+  }, [hasSeenOnboarding, onboarding, anythingLoading]);
 
   useEffect(() => {
     async function fetchData() {
-      setLoading(true);
+      setDailyInfoLoading(true);
       const response = await fetch("/dashboard/api");
       const result = await response.json();
       setData(result);
-      setLoading(false);
+      setDailyInfoLoading(false);
     }
     fetchData();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="space-y-4 p-6">
-        {/* Top Rectangles */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Skeleton className="h-24 rounded-md" />
-          <Skeleton className="h-24 rounded-md" />
-          <Skeleton className="h-24 rounded-md" />
-          <Skeleton className="h-24 rounded-md" />
-        </div>
-
-        {/* Bottom Rectangle */}
-        <Skeleton className="h-64 rounded-md" />
-      </div>
-    );
-  }
-
-  const {
-    totalVariants,
-    totalMetrics,
-    totalImpressions,
-    totalConversions,
-    dailyImpressions,
-    dailyConversions,
-  } = data;
+  const { dailyImpressions, dailyConversions } = data ?? {};
 
   type dailyData = {
     date: string;
     count?: number;
   };
   // Join daily impressions and conversions by date
-  const chartData = dailyImpressions.map((impression: dailyData) => {
-    const conversion = dailyConversions.find(
+  const chartData = dailyImpressions?.map((impression: dailyData) => {
+    const conversion = dailyConversions?.find(
       (conversion: dailyData) => conversion.date === impression.date
     );
     return {
@@ -106,7 +172,10 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold">Dashboard</h1>
-                {/* <p className="text-muted-foreground">Monitor your Web3 conversion metrics with Herd</p> */}
+                <p className="text-muted-foreground">
+                  Welcome back, {user?.name ?? "User"}! Here is a quick overview
+                  of your experiments and metrics.
+                </p>
               </div>
             </div>
 
@@ -115,39 +184,54 @@ export default function Dashboard() {
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Total Variants</p>
+                    <p className="text-sm font-medium">Active Experiments</p>
                     <NotepadText className="h-4 w-4 text-green-500" />
                   </div>
-                  <p className="text-2xl font-bold">{totalVariants}</p>
+                  {totalExperimentsLoading && <Skeleton className="h-6 w-12" />}
+                  <p className="text-2xl font-bold">{totalExperiments}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Total Metrics</p>
+                    <p className="text-sm font-medium">Metrics Indexing</p>
                     <TrendingUp className="h-4 w-4 text-green-500" />
                   </div>
+                  {totalMetricsLoading && <Skeleton className="h-6 w-12" />}
                   <p className="text-2xl font-bold">{totalMetrics}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Total Impressions</p>
+                    <p className="text-sm font-medium">Impressions</p>
                     <Eye className="h-4 w-4 text-blue-500" />
                   </div>
+                  {totalImpressionsLoading && <Skeleton className="h-6 w-12" />}
                   <p className="text-2xl font-bold">{totalImpressions}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Total Conversions</p>
+                    <p className="text-sm font-medium">Lift</p>
                     <DollarSign className="h-4 w-4 text-blue-500" />
                   </div>
-                  {totalConversions?.value ? (
+                  {totalConversionsWithHerdLoading ||
+                    (totalConversionsWithoutHerdLoading && (
+                      <Skeleton className="h-6 w-12" />
+                    ))}
+
+                  {totalConversionsWithHerd && totalConversionsWithoutHerd ? (
                     <p className="text-2xl font-bold">
-                      {totalConversions?.value}
+                      {totalConversionsWithoutHerd !== 0
+                        ? (
+                            ((totalConversionsWithHerd -
+                              totalConversionsWithoutHerd) /
+                              totalConversionsWithoutHerd) *
+                            100
+                          ).toFixed(2)
+                        : "∞" + "%"}
                     </p>
                   ) : (
                     <Link
@@ -165,62 +249,66 @@ export default function Dashboard() {
             </div>
 
             {/* Graph */}
-            <Card>
-              <CardContent className="pt-4">
-                <h2 className="text-lg font-semibold">Daily Performance</h2>
-                <label className="text-muted-foreground">
-                  Impressions and Conversions
-                </label>
-                <br />
-                <ChartContainer config={chartConfig}>
-                  <LineChart
-                    data={chartData}
-                    margin={{
-                      left: 12,
-                      right: 12,
-                    }}
-                  >
-                    <CartesianGrid vertical={false} />
-                    <XAxis
-                      dataKey="date"
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                    />
-                    <YAxis
-                      min={0}
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                      allowDecimals={false}
-                      max={Math.max(
-                        ...chartData.map((d: any) => d.impressions),
-                        ...chartData.map((d: any) => d.conversions)
-                      )}
-                    />
+            {dailyInfoLoading ? (
+              <Skeleton className="h-64" />
+            ) : (
+              <Card>
+                <CardContent className="pt-4">
+                  <h2 className="text-lg font-semibold">Daily Performance</h2>
+                  <label className="text-muted-foreground">
+                    Impressions and Conversions
+                  </label>
+                  <br />
+                  <ChartContainer config={chartConfig}>
+                    <LineChart
+                      data={chartData}
+                      margin={{
+                        left: 12,
+                        right: 12,
+                      }}
+                    >
+                      <CartesianGrid vertical={false} />
+                      <XAxis
+                        dataKey="date"
+                        tickLine={false}
+                        axisLine={false}
+                        tickMargin={8}
+                      />
+                      <YAxis
+                        min={0}
+                        tickLine={false}
+                        axisLine={false}
+                        tickMargin={8}
+                        allowDecimals={false}
+                        max={Math.max(
+                          ...chartData?.map((d: any) => d.impressions) ?? [],
+                          ...chartData?.map((d: any) => d.conversions) ?? []
+                        )}
+                      />
 
-                    <ChartTooltip
-                      cursor={false}
-                      content={<ChartTooltipContent indicator="line" />}
-                    />
-                    <Line
-                      dataKey="impressions"
-                      type="natural"
-                      fill="var(--color-impressions)"
-                      fillOpacity={0.4}
-                      stroke="var(--color-impressions)"
-                    />
-                    <Line
-                      dataKey="conversions"
-                      type="natural"
-                      fill="var(--color-conversions)"
-                      fillOpacity={0.4}
-                      stroke="var(--color-conversions)"
-                    />
-                  </LineChart>
-                </ChartContainer>
-              </CardContent>
-            </Card>
+                      <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent indicator="line" />}
+                      />
+                      <Line
+                        dataKey="impressions"
+                        type="natural"
+                        fill="var(--color-impressions)"
+                        fillOpacity={0.4}
+                        stroke="var(--color-impressions)"
+                      />
+                      <Line
+                        dataKey="conversions"
+                        type="natural"
+                        fill="var(--color-conversions)"
+                        fillOpacity={0.4}
+                        stroke="var(--color-conversions)"
+                      />
+                    </LineChart>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+            )}
           </div>
         ) : (
           <>

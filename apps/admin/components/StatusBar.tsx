@@ -82,7 +82,7 @@ const StatusBar = ({ status, message }: StatusBarConfig) => {
   return (
     <div
       className={cn(
-        "relative flex items-center justify-between mt-4 mr-4 ml-4",
+        "relative flex items-center justify-between mt-4 mr-9 ml-9 ",
         statusBarVariants({ variant: statusConfig[status!].variant })
       )}
     >

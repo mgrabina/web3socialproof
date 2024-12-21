@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useUserContext } from "@/lib/context/useUserContext";
 import {
   Key,
   LogOut,
@@ -20,7 +21,13 @@ import {
 import Link from "next/link";
 import { FaTelegramPlane } from "react-icons/fa";
 
-export default function DashboardHeaderProfileDropdown({billingPortalLink}: { billingPortalLink?: string }) {
+export default function DashboardHeaderProfileDropdown({
+  billingPortalLink,
+}: {
+  billingPortalLink?: string;
+}) {
+  const { user } = useUserContext();
+
   return (
     <nav className="flex items-center">
       {/* <Button variant="ghost" size="icon" className="mr-2">
@@ -35,8 +42,14 @@ export default function DashboardHeaderProfileDropdown({billingPortalLink}: { bi
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
+          {user?.name && (
+            <>
+              <DropdownMenuLabel>
+                Hi, {user?.name.split(" ")[0]}
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+            </>
+          )}
           {/* <Link href="#">
                         <DropdownMenuItem>
                             <User className="mr-2 h-4 w-4" />
@@ -44,19 +57,19 @@ export default function DashboardHeaderProfileDropdown({billingPortalLink}: { bi
                         </DropdownMenuItem>
                     </Link> */}
           <Link href="/api-keys">
-            <DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
               <Key className="mr-2 h-4 w-4" />
               <span>Api Keys</span>
             </DropdownMenuItem>
           </Link>
           <Link href="/contracts">
-            <DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
               <Verified className="mr-2 h-4 w-4" />
               <span>Contracts</span>
             </DropdownMenuItem>
           </Link>
           <Link href="#">
-            <DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
               <ReceiptText className="mr-2 h-4 w-4" />
               <Link target="_blank" href={billingPortalLink ?? "#"}>
                 Billing
@@ -65,7 +78,7 @@ export default function DashboardHeaderProfileDropdown({billingPortalLink}: { bi
           </Link>
 
           <Link href="https://t.me/+os2FdFkUrlsxZWZh" target="_blank">
-            <DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
               <FaTelegramPlane className="mr-2 h-4 w-4" />
               <Link href="https://t.me/+os2FdFkUrlsxZWZh" target="_blank">
                 Support
@@ -79,7 +92,7 @@ export default function DashboardHeaderProfileDropdown({billingPortalLink}: { bi
                         </DropdownMenuItem>
                     </Link> */}
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer">
             <form action={logout} className="w-full">
               <button type="submit" className="w-full flex">
                 <LogOut className="mr-2 h-4 w-4" />

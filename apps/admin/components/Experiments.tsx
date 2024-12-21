@@ -83,7 +83,9 @@ export default function ExperimentManager() {
   }
 
   useEffect(() => {
-    // Initial
+    if (!protocol) {
+      return;
+    }
     fetchExperiments();
   }, [protocol]);
 

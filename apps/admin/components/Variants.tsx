@@ -30,11 +30,6 @@ export default function VariantManager() {
   useAsync(async () => {
     const fetchVariants = async () => {
       if (!protocol) {
-        toast({
-          title: "Error",
-          description: "Failed to fetch user protocol.",
-          variant: "destructive",
-        });
         return;
       }
 
@@ -55,9 +50,11 @@ export default function VariantManager() {
       }
     };
 
-    setIsLoading(true);
-    fetchVariants();
-    setIsLoading(false);
+    if (protocol) {
+      setIsLoading(true);
+      fetchVariants();
+      setIsLoading(false);
+    }
   }, [protocol]);
 
   const handleDeleteVariant = async (variantId: number) => {

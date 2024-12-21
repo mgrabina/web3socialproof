@@ -50,6 +50,7 @@ export default function MetricsManager() {
         setMetrics(parsed);
         setIsLoading(false);
       } catch (error) {
+        console.error("Failed to fetch metrics:", error);
         toast({
           title: "Error",
           description: "Failed to fetch metrics.",
@@ -59,7 +60,10 @@ export default function MetricsManager() {
         setIsLoading(false);
       }
     }
-    fetchMetrics();
+
+    if (protocol) {
+      fetchMetrics();
+    }
   }, [protocol]);
 
   const handleDeleteMetric = async (metricId: number) => {
