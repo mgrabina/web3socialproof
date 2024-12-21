@@ -6,7 +6,10 @@ const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 require("dotenv").config();
 
 module.exports = {
-  mode: process.env.RAILWAY_ENVIRONMENT_NAME || "development",
+  mode:
+    process.env.RAILWAY_ENVIRONMENT_NAME === "production"
+      ? "production"
+      : "development",
   entry: "./src/script.ts", // Entry point for your TypeScript file
   output: {
     filename: "script.min.js",
