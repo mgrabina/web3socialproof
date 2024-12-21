@@ -17,7 +17,8 @@ import {
   SelectExperiment,
   SelectVariantPerExperiment,
 } from "@web3socialproof/db";
-import { Edit, Pause, Play, Trash2 } from "lucide-react";
+import { Edit, Eye, Pause, Play, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LoadingTable } from "./LoadingTable";
@@ -46,7 +47,6 @@ export default function ExperimentManager() {
   const { protocol } = useUserContext();
   const supabase = createSupabaseClientForClientSide();
 
-  
   useEffect(() => {
     async function fetchExperiments() {
       try {
@@ -54,15 +54,15 @@ export default function ExperimentManager() {
         if (!protocol?.id) {
           throw new Error("No protocol found.");
         }
-  
+
         let { data: experiments, error } = await supabase
           .from("experiments_table")
           .select()
           .filter("protocol_id", "eq", protocol?.id);
         if (error || !experiments) throw error;
-  
+
         setExperiments(experiments);
-  
+
         let { data: variantsPerExperiment, error: variantsPerExpError } =
           await supabase
             .from("variants_per_experiment_table")
@@ -71,10 +71,10 @@ export default function ExperimentManager() {
               "experiment_id",
               experiments.map((e) => e.id)
             );
-  
+
         if (variantsPerExpError || !variantsPerExperiment?.length)
           throw variantsPerExpError;
-  
+
         setVariantsPerExperiment(variantsPerExperiment);
       } catch (error) {
         console.error("Error fetching experiments:", error);
@@ -274,7 +274,14 @@ export default function ExperimentManager() {
               <TableBody>
                 {experiments?.map((experiment) => (
                   <TableRow key={experiment.id}>
-                    <TableCell>{experiment.name}</TableCell>
+                    <TableCell>
+                      <Link
+                        className="text-blue-600 hover:underline hover:text-blue-800 transition-all"
+                        href={`/experiments/${experiment.id}`}
+                      >
+                        {experiment.name}
+                      </Link>
+                    </TableCell>
                     <TableCell>
                       {experiment.enabled ? "Active" : "Paused"}
                     </TableCell>
@@ -308,6 +315,17 @@ export default function ExperimentManager() {
                       )}
                     </TableCell>
                     <TableCell className="text-right flex space-x-2 justify-end">
+                      {/* Eye Button for details */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          router.push(`/experiments/${experiment.id}`)
+                        }
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+
                       {/* Edit Button */}
                       <Button
                         variant="ghost"

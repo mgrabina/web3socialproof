@@ -40,11 +40,17 @@ export const onboardingSteps: Tour[] = [
         side: "top",
       },
       {
+        elementId: "header-experiments-link",
+        title: "Let's start with Experiments",
+        content:
+          "Here you can create, manage and monitor your experiments. An experiment is a group of variants that you can test against each other.",
+      },
+      {
         elementId: "header-variants-link",
         title: "Variants to show",
         side: "bottom",
         content:
-          "Here you can create, manage and monitor your extremely customized variants.",
+          "Here you can create, manage and monitor your extremely customized variants, including texts, styling, etc.",
       },
       {
         elementId: "header-metrics-link",
