@@ -72,27 +72,65 @@ export default function VariantsForm({
   );
 
   const { protocol } = useUserContext();
-  
+  const supabase = createSupabaseClientForClientSide();
+
   useEffect(() => {
     if (initialData && (!formData || !formData.styling))
       setFormData(initialData);
   }, [initialData, formData]);
-  
-  
+
+  const [fetchingStyling, setFetchingStyling] = useState(true);
+  useEffect(() => {
+    // Get initial styling from other variants
+    async function fetchVariant() {
+      try {
+        if (!protocol) {
+          throw new Error("No protocol found.");
+        }
+
+        const { data, error } = await supabase
+          .from("variants_table")
+          .select("*")
+          .eq("protocol_id", protocol?.id)
+          .single();
+
+        if (!error && data) {
+          setFormData({
+            ...data,
+            styling: {
+              ...defaultStyling,
+              ...(data.styling as NotificationStylingRequired),
+            },
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch variants to autoload stying:", error);
+      } finally {
+        setFetchingStyling(false);
+      }
+    }
+
+    if (!protocol) {
+      return;
+    }
+
+    fetchVariant();
+  }, [protocol, supabase]);
+
   useEffect(() => {
     const supabase = createSupabaseClientForClientSide();
- 
+
     const fetchMetrics = async () => {
       try {
         if (!protocol?.id) {
           throw new Error("No protocol found.");
         }
-  
+
         const { data, error } = await supabase
           .from("metrics_table")
           .select()
           .eq("protocol_id", protocol?.id);
-  
+
         if (error || !data) {
           toast({
             title: "Error",
@@ -101,14 +139,14 @@ export default function VariantsForm({
           });
           return;
         }
-  
+
         const parsed = data.map((m) => ({
           ...m,
           ...(m.last_calculated !== null
             ? { last_calculated: new Date(m.last_calculated) }
             : { last_calculated: null }),
         }));
-  
+
         setMetrics(parsed ?? []);
         setAvailableMetricNames(
           new Set(parsed.map((metric: SelectMetric) => metric.name))
@@ -664,6 +702,18 @@ export default function VariantsForm({
                 ).innerHTML,
               }}
             ></div>
+
+            {fetchingStyling && (
+              <>
+                <br />
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-500 w-full text-center">
+                    Fetching styling from other variants...
+                  </span>
+                </div>
+                <br />
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
