@@ -13,6 +13,7 @@ import {
 export const protocolTable = pgTable("protocol_table", {
   id: serial("id").primaryKey(),
   name: text("name"),
+  url: text("url"),
   created_at: timestamp({ mode: "string" }).notNull().defaultNow(),
   plan: text("plan"),
   stripe_id: text("stripe_id"),

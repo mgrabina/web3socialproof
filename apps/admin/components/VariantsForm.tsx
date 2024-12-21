@@ -35,7 +35,9 @@ import {
   NotificationStylingRequired,
 } from "@web3socialproof/shared";
 import parse from "html-react-parser";
+import { Stars } from "lucide-react";
 import { useEffect, useState } from "react";
+import ProtocolUrlInputDialog from "./ProtocolUrlInputDialog";
 import { Skeleton } from "./ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
@@ -92,6 +94,7 @@ export default function VariantsForm({
           .from("variants_table")
           .select("*")
           .eq("protocol_id", protocol?.id)
+          .order("created_at", { ascending: false }) // Get the latest variant
           .single();
 
         if (!error && data) {
@@ -178,13 +181,176 @@ export default function VariantsForm({
     }));
   };
 
+  const [isUrlDialogOpen, setIsUrlDialogOpen] = useState(false);
+  const [protocolUrl, setProtocolUrl] = useState<string | undefined>(
+    protocol?.url ?? undefined
+  );
+  const [configLoading, setConfigLoading] = useState(false);
+
+  const generateUsingHerdIA = async () => {
+    let targetUrl = protocolUrl;
+
+    if (!protocolUrl) {
+      if (!protocol) {
+        toast({
+          title: "Error",
+          description: "No protocol found.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("protocol_table")
+        .select("url")
+        .eq("id", protocol?.id)
+        .single();
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch protocol URL.",
+          variant: "destructive",
+        });
+        return;
+      } else {
+        if (!data?.url) {
+          setIsUrlDialogOpen(true);
+          return;
+        }
+
+        setProtocolUrl(data?.url);
+        targetUrl = data?.url;
+      }
+    }
+
+    if (!targetUrl) {
+      toast({
+        title: "Error",
+        description: "No URL provided.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Now we have url let's generate variant
+    try {
+      setConfigLoading(true);
+
+      const dimensions = {
+        width: 1920,
+        height: 1080,
+      };
+
+      const response = await fetch(
+        `/public/demo/api/config?url=${encodeURIComponent(targetUrl)}&width=${
+          dimensions.width
+        }&height=${dimensions.height}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to generate configuration");
+      }
+
+      type configResponse = {
+        fontFamily: "string";
+        titleColor: "string";
+        subtitleColor: "string";
+        backgroundColor: "string";
+        iconBackgroundColor: "string";
+        iconBorderRadius: "string";
+        iconColor: "string";
+        borderRadius: "string";
+        border: "string";
+        boxShadow: "string";
+        title: "string";
+        subtitle: "string";
+      };
+
+      const { config: received } = await response.json();
+      const config = JSON.parse(received) as configResponse;
+
+      console.log("Config:", config);
+
+      setFormData((prev) => ({
+        ...prev,
+        message: prev?.message?.length ? prev.message : config?.title,
+        sub_message: prev?.sub_message?.length
+          ? prev.sub_message
+          : config?.subtitle,
+        styling: {
+          ...(prev?.styling as NotificationStylingRequired),
+          ...config,
+        },
+      }));
+
+      toast({
+        title: "Configuration generated",
+        description:
+          "Herd IA generated the configuration based on your site's branding and storytelling. Remember to review it and replace numbers with your previously created metrics.",
+      });
+    } catch (error: any) {
+      console.error("Error:", error);
+      toast({
+        title: error,
+        description: "Please refresh or try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setConfigLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto p-6">
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Variant Details</CardTitle>
+            <CardTitle className="flex justify-between">
+              <h2>Variant Details</h2>
+              <Button
+                variant="outline"
+                onClick={generateUsingHerdIA}
+                disabled={configLoading}
+              >
+                {configLoading ? (
+                  <span className="flex items-center space-x-2">
+                    <svg
+                      className="animate-spin h-4 w-4 text-gray-500"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8H4z"
+                      ></path>
+                    </svg>
+                    <span>Loading...</span>
+                  </span>
+                ) : (
+                  <>
+                    Use Herd IA <Stars className="ml-2"></Stars>
+                  </>
+                )}
+              </Button>
+            </CardTitle>
           </CardHeader>
+
+          <ProtocolUrlInputDialog
+            open={isUrlDialogOpen}
+            setOpen={setIsUrlDialogOpen}
+            setUrl={setProtocolUrl}
+          />
+
           <CardContent className="space-y-4 overflow-y-scroll max-h-[750px]">
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
@@ -708,7 +874,7 @@ export default function VariantsForm({
                 <br />
                 <div className="flex items-center space-x-2">
                   <span className="text-sm text-gray-500 w-full text-center">
-                    Fetching styling from other variants...
+                    Fetching styling from your last variant if available...
                   </span>
                 </div>
                 <br />
