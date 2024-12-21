@@ -17,6 +17,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import DashboardHeaderProfileDropdown from "./DashboardHeaderProfileDropdown";
 import { navigationMenuTriggerStyle } from "./ui/navigation-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export default function DashboardHeader({
   billingPortalLink,
@@ -43,7 +44,7 @@ export default function DashboardHeader({
     };
 
     checkLoggedInStatus();
-  }, [pathname, user?.email, openRoutes]); // Re-run whenever the route changes
+  }, [pathname, user?.email]); // Re-run whenever the route changes
 
   if (!isLogged) {
     return null;
@@ -111,11 +112,27 @@ export default function DashboardHeader({
                         </form>
                     </div> */}
 
-          <Link href="https://docs.gobyherd.com" target="_blank">
-            <HelpCircle className="mr-2 h-4 w-4" />
-          </Link>
+          <Tooltip>
+            <TooltipTrigger>
+              <Link href="https://docs.gobyherd.com" target="_blank">
+                <HelpCircle className="mr-2 h-4 w-4" />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Docs</p>
+            </TooltipContent>
+          </Tooltip>
 
-          <DashboardHeaderProfileDropdown billingPortalLink={billingPortalLink} />
+          <Tooltip>
+            <TooltipTrigger>
+              <DashboardHeaderProfileDropdown
+                billingPortalLink={billingPortalLink}
+              />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Settings</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </header>

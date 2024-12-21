@@ -3,20 +3,6 @@ import { generateRandomKey } from "@/lib/utils";
 import { apiKeyTable, db } from "@web3socialproof/db";
 import { NextRequest, NextResponse } from "next/server";
 
-// Handle GET requests
-export async function GET() {
-  try {
-    const keys = await db.select().from(apiKeyTable);
-    return NextResponse.json(keys, { status: 200 });
-  } catch (error) {
-    console.error("Failed to fetch API keys:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch API keys" },
-      { status: 500 }
-    );
-  }
-}
-
 // Handle POST requests
 export async function POST(req: NextRequest) {
   const { name, protocol_id } = await req.json();
@@ -29,7 +15,7 @@ export async function POST(req: NextRequest) {
   }
 
   const newKey = {
-    api_key: generateRandomKey(),
+    key: generateRandomKey(),
     protocol_id,
     name,
     created_at: new Date().toISOString(),

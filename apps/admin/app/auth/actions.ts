@@ -106,13 +106,13 @@ export async function signup(
 
   // If no api-keys are set, add a first one
   const apiKeys = await db.$count(
-    countDistinct(apiKeyTable.api_key),
+    countDistinct(apiKeyTable.key),
     eq(apiKeyTable.protocol_id, protocolInDb[0].id)
   );
 
   if (apiKeys === 0) {
     const newKey = {
-      api_key: generateRandomKey(),
+      key: generateRandomKey(),
       protocol_id: protocolInDb[0].id,
       name: "Your first API Key",
       created_at: new Date().toISOString(),

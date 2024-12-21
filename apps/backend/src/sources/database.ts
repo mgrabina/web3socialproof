@@ -72,7 +72,7 @@ export const getApiKey = async (apiKey: string) => {
   const keys = await db
     .select()
     .from(apiKeyTable)
-    .where(eq(apiKeyTable.api_key, apiKey));
+    .where(eq(apiKeyTable.key, apiKey));
 
   if (keys.length === 0) {
     throw new TRPCError({

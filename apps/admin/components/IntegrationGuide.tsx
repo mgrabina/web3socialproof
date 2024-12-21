@@ -42,7 +42,7 @@ export default function IntegrationGuide() {
   const integrationSnippet = isLoading
     ? "Loading..."
     : apiKeys.length
-    ? getIntegrationCode(apiKeys[0].api_key)
+    ? getIntegrationCode(apiKeys[0].key)
     : "<script src='https://pixel.gobyherd.com?apiKey=YOUR_API_KEY' defer></script>";
 
   return (

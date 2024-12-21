@@ -20,7 +20,6 @@ import {
 import { Edit, Pause, Play, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useAsync } from "react-async";
 import { LoadingTable } from "./LoadingTable";
 import { Skeleton } from "./ui/skeleton";
 
@@ -44,50 +43,51 @@ export default function ExperimentManager() {
   >();
 
   const router = useRouter();
-  const supabase = createSupabaseClientForClientSide();
   const { protocol } = useUserContext();
+  const supabase = createSupabaseClientForClientSide();
 
-  async function fetchExperiments() {
-    try {
-      setIsLoading(true);
-      if (!protocol?.id) {
-        throw new Error("No protocol found.");
-      }
-
-      let { data: experiments, error } = await supabase
-        .from("experiments_table")
-        .select()
-        .filter("protocol_id", "eq", protocol?.id);
-      if (error || !experiments) throw error;
-
-      setExperiments(experiments);
-
-      let { data: variantsPerExperiment, error: variantsPerExpError } =
-        await supabase
-          .from("variants_per_experiment_table")
-          .select()
-          .in(
-            "experiment_id",
-            experiments.map((e) => e.id)
-          );
-
-      if (variantsPerExpError || !variantsPerExperiment?.length)
-        throw variantsPerExpError;
-
-      setVariantsPerExperiment(variantsPerExperiment);
-    } catch (error) {
-      console.error("Error fetching experiments:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
+  
   useEffect(() => {
+    async function fetchExperiments() {
+      try {
+        setIsLoading(true);
+        if (!protocol?.id) {
+          throw new Error("No protocol found.");
+        }
+  
+        let { data: experiments, error } = await supabase
+          .from("experiments_table")
+          .select()
+          .filter("protocol_id", "eq", protocol?.id);
+        if (error || !experiments) throw error;
+  
+        setExperiments(experiments);
+  
+        let { data: variantsPerExperiment, error: variantsPerExpError } =
+          await supabase
+            .from("variants_per_experiment_table")
+            .select()
+            .in(
+              "experiment_id",
+              experiments.map((e) => e.id)
+            );
+  
+        if (variantsPerExpError || !variantsPerExperiment?.length)
+          throw variantsPerExpError;
+  
+        setVariantsPerExperiment(variantsPerExperiment);
+      } catch (error) {
+        console.error("Error fetching experiments:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
     if (!protocol) {
       return;
     }
     fetchExperiments();
-  }, [protocol]);
+  }, [protocol, supabase]);
 
   const handleDeleteExperiment = async (experimentId: number) => {
     try {
@@ -143,7 +143,7 @@ export default function ExperimentManager() {
     }
   };
 
-  useAsync(async () => {
+  useEffect(() => {
     if (!protocol) {
       return;
     }
@@ -243,7 +243,7 @@ export default function ExperimentManager() {
     };
 
     fetchImpressionsPerExperiment();
-  }, [protocol, experiments]);
+  }, [protocol, experiments, supabase]);
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -294,16 +294,18 @@ export default function ExperimentManager() {
                     <TableCell>
                       {loadingStatistics ? (
                         <Skeleton className="w-16 h-4" />
-                      ) : conversionsPerExperiment?.[experiment.id] != null ? `${(
-                        (conversionsPerExperiment[experiment.id]!.withVariant /
-                          conversionsPerExperiment[experiment.id]!
-                            .withoutVariant) *
-                          100 -
-                        100
-                      )}%` : (
+                      ) : conversionsPerExperiment?.[experiment.id] != null ? (
+                        `${
+                          (conversionsPerExperiment[experiment.id]!
+                            .withVariant /
+                            conversionsPerExperiment[experiment.id]!
+                              .withoutVariant) *
+                            100 -
+                          100
+                        }%`
+                      ) : (
                         "No data"
                       )}
-                      
                     </TableCell>
                     <TableCell className="text-right flex space-x-2 justify-end">
                       {/* Edit Button */}

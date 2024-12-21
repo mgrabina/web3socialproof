@@ -5,11 +5,11 @@ import { Inter } from "next/font/google";
 
 import { env, getPixelServerByEnvironment } from "@/lib/constants";
 import "./globals.css";
-// import { headers } from "next/headers";
 import { OnboardingProvider } from "@/components/OnboardingProvider";
 import { Onboarding } from "@/components/OnboardingStep";
 import StatusBarWrapper from "@/components/StatusBarWrapper";
 import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { getServerContext } from "@/lib/context/serverContext";
 import { generateStripeBillingPortalFromProtocolServerSide } from "@/utils/stripe/api";
 
@@ -50,18 +50,20 @@ export default async function RootLayout({
       </head>
       <body className={inter.className}>
         <Analytics />
-        <OnboardingProvider>
-          <div>
-            <DashboardHeader billingPortalLink={billingPortalLink} />
-            <StatusBarWrapper />
+        <TooltipProvider>
+          <OnboardingProvider>
+            <div>
+              <DashboardHeader billingPortalLink={billingPortalLink} />
+              <StatusBarWrapper />
 
-            {/* Content */}
-            {children}
-          </div>
+              {/* Content */}
+              {children}
+            </div>
 
-          <Toaster />
-          <Onboarding />
-        </OnboardingProvider>
+            <Toaster />
+            <Onboarding />
+          </OnboardingProvider>
+        </TooltipProvider>
       </body>
     </html>
   );

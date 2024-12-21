@@ -1,21 +1,24 @@
 "use client";
 
 import MetricsForm from "@/components/MetricsForm";
-import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
+import { useUserContext } from "@/lib/context/useUserContext";
+import { createSupabaseClientForClientSide } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 export default function CreateMetric() {
   const router = useRouter();
+  const supabase = createSupabaseClientForClientSide();
+  const { protocol } = useUserContext();
 
   const handleCreate = async (formData: any) => {
     try {
-      const response = await fetch("/metrics/api", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+      const { data, error } = await supabase.from("metrics_table").insert({
+        ...formData,
+        protocol_id: protocol?.id,
       });
 
-      if (!response.ok) {
+      if (error) {
         throw new Error("Failed to create metric");
       }
 

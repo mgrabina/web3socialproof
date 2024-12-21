@@ -71,7 +71,7 @@ const StatusBar = ({ status, message }: StatusBarConfig) => {
     };
 
     checkLoggedInStatus();
-  }, [pathname, user?.email, openRoutes]); // Re-run whenever the route changes
+  }, [pathname, user?.email]); // Re-run whenever the route changes
 
   if (!isLogged) {
     return null;

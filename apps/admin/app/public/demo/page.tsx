@@ -59,43 +59,44 @@ export default function ScreenshotPreview() {
 
   const [customUrlParam, setCustomUrlParam] = useState("");
 
-  const handleGenerateConfig = async () => {
-    if (!targetUrl?.length || !dimensions?.height || !dimensions?.width) {
-      return;
-    }
-
-    setConfigLoading(true);
-    try {
-      const response = await fetch(
-        `/public/demo/api/config?url=${encodeURIComponent(targetUrl)}&width=${
-          dimensions.width
-        }&height=${dimensions.height}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to generate configuration");
-      }
-
-      const { screenshot, config } = await response.json();
-
-      setConfig(JSON.parse(config));
-      setScreenshot(screenshot);
-    } catch (error: any) {
-      console.error("Error:", error);
-      toast({
-        title: error,
-        description: "Please refresh or try again later",
-        variant: "destructive",
-      });
-    } finally {
-      setConfigLoading(false);
-    }
-  };
-
+  
   useEffect(() => {
+    const handleGenerateConfig = async () => {
+      if (!targetUrl?.length || !dimensions?.height || !dimensions?.width) {
+        return;
+      }
+  
+      setConfigLoading(true);
+      try {
+        const response = await fetch(
+          `/public/demo/api/config?url=${encodeURIComponent(targetUrl)}&width=${
+            dimensions.width
+          }&height=${dimensions.height}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to generate configuration");
+        }
+  
+        const { screenshot, config } = await response.json();
+  
+        setConfig(JSON.parse(config));
+        setScreenshot(screenshot);
+      } catch (error: any) {
+        console.error("Error:", error);
+        toast({
+          title: error,
+          description: "Please refresh or try again later",
+          variant: "destructive",
+        });
+      } finally {
+        setConfigLoading(false);
+      }
+    };
+
     if (targetUrl && dimensions?.height && dimensions?.width) {
       handleGenerateConfig().catch(console.error);
     }
-  }, [targetUrl, dimensions?.height, dimensions?.width, handleGenerateConfig]);
+  }, [targetUrl, dimensions?.height, dimensions?.width]);
 
   useEffect(() => {
     if (configLoading === true || !config) {

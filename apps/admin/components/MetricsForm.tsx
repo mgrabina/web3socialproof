@@ -22,8 +22,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { env } from "@/lib/constants";
+import { getEventSignatures } from "@/utils/blockchain/events";
 import { getTrpcClientForClient } from "@/utils/trpc/client";
-import { InsertLog, SelectLog, SelectMetric } from "@web3socialproof/db";
+import { InsertLog, SelectMetric, SelectVariant } from "@web3socialproof/db";
 import {
   chains,
   SupportedChainIds,
@@ -31,7 +32,6 @@ import {
 import { shortenAddress } from "@web3socialproof/shared/utils/evm";
 import { useEffect, useState } from "react";
 import ContractVerificationDialog from "./ContractOwnershipVerificationDialog";
-import { getEventSignatures } from "@/utils/blockchain/events";
 
 const calculationTypes = [
   { value: "count", label: "Count" },
@@ -45,16 +45,16 @@ export default function MetricsForm({
 }: {
   initialData?: {
     metric: Partial<SelectMetric>;
-    variables: Partial<SelectLog>[];
+    variables: Partial<SelectVariant>[];
   };
   onSubmit: (data: any) => Promise<void>;
 }) {
   const [formData, setFormData] = useState<Partial<SelectMetric> | undefined>(
     initialData?.metric
   );
-  const [variables, setVariables] = useState<Partial<SelectLog>[] | undefined>(
-    initialData?.variables
-  );
+  const [variables, setVariables] = useState<
+    Partial<SelectVariant>[] | undefined
+  >(initialData?.variables);
   const [abi, setAbi] = useState("");
 
   useEffect(() => {
@@ -76,12 +76,10 @@ export default function MetricsForm({
   });
 
   const handleAddEvent = () => {
-    
     setVariables([
       ...(variables ?? []),
       {
         ...currentEvent,
-        enabled: true,
       },
     ]);
     setCurrentEvent({
@@ -132,7 +130,7 @@ export default function MetricsForm({
         const parsedAbi = JSON.parse(abi);
 
         // Filter for events and construct full signatures
-        const events = getEventSignatures(parsedAbi)
+        const events = getEventSignatures(parsedAbi);
 
         setEventSignatures(events); // Save full event signatures
       } catch (error) {
@@ -523,7 +521,6 @@ export default function MetricsForm({
                     : currentEvent.data_key ?? undefined
                 }
                 onValueChange={(value) => {
-                  
                   // Determine if the selection is a topic or data field
                   if (value.startsWith("topic-")) {
                     const topicIndex = topics.findIndex(

@@ -62,14 +62,14 @@ export async function GET(request: Request) {
         // If no api-keys are set, add a first one
         const apiKeys = await db
           .select({
-            count: countDistinct(apiKeyTable.api_key),
+            count: countDistinct(apiKeyTable.key),
           })
           .from(apiKeyTable)
           .where(eq(apiKeyTable.protocol_id, protocolInDb[0].id));
 
         if (apiKeys[0].count === 0) {
           const newKey = {
-            api_key: generateRandomKey(),
+            key: generateRandomKey(),
             protocol_id: protocolInDb[0].id,
             name: "Your first API Key",
             created_at: new Date().toISOString(),

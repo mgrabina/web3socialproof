@@ -23,30 +23,34 @@ export default function MetricsManager() {
   const [metrics, setMetrics] = useState<SelectMetric[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const supabase = createSupabaseClientForClientSide();
   const { protocol } = useUserContext();
-
+  const supabase = createSupabaseClientForClientSide();
+  
+  
   useEffect(() => {
+    
     async function fetchMetrics() {
       try {
         setIsLoading(true);
         if (!protocol?.id) {
           throw new Error("No protocol found.");
         }
-
+  
         let { data: metrics, error } = await supabase
           .from("metrics_table")
           .select()
-          .filter("protocol_id", "eq", protocol?.id);
+          .eq("protocol_id", protocol?.id);
         if (error || !metrics) throw error;
-
+  
+        console.log("Metrics:", metrics);
+  
         const parsed = metrics.map((m) => ({
           ...m,
           ...(m.last_calculated !== null
             ? { last_calculated: new Date(m.last_calculated) }
             : { last_calculated: null }),
         }));
-
+  
         setMetrics(parsed);
         setIsLoading(false);
       } catch (error) {
@@ -61,10 +65,12 @@ export default function MetricsManager() {
       }
     }
 
-    if (protocol) {
-      fetchMetrics();
+    if (!protocol) {
+      return;
     }
-  }, [protocol]);
+
+    fetchMetrics();
+  }, [protocol, supabase]);
 
   const handleDeleteMetric = async (metricId: number) => {
     // using supabase

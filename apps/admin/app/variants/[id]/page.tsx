@@ -2,6 +2,8 @@
 
 import VariantsForm from "@/components/VariantsForm";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "@/hooks/use-toast";
+import { createSupabaseClientForClientSide } from "@/utils/supabase/client";
 import { InsertVariant, SelectVariant } from "@web3socialproof/db";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,33 +12,50 @@ export default function EditVariant() {
   const router = useRouter();
   const { id } = useParams();
   const [initialData, setInitialData] = useState<SelectVariant | undefined>();
+  const supabase = createSupabaseClientForClientSide();
 
   useEffect(() => {
     const fetchVariant = async () => {
       try {
-        const response = await fetch(`/variants/api/${id}`);
-        let data: SelectVariant = await response.json();
+        const { data: variantFromDb, error } = await supabase
+          .from("variants_table")
+          .select("*")
+          .eq("id", id)
+          .single();
 
-        setInitialData(data);
+        if (error) {
+          throw new Error("Failed to fetch variants");
+        }
+
+        setInitialData(variantFromDb);
       } catch (error) {
         console.error("Error fetching variant:", error);
       }
     };
     fetchVariant();
-  }, [id]);
+  }, [id, supabase]);
 
   const handleUpdate = async (formData: InsertVariant) => {
     try {
-      const response = await fetch(`/variants/api/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (response.ok) {
-        router.push("/variants");
-      } else {
+      const { error } = await supabase
+        .from("variants_table")
+        .update({
+          ...formData,
+          id: Number(id),
+          styling: formData.styling as any,
+        })
+        .eq("id", id);
+
+      if (error) {
         throw new Error("Failed to update variant");
       }
+
+      toast({
+        title: "Success",
+        description: "Variant updated successfully",
+      });
+
+      router.push("/variants");
     } catch (error) {
       console.error("Error:", error);
     }

@@ -38,8 +38,8 @@ import {
   SelectVariantPerExperiment,
 } from "@web3socialproof/db";
 import Link from "next/link";
-import { useState } from "react";
-import { useAsync } from "react-async";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function ExperimentsForm({ id: paramId }: { id?: number }) {
   const [experiment, setExperiment] = useState<
@@ -55,65 +55,74 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
   const { protocol } = useUserContext();
   const supabase = createSupabaseClientForClientSide();
 
-  useAsync(async () => {
-    if (paramId !== undefined) {
-      async function fetchExperiment(_id: number) {
-        try {
-          const { data: experiment, error } = await supabase
-            .from("experiments_table")
-            .select()
-            .eq("id", _id)
-            .single();
+  const router = useRouter();
 
-          if (error || !experiment) {
-            throw error;
-          }
-
-          setExperiment(experiment);
-
-          const { data: variants, error: variantsError } = await supabase
-            .from("variants_per_experiment_table")
-            .select()
-            .eq("experiment_id", _id);
-
-          if (variantsError || !variants) {
-            throw variantsError;
-          }
-
-          setVariants(variants);
-        } catch (error) {
-          console.error("Error fetching experiment:", error);
-          toast({
-            title: "Error",
-            description: "Failed to fetch experiment.",
-            variant: "destructive",
-          });
-        } finally {
-          setHasLoaded(true);
+  
+  
+  useEffect(() => {
+    async function fetchExperiment(_id: number) {
+      try {
+        const { data: experiment, error } = await supabase
+          .from("experiments_table")
+          .select()
+          .eq("id", _id)
+          .single();
+  
+        if (error || !experiment) {
+          throw error;
         }
+  
+        setExperiment(experiment);
+  
+        const { data: variants, error: variantsError } = await supabase
+          .from("variants_per_experiment_table")
+          .select()
+          .eq("experiment_id", _id);
+  
+        if (variantsError || !variants) {
+          throw variantsError;
+        }
+  
+        setVariants(variants);
+      } catch (error) {
+        console.error("Error fetching experiment:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch experiment.",
+          variant: "destructive",
+        });
+      } finally {
+        setHasLoaded(true);
       }
-
+    }
+    
+    if (paramId !== undefined) {
       fetchExperiment(paramId);
     } else {
       setHasLoaded(true);
     }
+  }, [paramId, supabase]);
 
+  useEffect(() => {
     async function loadAvailableVariants() {
       setLoadingAvailableVariants(true);
       const { data: availableVariants, error } = await supabase
         .from("variants_table")
         .select()
         .filter("protocol_id", "eq", protocol?.id);
-
+  
       setLoadingAvailableVariants(false);
       if (error || !availableVariants) {
         throw error;
       }
-
+  
       setAvailableVariants(availableVariants);
     }
-    loadAvailableVariants();
-  }, [paramId]);
+
+    if (protocol) {
+      loadAvailableVariants();
+    }
+  }, [protocol, supabase]);
 
   const [currentVariant, setCurrentVariant] = useState<
     Partial<InsertVariantPerExperiment>
@@ -242,6 +251,8 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
       title: "Experiment Updated",
       description: "Experiment updated successfully.",
     });
+
+    router.push("/experiments");
   };
 
   const [isLoading, setIsLoading] = useState(false);

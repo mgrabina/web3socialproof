@@ -71,7 +71,7 @@ export const variantsPerExperimentTable = pgTable(
 
 // API Key Table with Relation to Protocol Table
 export const apiKeyTable = pgTable("api_key_table", {
-  api_key: text("key").notNull().unique().primaryKey(),
+  key: text("key").notNull().unique().primaryKey(),
   protocol_id: integer("protocol_id").references(() => protocolTable.id), // Foreign key to protocol
   name: text("name").default("Your API Key"),
   created_at: timestamp({ mode: "string" }).notNull().defaultNow(),

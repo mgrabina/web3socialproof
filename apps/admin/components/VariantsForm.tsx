@@ -19,7 +19,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "@/hooks/use-toast";
+import { useUserContext } from "@/lib/context/useUserContext";
 import { capitalize, capitalizeEachWord } from "@/utils/strings/string.utils";
+import { createSupabaseClientForClientSide } from "@/utils/supabase/client";
 import { InsertVariant, SelectMetric } from "@web3socialproof/db";
 import {
   createNotification,
@@ -72,31 +75,64 @@ export default function VariantsForm({
     new Set<string>()
   );
 
+  const { protocol } = useUserContext();
+  
   useEffect(() => {
     if (initialData && (!formData || !formData.styling))
       setFormData(initialData);
   }, [initialData, formData]);
-
+  
+  
   useEffect(() => {
+    const supabase = createSupabaseClientForClientSide();
+ 
     const fetchMetrics = async () => {
       try {
-        const response = await fetch("/metrics/api");
-        const data = await response.json();
-        setMetrics(data ?? []);
+        if (!protocol?.id) {
+          throw new Error("No protocol found.");
+        }
+  
+        const { data, error } = await supabase
+          .from("metrics_table")
+          .select()
+          .eq("protocol_id", protocol?.id);
+  
+        if (error || !data) {
+          toast({
+            title: "Error",
+            description: "Failed to fetch metrics.",
+            variant: "destructive",
+          });
+          return;
+        }
+  
+        const parsed = data.map((m) => ({
+          ...m,
+          ...(m.last_calculated !== null
+            ? { last_calculated: new Date(m.last_calculated) }
+            : { last_calculated: null }),
+        }));
+  
+        setMetrics(parsed ?? []);
         setAvailableMetricNames(
-          new Set(data.map((metric: SelectMetric) => metric.name))
+          new Set(parsed.map((metric: SelectMetric) => metric.name))
         );
       } catch (error) {
         console.error("Error fetching metrics:", error);
       }
     };
+
+    if (!protocol) {
+      return;
+    }
+
     fetchMetrics();
-  }, []);
+  }, [protocol]);
 
   const [isLoading, setIsLoading] = useState(false);
 
   const [isMobilePreview, setIsMobilePreview] = useState(false);
-  const [isVerifiedPreview, setIsVerifiedPreview] = useState(false);
+  const [isVerifiedPreview, setIsVerifiedPreview] = useState(true);
 
   const handleStylingChange = (field: string, value: any) => {
     setFormData((prev: any) => ({
@@ -447,13 +483,7 @@ export default function VariantsForm({
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-3">
-                <AccordionTrigger>Where to show it</AccordionTrigger>
-                <AccordionContent className="p-2">
-                 
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-4">
-                <AccordionTrigger>When to show it</AccordionTrigger>
+                <AccordionTrigger>Timing</AccordionTrigger>
                 <AccordionContent className="p-2">
                   <div className="space-y-2">
                     <Label htmlFor="delay">Delay</Label>
@@ -577,21 +607,21 @@ export default function VariantsForm({
               <div className="flex items-center space-x-2">
                 <div className="flex items-center space-x-2">
                   <Switch
-                    checked={isMobilePreview}
-                    onCheckedChange={() => setIsMobilePreview((prev) => !prev)}
-                  />
-                  <Label htmlFor="airplane-mode">Mobile View</Label>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-2">
-                  <Switch
                     checked={isVerifiedPreview}
                     onCheckedChange={() =>
                       setIsVerifiedPreview((prev) => !prev)
                     }
                   />
                   <Label htmlFor="airplane-mode">Contracts Verification</Label>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={isMobilePreview}
+                    onCheckedChange={() => setIsMobilePreview((prev) => !prev)}
+                  />
+                  <Label htmlFor="airplane-mode">Mobile View</Label>
                 </div>
               </div>
             </div>

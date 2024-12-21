@@ -9,7 +9,6 @@ import { createSupabaseClientForClientSide } from "@/utils/supabase/client";
 import { DollarSign, Eye, NotepadText, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useAsync } from "react-async";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import IntegrationGuide from "./IntegrationGuide";
 import {
@@ -57,11 +56,12 @@ export default function Dashboard() {
       totalConversionsWithoutHerdLoading
   );
 
-  useAsync(async () => {
+  useEffect(() => {
     if (!protocol?.id) {
       return;
     }
-    await Promise.all([
+
+    Promise.all([
       supabase
         .from("experiments_table")
         .select("*", { count: "exact", head: true })
@@ -111,7 +111,7 @@ export default function Dashboard() {
           setTotalConversionsWithoutHerdLoading(false);
         }),
     ]);
-  }, [protocol]);
+  }, [protocol, supabase]);
 
   const onboarding = useOnboarding();
 
@@ -281,8 +281,8 @@ export default function Dashboard() {
                         tickMargin={8}
                         allowDecimals={false}
                         max={Math.max(
-                          ...chartData?.map((d: any) => d.impressions) ?? [],
-                          ...chartData?.map((d: any) => d.conversions) ?? []
+                          ...(chartData?.map((d: any) => d.impressions) ?? []),
+                          ...(chartData?.map((d: any) => d.conversions) ?? [])
                         )}
                       />
 
