@@ -82,8 +82,8 @@ export default function VariantManager() {
 
       if (error) {
         toast({
-          title: "Error",
-          description: "Failed to delete variant.",
+          title: "Failed to delete variant.",
+          description: "Please delete the experiment first.",
           variant: "destructive",
         });
 

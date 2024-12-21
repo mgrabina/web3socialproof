@@ -52,7 +52,7 @@ interface VariantsFormProps {
     delay?: number | null;
     timer?: number | null;
   };
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: any, createABTesting: boolean) => Promise<void>;
 }
 
 export default function VariantsForm({
@@ -95,14 +95,13 @@ export default function VariantsForm({
           .select("*")
           .eq("protocol_id", protocol?.id)
           .order("created_at", { ascending: false }) // Get the latest variant
-          .single();
+          .limit(1);
 
-        if (!error && data) {
+        if (!error && data.length) {
           setFormData({
-            ...data,
             styling: {
               ...defaultStyling,
-              ...(data.styling as NotificationStylingRequired),
+              ...(data[0].styling as NotificationStylingRequired),
             },
           });
         }
@@ -299,6 +298,8 @@ export default function VariantsForm({
       setConfigLoading(false);
     }
   };
+
+  const [createABTesting, setCreateABTesting] = useState(false);
 
   return (
     <div className="container mx-auto p-6">
@@ -750,19 +751,35 @@ export default function VariantsForm({
               </AccordionItem>
             </Accordion>
 
+            <br />
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={createABTesting}
+                  onCheckedChange={() => setCreateABTesting((prev) => !prev)}
+                />
+                <Label className="w-[100px]">AB Testing</Label>
+              </div>
+
+              <span className="text-sm text-gray-500 w-full ">
+                Create an A/B test experiment with this variant.
+              </span>
+            </div>
+            <br />
+
             <Button
               className="w-full"
               onClick={async () => {
                 setIsLoading(true); // Start loading
                 try {
-                  await onSubmit(formData); // Perform the form submission
+                  await onSubmit(formData, createABTesting); // Perform the form submission
                 } catch (error) {
                   console.error("Error saving variant:", error);
                 } finally {
                   setIsLoading(false); // End loading
                 }
               }}
-              disabled={isLoading || !formData?.message} // Disable button during loading
+              disabled={isLoading || !formData?.message || !formData.name} // Disable button during loading
             >
               {isLoading ? (
                 <span className="flex items-center space-x-2">

@@ -127,7 +127,7 @@ export default function Dashboard() {
         setHasSeenOnboarding(true);
       }, 3000);
     }
-  }, [hasSeenOnboarding, onboarding, anythingLoading]);
+  }, [hasSeenOnboarding, onboarding, anythingLoading, hasIntegrated]);
 
   useEffect(() => {
     async function fetchData() {

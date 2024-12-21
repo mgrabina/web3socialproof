@@ -70,12 +70,12 @@ export default function ProtocolUrlInputDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="bg-opacity-90 transition-opacity duration-300 ease-in-out">
         <DialogHeader>
-          <DialogTitle>Protocol's URL</DialogTitle>
+          <DialogTitle>Protocol URL</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <label className="block">
-            Before generating customized variants, our IA needs your protocol's
+            Before generating customized variants, our IA needs your protocols
             URL to see how it looks like.
           </label>
 

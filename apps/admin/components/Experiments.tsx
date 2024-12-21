@@ -96,6 +96,16 @@ export default function ExperimentManager() {
 
   const handleDeleteExperiment = async (experimentId: number) => {
     try {
+      // First delete references
+      const { data: deletedVariantsPerExperiment, error: variantError } =
+        await supabase
+          .from("variants_per_experiment_table")
+          .delete()
+          .eq("experiment_id", experimentId)
+          .select();
+
+      if (variantError) throw variantError;
+
       const { data: updatedExperiments, error } = await supabase
         .from("experiments_table")
         .delete()
@@ -108,6 +118,11 @@ export default function ExperimentManager() {
         title: "Success!",
         description: "Experiment deleted successfully.",
       });
+
+      setExperiments(
+        (prevExperiments) =>
+          prevExperiments?.filter((e) => e.id !== experimentId) || []
+      );
     } catch (error) {
       toast({
         title: "Error",

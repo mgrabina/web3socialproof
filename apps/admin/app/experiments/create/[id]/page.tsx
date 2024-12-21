@@ -38,7 +38,7 @@ export default function EditVariant() {
     fetchVariant();
   }, [id, supabase]);
 
-  const handleUpdate = async (formData: InsertVariant) => {
+  const handleUpdate = async (formData: InsertVariant, createABTesting: boolean) => {
     try {
       const { error } = await supabase
         .from("variants_table")
