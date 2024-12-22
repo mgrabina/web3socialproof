@@ -2,7 +2,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useUserContext } from "@/lib/context/useUserContext";
 import { OnboardingName } from "@/lib/onboarding";
@@ -25,10 +24,7 @@ export default function Dashboard() {
     dailyConversions: { date: string; count: number }[];
   } | null>();
   const [dailyInfoLoading, setDailyInfoLoading] = useState(true);
-  const [hasSeenOnboarding, setHasSeenOnboarding] = useLocalStorage(
-    OnboardingName,
-    false
-  );
+
   const supabase = createSupabaseClientForClientSide();
   const { user, protocol } = useUserContext();
 
@@ -115,26 +111,38 @@ export default function Dashboard() {
     ]);
   }, [protocol, supabase]);
 
-  const onboarding = useOnboarding();
-
   const hasIntegrated =
     !totalImpressionsLoading && totalImpressions && totalImpressions > 0;
 
-  useEffect(() => {
-    if (hasSeenOnboarding !== true && !hasIntegrated) {
-      onboarding?.start(OnboardingName);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(
+    Boolean(localStorage.getItem(OnboardingName))
+  );
 
-      setTimeout(() => {
-        setHasSeenOnboarding(true);
-      }, 3000);
+  const onboarding = useOnboarding();
+
+  useEffect(() => {
+    if (!hasSeenOnboarding && !totalImpressionsLoading) {
+      setHasSeenOnboarding(true);
+      localStorage.setItem(OnboardingName, "true");
+      onboarding?.start(OnboardingName);
     }
-  }, [
-    hasSeenOnboarding,
-    setHasSeenOnboarding,
-    onboarding,
-    anythingLoading,
-    hasIntegrated,
-  ]);
+  }, [hasSeenOnboarding, onboarding, totalImpressionsLoading]);
+
+  // useEffect(() => {
+  //   if (hasSeenOnboarding !== true && !hasIntegrated) {
+  //     onboarding?.start(OnboardingName);
+
+  //     setTimeout(() => {
+  //       setHasSeenOnboarding(true);
+  //     }, 3000);
+  //   }
+  // }, [
+  //   hasSeenOnboarding,
+  //   setHasSeenOnboarding,
+  //   onboarding,
+  //   anythingLoading,
+  //   hasIntegrated,
+  // ]);
 
   useEffect(() => {
     async function fetchData() {
