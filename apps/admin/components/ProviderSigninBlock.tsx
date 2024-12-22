@@ -10,27 +10,25 @@ export default function ProviderSigninBlock() {
     <>
       <div className="flex flex-row gap-2">
         {isGoogleEnabled && (
-          <form action={signInWithGoogle} className="basis-full">
-            <Button
-              variant="outline"
-              aria-label="Sign in with Google"
-              type="submit"
-              className="w-full"
-            >
-              <FaGoogle />
-            </Button>
-          </form>
+          <Button
+            onClick={signInWithGoogle}
+            variant="outline"
+            aria-label="Sign in with Google"
+            type="submit"
+            className="w-full"
+          >
+            <FaGoogle />
+          </Button>
         )}
         {isGithubEnabled && (
-          <form action={signInWithGithub} className="basis-full">
-            <Button
-              variant="outline"
-              aria-label="Sign in with Github"
-              className="w-full"
-            >
-              <FaGithub />
-            </Button>
-          </form>
+          <Button
+            onClick={signInWithGithub}
+            variant="outline"
+            aria-label="Sign in with Github"
+            className="w-full"
+          >
+            <FaGithub />
+          </Button>
         )}
       </div>
     </>

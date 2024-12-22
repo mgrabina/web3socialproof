@@ -117,7 +117,8 @@ export default function Dashboard() {
 
   const onboarding = useOnboarding();
 
-  const hasIntegrated = !totalImpressionsLoading && totalImpressions && totalImpressions > 0;
+  const hasIntegrated =
+    !totalImpressionsLoading && totalImpressions && totalImpressions > 0;
 
   useEffect(() => {
     if (hasSeenOnboarding !== true && !hasIntegrated) {
@@ -127,7 +128,13 @@ export default function Dashboard() {
         setHasSeenOnboarding(true);
       }, 3000);
     }
-  }, [hasSeenOnboarding, onboarding, anythingLoading, hasIntegrated]);
+  }, [
+    hasSeenOnboarding,
+    setHasSeenOnboarding,
+    onboarding,
+    anythingLoading,
+    hasIntegrated,
+  ]);
 
   useEffect(() => {
     async function fetchData() {

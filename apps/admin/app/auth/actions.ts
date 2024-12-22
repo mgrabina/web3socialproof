@@ -154,6 +154,9 @@ export async function logout() {
 }
 
 export async function signInWithGoogle() {
+  console.log("signInWithGoogle");
+
+  console.log("PUBLIC_URL", `${PUBLIC_URL()}/auth/callback`);
   const supabase = createSupabaseClientForServerSide();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -162,11 +165,11 @@ export async function signInWithGoogle() {
     },
   });
 
+  console.log(data, error);
+
   if (error) {
     console.error(error);
   }
-
-  console.log(data);
 
   if (data.url) {
     redirect(data.url); // use the redirect API for your server framework
