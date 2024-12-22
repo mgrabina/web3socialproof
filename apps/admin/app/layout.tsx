@@ -30,7 +30,10 @@ export default async function RootLayout({
   const billingPortalLink = protocol
     ? await generateStripeBillingPortalFromProtocolServerSide(protocol)
     : undefined;
-  const HERD_API_KEY = "sk_test_51sxGqT3cQ3FiKPoJbHPCCJ6qq7I06XvIc";
+  const HERD_API_KEY =
+    env === "production"
+      ? "sk_test_51EnwT1JASH55aoyucC9tANSgAXtZ6DzbQ"
+      : "sk_test_51sxGqT3cQ3FiKPoJbHPCCJ6qq7I06XvIc";
 
   return (
     <html lang="en">

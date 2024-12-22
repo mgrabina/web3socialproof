@@ -7,8 +7,7 @@ import { useState } from "react";
 import { useAsync } from "react-async";
 
 export const useUserContext = () => {
-  const supabase = createSupabaseClientForClientSide();
-
+  const supabase = createSupabaseClientForClientSide();  
   const [isContextLoading, setIsContextLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<SelectUser | null>(null);
@@ -16,10 +15,16 @@ export const useUserContext = () => {
 
   useAsync(async () => {
     setIsContextLoading(true);
+
+    if (!isContextLoading) {
+      return; // Avoid re-fetching data
+    }
+
     const {
       data: { session: auxSession },
     } = await supabase.auth.getSession();
 
+    console.log("Fetching user data...");
 
     const {
       data: { user: supabaseUser },
@@ -63,8 +68,9 @@ export const useUserContext = () => {
       return;
     }
     setProtocol(protocolData);
+    
     setIsContextLoading(false);
-  }, [supabase]);
+  }, [supabase, isContextLoading]);
 
-  return { session, user, protocol };
+  return { isContextLoading, session, user, protocol };
 };
