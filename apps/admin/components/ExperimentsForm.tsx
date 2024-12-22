@@ -103,18 +103,34 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
 
   useEffect(() => {
     async function loadAvailableVariants() {
-      setLoadingAvailableVariants(true);
-      const { data: availableVariants, error } = await supabase
-        .from("variants_table")
-        .select()
-        .filter("protocol_id", "eq", protocol?.id);
+      try {
+        setLoadingAvailableVariants(true);
 
-      setLoadingAvailableVariants(false);
-      if (error || !availableVariants) {
-        throw error;
+        if (!protocol?.id) {
+          throw new Error("No protocol found for the user.");
+        }
+
+        const { data: availableVariants, error } = await supabase
+          .from("variants_table")
+          .select()
+          .eq("protocol_id", protocol?.id);
+
+        setLoadingAvailableVariants(false);
+        if (error || !availableVariants) {
+          throw error;
+        }
+
+        setAvailableVariants(availableVariants);
+      } catch (error) {
+        console.error("Error fetching available variants:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch available variants.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoadingAvailableVariants(false);
       }
-
-      setAvailableVariants(availableVariants);
     }
 
     if (protocol) {
@@ -159,8 +175,6 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
   };
 
   const handleSubmit = async () => {
-    console.log("Submitting experiment:", experiment);
-
     if (!experiment) {
       return;
     }
@@ -183,8 +197,6 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
         });
         return;
       }
-
-      console.log(experiment);
 
       // Create
       const { data, error } = await supabase
@@ -398,10 +410,8 @@ export default function ExperimentsForm({ id: paramId }: { id?: number }) {
                 <div className="space-y-2">
                   <Label>Allowed Domains</Label>
                   <p className="text-sm text-gray-500">
-                    Specify domains where this experiment is allowed to run.
-                    Domains should not include protocols (e.g., use example.com
-                    instead of https://example.com). All domains are allowed by
-                    default.
+                    Specify domains where this experiment is allowed to run. All
+                    domains are allowed by default.
                   </p>
 
                   <div className="flex flex-wrap gap-2">

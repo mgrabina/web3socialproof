@@ -24,8 +24,6 @@ export const useUserContext = () => {
         data: { session: auxSession },
       } = await supabase.auth.getSession();
 
-      console.log("Fetching user data...");
-
       const {
         data: { user: supabaseUser },
       } = await supabase.auth.getUser();
