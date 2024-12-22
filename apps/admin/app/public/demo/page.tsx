@@ -12,11 +12,9 @@ import { Input } from "@/components/ui/input";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
-import {
-  createNotification,
-  defaultStyling,
-} from "@web3socialproof/shared/constants";
+import { createNotification, defaultStyling } from "@web3socialproof/shared";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -61,39 +59,40 @@ export default function ScreenshotPreview() {
 
   const [customUrlParam, setCustomUrlParam] = useState("");
 
-  const handleGenerateConfig = async () => {
-    if (!targetUrl?.length || !dimensions?.height || !dimensions?.width) {
-      return;
-    }
-
-    setConfigLoading(true);
-    try {
-      const response = await fetch(
-        `/public/demo/api/config?url=${encodeURIComponent(targetUrl)}&width=${
-          dimensions.width
-        }&height=${dimensions.height}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to generate configuration");
-      }
-
-      const { screenshot, config } = await response.json();
-
-      setConfig(JSON.parse(config));
-      setScreenshot(screenshot);
-    } catch (error: any) {
-      console.error("Error:", error);
-      toast({
-        title: error,
-        description: "Please refresh or try again later",
-        variant: "destructive",
-      });
-    } finally {
-      setConfigLoading(false);
-    }
-  };
-
+  
   useEffect(() => {
+    const handleGenerateConfig = async () => {
+      if (!targetUrl?.length || !dimensions?.height || !dimensions?.width) {
+        return;
+      }
+  
+      setConfigLoading(true);
+      try {
+        const response = await fetch(
+          `/public/demo/api/config?url=${encodeURIComponent(targetUrl)}&width=${
+            dimensions.width
+          }&height=${dimensions.height}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to generate configuration");
+        }
+  
+        const { screenshot, config } = await response.json();
+  
+        setConfig(JSON.parse(config));
+        setScreenshot(screenshot);
+      } catch (error: any) {
+        console.error("Error:", error);
+        toast({
+          title: error,
+          description: "Please refresh or try again later",
+          variant: "destructive",
+        });
+      } finally {
+        setConfigLoading(false);
+      }
+    };
+
     if (targetUrl && dimensions?.height && dimensions?.width) {
       handleGenerateConfig().catch(console.error);
     }
@@ -106,25 +105,29 @@ export default function ScreenshotPreview() {
 
     setNotification(
       createNotification({
-        campaign: 0,
-        type: "swaps",
-        subscriptionPlan: "free", //todo adapt to user plan
-        message: config?.title || "10k users already joined!",
-        subMessage: config?.subtitle || "Are you ready to join?",
-        iconName: "flame",
-        styling: {
-          ...defaultStyling,
-          ...config,
-        },
-        verifications: [
-          {
-            chainId: 1,
-            contractAddress: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
-            isOwnershipVerified: true,
-            chainName: "Ethereum",
-            url: "https://etherscan.io/address/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+        variant: {
+          variantId: 0,
+          message: config?.title || "10k users already joined!",
+          subMessage: config?.subtitle || "Are you ready to join?",
+          iconName: "flame",
+          styling: {
+            ...defaultStyling,
+            ...config,
           },
-        ],
+          verifications: [
+            {
+              chainId: 1,
+              contractAddress: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+              isOwnershipVerified: true,
+              chainName: "Ethereum",
+              url: "https://etherscan.io/address/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+            },
+          ],
+        },
+        experiment: {
+          experimentId: 0,
+        },
+        subscriptionPlan: "free", //todo adapt to user plan
       })
     );
   }, [config, configLoading]);
@@ -257,10 +260,12 @@ export default function ScreenshotPreview() {
       )}
       {screenshot && (
         <div>
-          <img
+          <Image
             src={`data:image/png;base64,${screenshot}`}
             alt="Screenshot Preview"
             className="border"
+            width={dimensions?.width}
+            height={dimensions?.height}
           />
         </div>
       )}

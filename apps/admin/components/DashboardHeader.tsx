@@ -3,32 +3,30 @@
 import { HelpCircle, Menu } from "lucide-react";
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { Button } from "@/components/ui/button";
-import { User } from "@supabase/supabase-js";
+import { openRoutes } from "@/lib/constants";
+import { useUserContext } from "@/lib/context/useUserContext";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import DashboardHeaderProfileDropdown from "./DashboardHeaderProfileDropdown";
-import { Badge } from "./ui/badge";
 import { navigationMenuTriggerStyle } from "./ui/navigation-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export default function DashboardHeader({
-  user,
   billingPortalLink,
-  openRoutes,
 }: {
-  user: User | null;
   billingPortalLink?: string;
-  openRoutes: string[];
 }) {
   const [isLogged, setIsLogged] = useState(false);
   const pathname = usePathname();
+  const { user } = useUserContext();
 
   useEffect(() => {
     // Check if the current route is an open route
@@ -46,7 +44,7 @@ export default function DashboardHeader({
     };
 
     checkLoggedInStatus();
-  }, [pathname, user?.email, openRoutes]); // Re-run whenever the route changes
+  }, [pathname, user?.email]); // Re-run whenever the route changes
 
   if (!isLogged) {
     return null;
@@ -78,17 +76,17 @@ export default function DashboardHeader({
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
-              <NavigationMenuItem id="header-campaigns-link">
-                <Link href="/campaigns" legacyBehavior passHref>
+              <NavigationMenuItem id="header-variants-link">
+                <Link href="/variants" legacyBehavior passHref>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Campaigns
+                    Variants
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
-              <NavigationMenuItem className="opacity-50" id="header-experiments-link">
-                <Link href="#"  legacyBehavior passHref>
-                  <NavigationMenuLink  className={navigationMenuTriggerStyle()}>
-                    Experiments {" "} <Badge variant="outline">Soon</Badge>
+              <NavigationMenuItem id="header-experiments-link">
+                <Link href="/experiments" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Experiments
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
@@ -114,14 +112,27 @@ export default function DashboardHeader({
                         </form>
                     </div> */}
 
-          <Link href="https://docs.gobyherd.com" target="_blank">
-            <HelpCircle className="mr-2 h-4 w-4" />
-          </Link>
+          <Tooltip>
+            <TooltipTrigger>
+              <Link href="https://docs.gobyherd.com" target="_blank">
+                <HelpCircle className="mr-2 h-4 w-4" />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Docs</p>
+            </TooltipContent>
+          </Tooltip>
 
-          <DashboardHeaderProfileDropdown
-            user={user}
-            billingPortalLink={billingPortalLink}
-          />
+          <Tooltip>
+            <TooltipTrigger>
+              <DashboardHeaderProfileDropdown
+                billingPortalLink={billingPortalLink}
+              />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Settings</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </header>

@@ -40,3 +40,12 @@ export const PUBLIC_URL = () => {
       return "http://localhost:3000";
   }
 };
+
+export const openRoutes = [
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+  "/subscribe",
+  "/public",
+];

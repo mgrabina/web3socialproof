@@ -20,7 +20,8 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "@web3socialproof/shared/*": ["../../packages/shared/src/*"]
+      "@web3socialproof/shared/*": ["../../packages/shared/src/*"],
+      "@web3socialproof/shared": ["../../packages/shared/src"]
     }
   },
   "include": [

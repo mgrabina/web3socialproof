@@ -1,11 +1,11 @@
 import { router } from "..";
 import { authRouter } from "./authRouter";
 
-import { campaignsRouter } from "./campaignsRouter";
 import { contractsRouter } from "./contractsRouter";
+import { experimentsRouter } from "./experimentsRouter";
 
 export const appRouter = router({
-  campaigns: campaignsRouter,
+  experiments: experimentsRouter,
   contracts: contractsRouter,
   auth: authRouter,
 });

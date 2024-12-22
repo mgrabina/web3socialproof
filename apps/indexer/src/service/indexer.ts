@@ -59,7 +59,7 @@ export async function fetchAndSaveNewEvents({
 
     const getValue = (config: SelectLog, received: Log): bigint => {
       if (
-        (!config.topic_index && config.data_key) ||
+        (!config.topic_index && config.key) ||
         config.topic_index === 0
       ) {
         return 1n; // Just counting the number of logs, not the value
@@ -69,20 +69,20 @@ export async function fetchAndSaveNewEvents({
         config.topic_index > 0
       ) {
         return BigInt(received.topics[config.topic_index] ?? 0);
-      } else if (config.data_key) {
+      } else if (config.key) {
         const schema = config.data_schema;
         const schemaItems = config.data_schema?.split(",") ?? [];
         if (!schema || !schemaItems || schemaItems.length === 0) {
           logger.error(`No schema found for variable ${config.id}`);
           return 0n;
         }
-        // Find the index of data_key within the schema
+        // Find the index of key within the schema
         const keyIndex = schemaItems.findIndex(
-          (key) => key === config.data_key?.split(".")[0]
+          (key) => key === config.key?.split(".")[0]
         );
         if (keyIndex === -1) {
           logger.error(
-            `data_key ${config.data_key} not found in schema for variable ${config.id}`
+            `key ${config.key} not found in schema for variable ${config.id}`
           );
           return 0n;
         }

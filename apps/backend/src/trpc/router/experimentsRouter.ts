@@ -1,16 +1,16 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { pixelProcedure, router } from "..";
-import { notificationResponseSchema } from "../../../../../packages/shared/src/constants/notification";
-import { getNotification } from "../../services/campaigns";
-import { decorateNotification } from "../../services/decorator";
-import { trackImpression } from "../../services/impressions";
+import { herdSchema } from "../../../../../packages/shared/src/constants/notification";
 import { trackConversion } from "../../services/conversions";
+import { decorateNotification } from "../../services/decorator";
+import { getExperimentVariant } from "../../services/experiments";
+import { trackImpression } from "../../services/impressions";
 
-export const campaignsRouter = router({
+export const experimentsRouter = router({
   getNotification: pixelProcedure
     .input(z.object({}))
-    .output(notificationResponseSchema.optional())
+    .output(herdSchema.optional())
     .query(async ({ ctx, input }) => {
       // Todo: get user data to improve the notification (e.g. wallet, device, language, etc.)
 
@@ -24,7 +24,7 @@ export const campaignsRouter = router({
       }
 
       return await decorateNotification(
-        await getNotification({
+        await getExperimentVariant({
           hostname: originUrl,
           protocol: ctx.protocol,
         })
@@ -34,7 +34,8 @@ export const campaignsRouter = router({
   trackImpression: pixelProcedure
     .input(
       z.object({
-        campaignId: z.number(),
+        experimentId: z.number(),
+        variantId: z.number().optional(),
         session: z.string(),
         user: z.string(),
         address: z.string().optional(),
@@ -42,7 +43,8 @@ export const campaignsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       await trackImpression({
-        campaignId: input.campaignId,
+        experimentId: input.experimentId,
+        variantId: input.variantId,
         session: input.session,
         user: input.user,
         address: input.address,
@@ -52,7 +54,8 @@ export const campaignsRouter = router({
   trackConversion: pixelProcedure
     .input(
       z.object({
-        campaignId: z.number().optional(),
+        experimentId: z.number(),
+        variantId: z.number().optional(),
         session: z.string(),
         user: z.string(),
         hostname: z.string().optional(),
@@ -65,7 +68,8 @@ export const campaignsRouter = router({
 
       await trackConversion({
         protocol: protocol.id,
-        campaignId: input.campaignId,
+        experimentId: input.experimentId,
+        variantId: input.variantId,
         session: input.session,
         user: input.user,
         hostname: input.hostname,

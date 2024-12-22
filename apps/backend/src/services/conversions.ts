@@ -2,7 +2,8 @@ import { saveConversionInDb } from "../sources/database";
 
 export const trackConversion = async (input: {
   protocol: number;
-  campaignId?: number;
+  experimentId: number;
+  variantId?: number;
   session: string;
   user: string;
   hostname?: string;
@@ -11,7 +12,8 @@ export const trackConversion = async (input: {
 }) => {
   await saveConversionInDb({
     protocolId: input.protocol,
-    campaignId: input.campaignId,
+    experimentId: input.experimentId,
+    variantId: input.variantId,
     user: input.user,
     session: input.session,
     hostname: input.hostname,

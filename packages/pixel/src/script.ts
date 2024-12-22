@@ -1,6 +1,6 @@
 // src/widget.ts
 
-import { isMobile } from "@web3socialproof/shared";
+import { Experiment, isMobile, Variant } from "@web3socialproof/shared";
 import { isPixelEnv, PixelEnv } from "./constants";
 import {
   hideNotification as deleteNotification,
@@ -12,7 +12,8 @@ import { trpcApiClient } from "./trpc";
 // Variables to store apiKey and env for use in other functions
 let apiKey: string | null = null;
 let env: PixelEnv = "production";
-let campaignId: number | null = null;
+let variant: Variant | undefined;
+let experiment: Experiment | undefined;
 let lastPathnameWithSearch: string | null = null;
 
 // Main function to initialize the widget
@@ -72,12 +73,12 @@ async function initializeWidget() {
       }
 
       // Fetch notification configuration from the server
-      const notification = await trpcApiClient(
+      const herdData = await trpcApiClient(
         env,
         apiKey
-      ).campaigns.getNotification.query({});
+      ).experiments.getNotification.query({});
 
-      if (!notification) {
+      if (!herdData) {
         console.info("[Herd] No notification to show.");
 
         // Hide notification if there is no notification to show
@@ -85,22 +86,24 @@ async function initializeWidget() {
         return;
       }
 
-      campaignId = notification.campaign;
+      variant = herdData.variant;
+      experiment = herdData.experiment;
 
       const shouldHide =
-        isMobile() && notification.styling.mobilePosition === "none";
+        isMobile() && herdData.variant?.styling.mobilePosition === "none";
 
       if (
-        isUrlAllowed(window.location.pathname, notification.pathnames) &&
+        isUrlAllowed(window.location.pathname, herdData.experiment.pathnames) &&
         !shouldHide
       ) {
         // Show notification if URL is allowed
         deleteNotification(); // To update if necessary
-        showNotification(notification);
+        showNotification(herdData);
 
         // Track the impression after showing the notification
-        await trpcApiClient(env, apiKey).campaigns.trackImpression.mutate({
-          campaignId: notification.campaign,
+        await trpcApiClient(env, apiKey).experiments.trackImpression.mutate({
+          experimentId: herdData.experiment.experimentId,
+          variantId: herdData.variant?.variantId,
           session: getSessionId(),
           user: getUserId(),
         });
@@ -146,11 +149,19 @@ async function trackConversion(id?: string) {
       return;
     }
 
+    if (!experiment) {
+      console.error(
+        "[Herd] Experiment is missing. Is there a Herd experiment running?"
+      );
+      return;
+    }
+
     // Send conversion data to the server
-    await trpcApiClient(env, apiKey).campaigns.trackConversion.mutate({
+    await trpcApiClient(env, apiKey).experiments.trackConversion.mutate({
       session: getSessionId(),
       user: getUserId(),
-      campaignId: campaignId ?? undefined,
+      experimentId: experiment?.experimentId,
+      variantId: variant?.variantId ?? undefined,
       hostname: window.location.hostname,
       pathname: window.location.pathname,
       elementId: id,

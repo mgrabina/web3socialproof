@@ -4,8 +4,9 @@ import { cva } from "class-variance-authority";
 import { AlertCircle, Info, X, XCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
+import { openRoutes } from "@/lib/constants";
+import { useUserContext } from "@/lib/context/useUserContext";
 import { cn } from "@/lib/utils";
-import { User } from "@supabase/supabase-js";
 import { usePathname } from "next/navigation";
 
 const statusBarVariants = cva(
@@ -30,16 +31,9 @@ export type StatusBarConfig = {
   message: React.ReactNode; // Renamed to avoid conflict
 };
 
-const StatusBar = ({
-  status,
-  message,
-  user,
-  openRoutes,
-}: StatusBarConfig & {
-  user: User | null;
-  openRoutes: string[];
-}) => {
+const StatusBar = ({ status, message }: StatusBarConfig) => {
   const [isVisible, setIsVisible] = React.useState(true);
+  const { user } = useUserContext();
 
   const statusConfig = {
     info: {
@@ -77,7 +71,7 @@ const StatusBar = ({
     };
 
     checkLoggedInStatus();
-  }, [pathname, user?.email, openRoutes]); // Re-run whenever the route changes
+  }, [pathname, user?.email]); // Re-run whenever the route changes
 
   if (!isLogged) {
     return null;
@@ -88,7 +82,7 @@ const StatusBar = ({
   return (
     <div
       className={cn(
-        "relative flex items-center justify-between mt-4 mr-4 ml-4",
+        "relative flex items-center justify-between mt-4 mr-9 ml-9 ",
         statusBarVariants({ variant: statusConfig[status!].variant })
       )}
     >

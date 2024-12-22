@@ -44,74 +44,6 @@ export type Database = {
           },
         ]
       }
-      campaigns_table: {
-        Row: {
-          addresses: string | null
-          created_at: string
-          delay: number | null
-          enabled: boolean
-          hostnames: string[] | null
-          iconName: string | null
-          iconSrc: string | null
-          id: number
-          message: string
-          name: string
-          pathnames: string[] | null
-          protocol_id: number | null
-          styling: Json | null
-          sub_message: string
-          timer: number | null
-          type: string
-          updated_at: string
-        }
-        Insert: {
-          addresses?: string | null
-          created_at: string
-          delay?: number | null
-          enabled: boolean
-          hostnames?: string[] | null
-          iconName?: string | null
-          iconSrc?: string | null
-          id?: number
-          message: string
-          name: string
-          pathnames?: string[] | null
-          protocol_id?: number | null
-          styling?: Json | null
-          sub_message: string
-          timer?: number | null
-          type: string
-          updated_at: string
-        }
-        Update: {
-          addresses?: string | null
-          created_at?: string
-          delay?: number | null
-          enabled?: boolean
-          hostnames?: string[] | null
-          iconName?: string | null
-          iconSrc?: string | null
-          id?: number
-          message?: string
-          name?: string
-          pathnames?: string[] | null
-          protocol_id?: number | null
-          styling?: Json | null
-          sub_message?: string
-          timer?: number | null
-          type?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "campaigns_table_protocol_id_protocol_table_id_fk"
-            columns: ["protocol_id"]
-            isOneToOne: false
-            referencedRelation: "protocol_table"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       contracts_table: {
         Row: {
           chain_id: number
@@ -158,48 +90,99 @@ export type Database = {
       }
       conversions_table: {
         Row: {
-          campaign_id: number | null
           element_id: string | null
+          experiment_id: number | null
           hostname: string | null
           id: number
           pathname: string | null
-          protocol_id: number
+          protocol_id: number | null
           session: string
           timestamp: string
           user: string
+          variant_id: number | null
         }
         Insert: {
-          campaign_id?: number | null
           element_id?: string | null
+          experiment_id?: number | null
           hostname?: string | null
           id?: number
           pathname?: string | null
-          protocol_id: number
+          protocol_id?: number | null
           session: string
           timestamp?: string
           user: string
+          variant_id?: number | null
         }
         Update: {
-          campaign_id?: number | null
           element_id?: string | null
+          experiment_id?: number | null
           hostname?: string | null
           id?: number
           pathname?: string | null
-          protocol_id?: number
+          protocol_id?: number | null
           session?: string
           timestamp?: string
           user?: string
+          variant_id?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "conversions_table_campaign_id_campaigns_table_id_fk"
-            columns: ["campaign_id"]
+            foreignKeyName: "conversions_table_experiment_id_experiments_table_id_fk"
+            columns: ["experiment_id"]
             isOneToOne: false
-            referencedRelation: "campaigns_table"
+            referencedRelation: "experiments_table"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "conversions_table_protocol_id_protocol_table_id_fk"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "protocol_table"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversions_table_variant_id_variants_table_id_fk"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "variants_table"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      experiments_table: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          hostnames: string[] | null
+          id: number
+          name: string
+          pathnames: string[] | null
+          protocol_id: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          hostnames?: string[] | null
+          id?: number
+          name: string
+          pathnames?: string[] | null
+          protocol_id?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          hostnames?: string[] | null
+          id?: number
+          name?: string
+          pathnames?: string[] | null
+          protocol_id?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experiments_table_protocol_id_protocol_table_id_fk"
             columns: ["protocol_id"]
             isOneToOne: false
             referencedRelation: "protocol_table"
@@ -210,37 +193,40 @@ export type Database = {
       impressions_table: {
         Row: {
           address: string | null
-          campaign_id: number
+          experiment_id: number | null
           id: number
           protocol_id: number | null
           session: string
           timestamp: string
           user: string
+          variant_id: number | null
         }
         Insert: {
           address?: string | null
-          campaign_id: number
+          experiment_id?: number | null
           id?: number
           protocol_id?: number | null
           session: string
           timestamp?: string
           user: string
+          variant_id?: number | null
         }
         Update: {
           address?: string | null
-          campaign_id?: number
+          experiment_id?: number | null
           id?: number
           protocol_id?: number | null
           session?: string
           timestamp?: string
           user?: string
+          variant_id?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "impressions_table_campaign_id_campaigns_table_id_fk"
-            columns: ["campaign_id"]
+            foreignKeyName: "impressions_table_experiment_id_experiments_table_id_fk"
+            columns: ["experiment_id"]
             isOneToOne: false
-            referencedRelation: "campaigns_table"
+            referencedRelation: "experiments_table"
             referencedColumns: ["id"]
           },
           {
@@ -248,6 +234,13 @@ export type Database = {
             columns: ["protocol_id"]
             isOneToOne: false
             referencedRelation: "protocol_table"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "impressions_table_variant_id_variants_table_id_fk"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "variants_table"
             referencedColumns: ["id"]
           },
         ]
@@ -404,6 +397,7 @@ export type Database = {
           name: string | null
           plan: string | null
           stripe_id: string | null
+          url: string | null
         }
         Insert: {
           created_at?: string
@@ -411,6 +405,7 @@ export type Database = {
           name?: string | null
           plan?: string | null
           stripe_id?: string | null
+          url?: string | null
         }
         Update: {
           created_at?: string
@@ -418,6 +413,7 @@ export type Database = {
           name?: string | null
           plan?: string | null
           stripe_id?: string | null
+          url?: string | null
         }
         Relationships: []
       }
@@ -443,6 +439,95 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "users_table_protocol_id_protocol_table_id_fk"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "protocol_table"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      variants_per_experiment_table: {
+        Row: {
+          experiment_id: number
+          id: number
+          percentage: number
+          variant_id: number | null
+        }
+        Insert: {
+          experiment_id: number
+          id?: number
+          percentage: number
+          variant_id?: number | null
+        }
+        Update: {
+          experiment_id?: number
+          id?: number
+          percentage?: number
+          variant_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "variants_per_experiment_table_experiment_id_experiments_table_i"
+            columns: ["experiment_id"]
+            isOneToOne: false
+            referencedRelation: "experiments_table"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "variants_per_experiment_table_variant_id_variants_table_id_fk"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "variants_table"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      variants_table: {
+        Row: {
+          created_at: string
+          delay: number | null
+          iconName: string | null
+          iconSrc: string | null
+          id: number
+          message: string
+          name: string
+          protocol_id: number | null
+          styling: Json | null
+          sub_message: string
+          timer: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          delay?: number | null
+          iconName?: string | null
+          iconSrc?: string | null
+          id?: number
+          message: string
+          name: string
+          protocol_id?: number | null
+          styling?: Json | null
+          sub_message: string
+          timer?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          delay?: number | null
+          iconName?: string | null
+          iconSrc?: string | null
+          id?: number
+          message?: string
+          name?: string
+          protocol_id?: number | null
+          styling?: Json | null
+          sub_message?: string
+          timer?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "variants_table_protocol_id_protocol_table_id_fk"
             columns: ["protocol_id"]
             isOneToOne: false
             referencedRelation: "protocol_table"

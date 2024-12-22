@@ -5,7 +5,6 @@ import { TRPCError } from "@trpc/server";
 import {
   and,
   apiKeyTable,
-  campaignsTable,
   contractsTable,
   conversionsTable,
   db,
@@ -14,26 +13,27 @@ import {
   gt,
   impressionsTable,
   protocolTable,
-  SelectCampaign,
+  SelectVariant,
   usersTable,
+  variantsTable,
   verificationCodesTable,
 } from "@web3socialproof/db";
 
-export const getCampaign = async (campaignId: number) => {
-  // Check if campaign exists
-  const campaign = await db
+export const getVariant = async (variantId: number) => {
+  // Check if variant exists
+  const variant = await db
     .select()
-    .from(campaignsTable)
-    .where(eq(campaignsTable.id, Number(campaignId)));
+    .from(variantsTable)
+    .where(eq(variantsTable.id, Number(variantId)));
 
-  if (campaign.length === 0) {
+  if (variant.length === 0) {
     throw new TRPCError({
       code: "NOT_FOUND",
-      message: "Campaign not found",
+      message: "Variant not found",
     });
   }
 
-  return campaign[0];
+  return variant[0];
 };
 
 export const getProtocol = async (protocolId: number) => {
@@ -72,7 +72,7 @@ export const getApiKey = async (apiKey: string) => {
   const keys = await db
     .select()
     .from(apiKeyTable)
-    .where(eq(apiKeyTable.api_key, apiKey));
+    .where(eq(apiKeyTable.key, apiKey));
 
   if (keys.length === 0) {
     throw new TRPCError({
@@ -85,7 +85,8 @@ export const getApiKey = async (apiKey: string) => {
 };
 
 export const saveImpressionInDb = async (input: {
-  campaign: SelectCampaign;
+  experimentId: number;
+  variantId?: number;
   user: string;
   session: string;
   address?: string;
@@ -95,7 +96,8 @@ export const saveImpressionInDb = async (input: {
     .values({
       session: input.session,
       user: input.user,
-      campaign_id: input.campaign.id,
+      variant_id: input.variantId,
+      experiment_id: input.experimentId,
       address: input.address,
     })
     .returning();
@@ -110,7 +112,8 @@ export const saveImpressionInDb = async (input: {
 
 export const saveConversionInDb = async (input: {
   protocolId: number;
-  campaignId?: number;
+  experimentId: number;
+  variantId?: number;
   user: string;
   session: string;
   hostname?: string;
@@ -123,7 +126,8 @@ export const saveConversionInDb = async (input: {
       protocol_id: input.protocolId,
       session: input.session,
       user: input.user,
-      campaign_id: input.campaignId,
+      variant_id: input.variantId,
+      experiment_id: input.experimentId,
       hostname: input.hostname,
       pathname: input.pathname,
       element_id: input.elementId,
@@ -136,8 +140,7 @@ export const saveConversionInDb = async (input: {
       message: "Failed to track conversion",
     });
   }
-}
-
+};
 
 export const getContractFromDatabase = async ({
   chainId,

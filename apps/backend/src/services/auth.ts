@@ -24,7 +24,7 @@ export const createApiKey = async ({
   const apiKey = generateApiKey();
 
   await db.insert(apiKeyTable).values({
-    api_key: apiKey,
+    key: apiKey,
     protocol_id: protocol.id,
     name: "Generated",
     created_at: new Date().toISOString(),

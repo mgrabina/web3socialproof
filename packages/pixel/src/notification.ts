@@ -3,7 +3,9 @@ import { createNotification, notificationId } from "@web3socialproof/shared";
 import { AppRouter } from "../../../apps/backend/src/trpc/router";
 
 type NotificationOutput =
-  inferRouterOutputs<AppRouter>["campaigns"]["getNotification"];
+  inferRouterOutputs<AppRouter>["experiments"]["getNotification"];
+
+const DEFAULT_DELAY = 300;
 
 // Function to show a notification on the page
 export function showNotification(params: NotificationOutput): void {
@@ -12,7 +14,8 @@ export function showNotification(params: NotificationOutput): void {
   }
 
   try {
-    const delay = params.delay ?? 300;
+    const delay =
+      params.variant?.delay != undefined ? params.variant.delay : DEFAULT_DELAY;
     const notification = createNotification(params);
 
     setTimeout(() => {
@@ -24,14 +27,14 @@ export function showNotification(params: NotificationOutput): void {
       document.body.appendChild(notification);
     }, delay);
 
-    if (params.timer) {
+    if (params.variant?.timer) {
       setTimeout(() => {
         if (!notification) {
           return;
         }
 
         notification.remove();
-      }, delay + params.timer);
+      }, delay + params.variant?.timer);
     }
   } catch (error) {
     console.error("Error showing notification:", error);

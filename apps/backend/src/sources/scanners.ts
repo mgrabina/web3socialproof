@@ -37,6 +37,7 @@ export const getContractAbiFromScanner = async ({
       return data.result;
     } catch (error) {
       console.error("Error parsing contract ABI", error);
+      console.error("ABI:", data.result);
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Error parsing contract ABI. Error.",
