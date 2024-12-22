@@ -53,20 +53,20 @@ export default async function RootLayout({
       </head>
       <body className={inter.className}>
         <Analytics />
-        <OnboardingProvider>
-          <div>
-            <TooltipProvider>
+        <TooltipProvider>
+          <OnboardingProvider>
+            <div>
               <DashboardHeader billingPortalLink={billingPortalLink} />
               <StatusBarWrapper />
-            </TooltipProvider>
 
-            {/* Content */}
-            {children}
-          </div>
+              {/* Content */}
+              {children}
+            </div>
 
-          <Toaster />
-          <Onboarding />
-        </OnboardingProvider>
+            <Toaster />
+            <Onboarding />
+          </OnboardingProvider>
+        </TooltipProvider>
       </body>
     </html>
   );

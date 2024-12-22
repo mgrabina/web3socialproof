@@ -90,7 +90,7 @@ export const isSubscriptionPlan = (plan: string): plan is SubscriptionPlan => {
 export const notificationOptionsSchema = z.object({
   experimentId: z.number(),
   pathnames: z.array(z.string()).optional(),
-  subscriptionPlan: subscriptionPlanSchema,
+  subscriptionPlan: z.string(), // todo use plans
 
   variantId: z.number().optional(),
   message: z.string().optional(),

@@ -29,12 +29,13 @@ export const getExperimentVariant = async ({
     });
   }
 
-  if (!isSubscriptionPlan(protocol.plan)) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Invalid subscription plan.",
-    });
-  }
+  // Todo replace planID for plan name
+  // if (!isSubscriptionPlan(protocol.plan)) {
+  //   throw new TRPCError({
+  //     code: "BAD_REQUEST",
+  //     message: "Invalid subscription plan.",
+  //   });
+  // }
 
   // Check if there are experiments
   let experiments = await db
