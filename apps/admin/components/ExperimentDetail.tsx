@@ -114,7 +114,7 @@ export default function ExperimentDetail({ id }: { id: number }) {
         .select("*")
         .in(
           "id",
-          data.map((v) => v.variant_id)
+          data.map((v) => v.variant_id).filter((v) => !!v)
         );
 
       if (error || !variants) {
@@ -129,6 +129,12 @@ export default function ExperimentDetail({ id }: { id: number }) {
       setLoadingVariants(false);
     }
   }
+
+  useEffect(() => {
+    if (!id) return;
+
+    fetchVariants();
+  }, [id, supabase]);
 
   const [variantsDataLoading, setVariantsDataLoading] = useState(true);
   const [variantsData, setVariantsData] = useState<
@@ -221,45 +227,6 @@ export default function ExperimentDetail({ id }: { id: number }) {
     setCombinedData(combinedData);
   }, [variantsData, variants, variantsPerExperiment]);
 
-  type dailyData = {
-    date: string;
-    [key: string]: number | string;
-  };
-  // Join all variants per date
-  const chartData = combinedData?.reduce((acc, variant) => {
-    variant?.results?.dailyImpressions.forEach((impression) => {
-      const date = impression.date;
-      const existing = acc.find((d) => d.date === date);
-
-      if (existing != undefined) {
-        existing[variant?.id + "_impressions"] =
-          Number(existing[variant?.id + "_impressions"]) + impression.count;
-      } else {
-        acc.push({
-          date,
-          [variant?.id + "_impressions"]: impression.count,
-        });
-      }
-    });
-
-    variant?.results?.dailyConversions.forEach((conversion) => {
-      const date = conversion.date;
-      const existing = acc.find((d) => d.date === date);
-
-      if (existing != undefined) {
-        existing[variant?.id + "_conversions"] =
-          Number(existing[variant?.id + "_conversions"]) + conversion.count;
-      } else {
-        acc.push({
-          date,
-          [variant?.id + "_conversions"]: conversion.count,
-        });
-      }
-    });
-
-    return acc;
-  }, [] as dailyData[]);
-
   const colorPalette = [
     "hsl(240, 10%, 50%)", // Slate Gray
     "hsl(0, 0%, 41%)", // Dim Gray
@@ -282,22 +249,19 @@ export default function ExperimentDetail({ id }: { id: number }) {
         const colorConversions =
           colorPaletteConversions[index % colorPaletteConversions.length];
 
-        if (variantData.details?.name) {
-          return [
-            {
-              id: variantData?.id + "_impressions",
-              label: variantData.details?.name,
-              color: colorImpressions,
-            },
-            {
-              id: variantData?.id + "_conversions",
-              label: variantData.details?.name,
-              color: colorConversions,
-            },
-          ];
-        }
+        return [
+          {
+            id: (variantData?.id ?? "NoVariant") + "_impressions",
+            label: (variantData.details?.name ?? "No Variant") + " Impressions",
+            color: colorImpressions,
+          },
+          {
+            id: (variantData?.id ?? "NoVariant") + "_conversions",
+            label: (variantData.details?.name ?? "No Variant") + " Conversions",
+            color: colorConversions,
+          },
+        ];
       })
-      .filter((v) => v !== undefined)
       .reduce(
         (acc, v) => {
           acc[v.id.toString()] = {
@@ -315,9 +279,60 @@ export default function ExperimentDetail({ id }: { id: number }) {
         >
       ) ?? ({} satisfies ChartConfig);
 
-      console.log(combinedData)
-  console.log(chartConfig);
-  console.log(chartData);
+  type dailyData = {
+    date: string;
+    [key: string]: number | string;
+  };
+  // Join all variants per date
+  const chartData = combinedData
+    ?.flatMap((variant) => {
+      // Flatten daily impressions
+      const impressions =
+        variant?.results?.dailyImpressions.map((imp) => ({
+          date: imp.date,
+          key: `${variant?.id ?? "NoVariant"}_impressions`,
+          count: imp.count,
+        })) ?? [];
+
+      // Flatten daily conversions
+      const conversions =
+        variant?.results?.dailyConversions.map((conv) => ({
+          date: conv.date,
+          key: `${variant?.id ?? "NoVariant"}_conversions`,
+          count: conv.count,
+        })) ?? [];
+
+      // Combine impressions + conversions for this variant
+      return [...impressions, ...conversions];
+    })
+    ?.reduce((acc, row) => {
+      const existing = acc.find((d) => d.date === row.date);
+      if (existing) {
+        existing[row.key] = Number(existing[row.key] ?? 0) + row.count;
+      } else {
+        acc.push({
+          date: row.date,
+          [row.key]: row.count,
+        });
+      }
+      return acc;
+    }, [] as dailyData[])
+    .map((row) => {
+      // Add lines in 0 if no data
+
+      return {
+        ...row,
+        ...Object.keys(chartConfig).reduce((acc, key) => {
+          if (!row[key]) {
+            acc[key] = 0;
+          }
+          return acc;
+        }, {} as Record<string, number>),
+      };
+    });
+
+  console.log("config" ,chartConfig);
+  console.log("data", chartData);
 
   return (
     <div className="container mx-auto py-6">
@@ -421,7 +436,7 @@ export default function ExperimentDetail({ id }: { id: number }) {
                     {combinedData?.map((variant) => (
                       <TableRow key={variant?.id}>
                         <TableCell className="font-medium">
-                          {variant?.details?.name}
+                          {variant?.details?.name ?? "No Variant"}
                         </TableCell>
                         <TableCell>
                           {variant?.percentage
@@ -487,7 +502,7 @@ export default function ExperimentDetail({ id }: { id: number }) {
                     right: 12,
                   }}
                 >
-                  <CartesianGrid vertical={false} />
+                  <CartesianGrid />
                   <XAxis
                     dataKey="date"
                     tickLine={false}
@@ -500,30 +515,26 @@ export default function ExperimentDetail({ id }: { id: number }) {
                     axisLine={false}
                     tickMargin={8}
                     allowDecimals={false}
-                    max={Math.max(
-                      ...(chartData?.map((d: any) => d.impressions) ?? []),
-                      ...(chartData?.map((d: any) => d.conversions) ?? [])
-                    )}
+                    // max={Math.max(
+                    //   ...(chartData?.map((d: any) => d.impressions) ?? []),
+                    //   ...(chartData?.map((d: any) => d.conversions) ?? [])
+                    // )}
                   />
 
                   <ChartTooltip
                     cursor={false}
                     content={<ChartTooltipContent indicator="line" />}
                   />
-                  <Line
-                    dataKey="impressions"
-                    type="natural"
-                    fill="var(--color-impressions)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-impressions)"
-                  />
-                  <Line
-                    dataKey="conversions"
-                    type="natural"
-                    fill="var(--color-conversions)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-conversions)"
-                  />
+                  {Object.keys(chartConfig).map((key) => (
+                    <Line
+                      key={key}
+                      type="monotone"
+                      dataKey={key}
+                      stroke={chartConfig[key].color}
+                      strokeWidth={2}
+                      dot={true}
+                    />
+                  ) as any)}
                 </LineChart>
               </ChartContainer>
             </CardContent>
