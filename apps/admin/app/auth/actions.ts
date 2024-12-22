@@ -165,7 +165,7 @@ export async function signInWithGoogle() {
     },
   });
 
-  console.log(data, error);
+  console.log(data, error?.message, error?.cause, error?.stack);
 
   if (error) {
     console.error(error);
