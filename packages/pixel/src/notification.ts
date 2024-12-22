@@ -20,7 +20,6 @@ export function showNotification(params: NotificationOutput): void {
 
     setTimeout(() => {
       if (!notification) {
-        console.error("[Herd] Failed to create notification element.");
         return;
       }
 
