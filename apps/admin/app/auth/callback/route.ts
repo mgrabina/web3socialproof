@@ -59,24 +59,29 @@ export async function GET(request: Request) {
           protocol_id: protocolInDb[0].id,
         });
 
-        // If no api-keys are set, add a first one
-        const apiKeys = await db
-          .select({
-            count: countDistinct(apiKeyTable.key),
-          })
-          .from(apiKeyTable)
-          .where(eq(apiKeyTable.protocol_id, protocolInDb[0].id));
+        try {
 
-        if (apiKeys[0].count === 0) {
-          const newKey = {
-            key: generateRandomKey(),
-            protocol_id: protocolInDb[0].id,
-            name: "Your first API Key",
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            enabled: true,
-          };
-          await db.insert(apiKeyTable).values(newKey);
+          // If no api-keys are set, add a first one
+          const apiKeys = await db
+            .select({
+              count: countDistinct(apiKeyTable.key),
+            })
+            .from(apiKeyTable)
+            .where(eq(apiKeyTable.protocol_id, protocolInDb[0].id));
+  
+          if (apiKeys[0].count === 0) {
+            const newKey = {
+              key: generateRandomKey(),
+              protocol_id: protocolInDb[0].id,
+              name: "Your first API Key",
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              enabled: true,
+            };
+            await db.insert(apiKeyTable).values(newKey);
+          }
+        } catch (error) {
+          console.error("Error creating API key:", error);
         }
 
         if (!protocolInDb[0].plan || protocolInDb[0].plan === "none") {

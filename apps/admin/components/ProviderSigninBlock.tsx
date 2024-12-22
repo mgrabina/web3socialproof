@@ -7,32 +7,30 @@ export default function ProviderSigninBlock() {
   const isGithubEnabled = process.env.GITHUB_OAUTH_CLIENT_ID ? true : false;
 
   return (
-    <>
-      <div className="flex flex-row gap-2">
-        {isGoogleEnabled && (
-          <form action={signInWithGoogle} className="basis-full">
-            <Button
-              variant="outline"
-              aria-label="Sign in with Google"
-              type="submit"
-              className="w-full"
-            >
-              <FaGoogle />
-            </Button>
-          </form>
-        )}
-        {isGithubEnabled && (
-          <form action={signInWithGithub} className="basis-full">
-            <Button
-              variant="outline"
-              aria-label="Sign in with Github"
-              className="w-full"
-            >
-              <FaGithub />
-            </Button>
-          </form>
-        )}
-      </div>
-    </>
+    <div className="flex flex-row gap-2">
+      {isGoogleEnabled && (
+        <form action={signInWithGoogle} className="basis-full">
+          <Button
+            variant="outline"
+            aria-label="Sign in with Google"
+            type="submit"
+            className="w-full"
+          >
+            <FaGoogle />
+          </Button>
+        </form>
+      )}
+      {isGithubEnabled && (
+        <form action={signInWithGithub} className="basis-full">
+          <Button
+            variant="outline"
+            aria-label="Sign in with Github"
+            className="w-full"
+          >
+            <FaGithub />
+          </Button>
+        </form>
+      )}
+    </div>
   );
 }
