@@ -33,7 +33,7 @@ export default async function RootLayout({
   const HERD_API_KEY =
     env === "production"
       ? "sk_test_51EnwT1JASH55aoyucC9tANSgAXtZ6DzbQ"
-      : "sk_test_51sxGqT3cQ3FiKPoJbHPCCJ6qq7I06XvIc";
+      : "sk_test_51zfJwMznPsi1hatunbbnPoNQWjzH1wkpF";
 
   return (
     <html lang="en">
