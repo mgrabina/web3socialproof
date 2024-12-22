@@ -39,12 +39,14 @@ export default async function RootLayout({
     <html lang="en">
       <head>
         {/* Notification set in Landing */}
-        <script
-          src={`${getPixelServerByEnvironment(
-            env
-          )}?env=${env}&apiKey=${HERD_API_KEY}`}
-          async
-        ></script>
+        {env !== "production" && (
+          <script
+            src={`${getPixelServerByEnvironment(
+              env
+            )}?env=${env}&apiKey=${HERD_API_KEY}`}
+            async
+          ></script>
+        )}
         <script
           async
           src="https://js.stripe.com/v3/pricing-table.js"

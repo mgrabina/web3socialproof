@@ -8,7 +8,6 @@ import {
   gte,
   impressionsTable,
   sql,
-  variantsTable,
 } from "@web3socialproof/db";
 import dayjs from "dayjs";
 import { NextRequest, NextResponse } from "next/server";
@@ -38,13 +37,8 @@ export async function GET(
         count: sql`COUNT(DISTINCT ${impressionsTable.id})`.as("count"),
       })
       .from(impressionsTable)
-      .leftJoin(
-        variantsTable,
-        eq(impressionsTable.variant_id, variantsTable.id)
-      )
       .where(
         and(
-          eq(variantsTable.protocol_id, protocolId),
           eq(impressionsTable.experiment_id, Number(id)),
           gte(impressionsTable.timestamp, startDate)
         )
@@ -65,13 +59,9 @@ export async function GET(
         count: sql`COUNT(DISTINCT ${conversionsTable.id})`.as("count"),
       })
       .from(conversionsTable)
-      .leftJoin(
-        variantsTable,
-        eq(conversionsTable.variant_id, variantsTable.id)
-      )
+
       .where(
         and(
-          eq(variantsTable.protocol_id, protocolId),
           eq(conversionsTable.experiment_id, Number(id)),
           gte(conversionsTable.timestamp, startDate)
         )
@@ -87,43 +77,49 @@ export async function GET(
 
     let variantsResults: Record<string, VariantDetailsResults> = {};
 
-    variantsResults = dailyImpressions.reduce((acc, { variantId, date, count }) => {
-      const idx = variantId ?? "empty";
-      if (!acc[idx]) {
-        acc[idx] = {
-          totalImpressions: 0,
-          totalConversions: 0,
-          dailyImpressions: [],
-          dailyConversions: [],
-        };
-      }
+    variantsResults = dailyImpressions.reduce(
+      (acc, { variantId, date, count }) => {
+        const idx = variantId ?? "empty";
+        if (!acc[idx]) {
+          acc[idx] = {
+            totalImpressions: 0,
+            totalConversions: 0,
+            dailyImpressions: [],
+            dailyConversions: [],
+          };
+        }
 
-      acc[idx].totalImpressions += Number(count);
-      acc[idx].dailyImpressions.push({
-        date: String(date),
-        count: Number(count),
-      });
-      return acc;
-    }, variantsResults);
+        acc[idx].totalImpressions += Number(count);
+        acc[idx].dailyImpressions.push({
+          date: String(date),
+          count: Number(count),
+        });
+        return acc;
+      },
+      variantsResults
+    );
 
-    variantsResults = dailyConversions.reduce((acc, { variantId, date, count }) => {
-      const idx = variantId ?? "empty";
-      if (!acc[idx]) {
-        acc[idx] = {
-          totalImpressions: 0,
-          totalConversions: 0,
-          dailyImpressions: [],
-          dailyConversions: [],
-        };
-      }
+    variantsResults = dailyConversions.reduce(
+      (acc, { variantId, date, count }) => {
+        const idx = variantId ?? "empty";
+        if (!acc[idx]) {
+          acc[idx] = {
+            totalImpressions: 0,
+            totalConversions: 0,
+            dailyImpressions: [],
+            dailyConversions: [],
+          };
+        }
 
-      acc[idx].totalConversions += Number(count);
-      acc[idx].dailyConversions.push({
-        date: String(date),
-        count: Number(count),
-      });
-      return acc;
-    }, variantsResults);
+        acc[idx].totalConversions += Number(count);
+        acc[idx].dailyConversions.push({
+          date: String(date),
+          count: Number(count),
+        });
+        return acc;
+      },
+      variantsResults
+    );
 
     const dataKeys = Object.keys(variantsResults);
     const totalImpressions = dataKeys.reduce(

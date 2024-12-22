@@ -10,7 +10,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { openRoutes } from "@/lib/constants";
+import { env, openRoutes } from "@/lib/constants";
 import { useUserContext } from "@/lib/context/useUserContext";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -90,6 +90,17 @@ export default function DashboardHeader({
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
+              {env !== "production" && (
+                <NavigationMenuItem>
+                  <Link href="/public/test" className="opacity-70" legacyBehavior passHref>
+                    <NavigationMenuLink
+                      className={navigationMenuTriggerStyle()}
+                  >
+                      [dev] Test Notification
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+              )}
             </NavigationMenuList>
           </NavigationMenu>
           {/* </nav> */}

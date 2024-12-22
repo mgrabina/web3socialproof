@@ -12,9 +12,6 @@ export default function ProviderSigninBlock() {
   const router = useRouter();
 
   async function signInWithGoogle() {
-    console.log("signInWithGoogle");
-    console.log(`${PUBLIC_URL()}/auth/callback`);
-
     const supabase = createSupabaseClientForClientSide();
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -34,7 +31,6 @@ export default function ProviderSigninBlock() {
     }
 
     if (data.url) {
-      console.log("redirecting to", data.url);
       router.push(data.url);
       // redirect(data.url); // use the redirect API for your server framework
     }

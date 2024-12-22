@@ -93,8 +93,6 @@ export const getExperimentVariant = async ({
   );
   const randomPercentage = Math.floor(Math.random() * totalPercentage);
   
-  console.log("totalPercentage", totalPercentage, "randomPercentage", randomPercentage, "variantsWithPercentages", variantsWithPercentages);
-
   let selectedVariantFromExperiment;
   // Select the variant based on the random number
   let cumulativePercentage = 0;
@@ -105,8 +103,6 @@ export const getExperimentVariant = async ({
       break;
     }
   }
-
-  console.log("selectedVariantFromExperiment", selectedVariantFromExperiment);
 
   if (!selectedVariantFromExperiment) {
     throw new TRPCError({

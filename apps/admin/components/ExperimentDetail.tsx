@@ -6,10 +6,12 @@ import {
   SelectVariant,
   SelectVariantPerExperiment,
 } from "@web3socialproof/db";
-import { BarChart, PauseCircle, PlayCircle, Table } from "lucide-react";
+import { PauseCircle, PlayCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   Bar,
+  BarChart,
   CartesianGrid,
   Legend,
   Line,
@@ -30,6 +32,7 @@ import {
 } from "./ui/chart";
 import { Skeleton } from "./ui/skeleton";
 import {
+  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -53,104 +56,9 @@ export type VariantDetailsResults = {
 };
 
 export type VariantDataDetails = {
-  details: SelectVariant;
-  percentage: number;
+  id: number;
   results: VariantDetailsResults;
 };
-
-export function ExperimentTable({
-  variants,
-  isLoading,
-}: {
-  isLoading?: boolean;
-  variants?: Partial<VariantDataDetails>[];
-}) {
-  if (isLoading) {
-    return <Skeleton className="h-96" />;
-  }
-
-  if (!variants) {
-    return null;
-  }
-
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Variant</TableHead>
-          <TableHead>Traffic Split</TableHead>
-          <TableHead>Impressions</TableHead>
-          <TableHead>Conversions</TableHead>
-          <TableHead>Conversion Rate</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {variants.map((variant) => (
-          <TableRow key={variant?.details?.id}>
-            <TableCell className="font-medium">
-              {variant?.details?.name}
-            </TableCell>
-            <TableCell>{variant.percentage}%</TableCell>
-            <TableCell>{variant?.results?.totalImpressions}</TableCell>
-            <TableCell>{variant.results?.totalConversions}</TableCell>
-            <TableCell>
-              {variant.results?.totalImpressions &&
-              variant.results?.totalConversions
-                ? (
-                    (variant.results?.totalConversions /
-                      variant.results?.totalImpressions) *
-                    100
-                  ).toFixed(2)
-                : 0}
-              %
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-}
-
-export function ExperimentChart({
-  variants,
-  isLoading,
-}: {
-  isLoading?: boolean;
-  variants?: Partial<VariantDataDetails>[];
-}) {
-  if (isLoading) {
-    return <Skeleton className="h-96" />;
-  }
-
-  if (!variants) {
-    return null;
-  }
-
-  const data = variants?.map((variant) => ({
-    name: variant?.details?.name,
-    "Conversion Rate":
-      variant?.results?.totalImpressions && variant?.results?.totalConversions
-        ? (
-            (variant?.results?.totalConversions /
-              variant?.results?.totalImpressions) *
-            100
-          ).toFixed(2)
-        : 0,
-  }));
-
-  return (
-    <ResponsiveContainer width="100%" height={300}>
-      <RechartsBarChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Bar dataKey="Conversion Rate" fill="#8884d8" />
-      </RechartsBarChart>
-    </ResponsiveContainer>
-  );
-}
 
 export default function ExperimentDetail({ id }: { id: number }) {
   const supabase = createSupabaseClientForClientSide();
@@ -230,6 +138,7 @@ export default function ExperimentDetail({ id }: { id: number }) {
   const [totalImpressions, setTotalImpressions] = useState<number | null>(null);
   const [totalConversions, setTotalConversions] = useState<number | null>(null);
 
+  const router = useRouter();
   useEffect(() => {
     async function fetchData() {
       setVariantsDataLoading(true);
@@ -240,15 +149,14 @@ export default function ExperimentDetail({ id }: { id: number }) {
         variantsResults: Record<string, VariantDetailsResults>;
       } = await response.json();
 
-      const variantsData = Object.keys(result.variantsResults).map((key) => {
-        const variant = variants?.find((v) => v.id === Number(key));
-        const variantPercentage = variantsPerExperiment?.find(
-          (v) => v.variant_id === Number(key)
-        )?.percentage;
+      if (!response.ok) {
+        console.error("Failed to fetch experiment data:", result);
+        return;
+      }
 
+      const variantsData = Object.keys(result.variantsResults).map((key) => {
         return {
-          details: variant,
-          percentage: variantPercentage,
+          id: Number(key),
           results: result.variantsResults[key],
         };
       });
@@ -262,30 +170,74 @@ export default function ExperimentDetail({ id }: { id: number }) {
     fetchData();
   }, [supabase, id, variants, variantsPerExperiment]);
 
-  if (isLoading) {
-    // todo Skeleton
-    return <Skeleton className="h-96" />;
-  }
+  const [data, setData] = useState<any[] | null>();
+
+  useEffect(() => {
+    setData(
+      variantsData?.map((variant) => ({
+        name: variants?.find((v) => v.id === variant?.id)?.name ?? "Unknown",
+        "Conversion Rate":
+          variant?.results?.totalImpressions &&
+          variant?.results?.totalConversions
+            ? (
+                (variant?.results?.totalConversions /
+                  variant?.results?.totalImpressions) *
+                100
+              ).toFixed(2)
+            : 0,
+      }))
+    );
+  }, [variantsData, variants]);
+
+  const [combinedData, setCombinedData] = useState<
+    | {
+        id?: number;
+        details?: SelectVariant;
+        results?: VariantDetailsResults;
+        percentage?: number;
+      }[]
+    | null
+  >(null);
+
+  useEffect(() => {
+    if (!variantsData || !variants || !variantsPerExperiment) {
+      return;
+    }
+
+    const combinedData = variantsData.map((variantData) => {
+      const details = variants.find((v) => v.id === variantData.id);
+      const percentage = variantsPerExperiment.find(
+        (v) => v.variant_id === variantData.id
+      )?.percentage;
+
+      return {
+        id: variantData.id,
+        details,
+        results: variantData.results,
+        percentage: percentage,
+      };
+    });
+
+    setCombinedData(combinedData);
+  }, [variantsData, variants, variantsPerExperiment]);
 
   type dailyData = {
     date: string;
     [key: string]: number | string;
   };
-
   // Join all variants per date
-  const chartData = variantsData?.reduce((acc, variant) => {
+  const chartData = combinedData?.reduce((acc, variant) => {
     variant?.results?.dailyImpressions.forEach((impression) => {
       const date = impression.date;
       const existing = acc.find((d) => d.date === date);
 
       if (existing != undefined) {
-        existing[variant?.details?.id + "_impressions"] =
-          Number(existing[variant?.details?.id + "_impressions"]) +
-          impression.count;
+        existing[variant?.id + "_impressions"] =
+          Number(existing[variant?.id + "_impressions"]) + impression.count;
       } else {
         acc.push({
           date,
-          [variant?.details?.id + "_impressions"]: impression.count,
+          [variant?.id + "_impressions"]: impression.count,
         });
       }
     });
@@ -295,13 +247,12 @@ export default function ExperimentDetail({ id }: { id: number }) {
       const existing = acc.find((d) => d.date === date);
 
       if (existing != undefined) {
-        existing[variant?.details?.id + "_conversions"] =
-          Number(existing[variant?.details?.id + "_conversions"]) +
-          conversion.count;
+        existing[variant?.id + "_conversions"] =
+          Number(existing[variant?.id + "_conversions"]) + conversion.count;
       } else {
         acc.push({
           date,
-          [variant?.details?.id + "_conversions"]: conversion.count,
+          [variant?.id + "_conversions"]: conversion.count,
         });
       }
     });
@@ -309,20 +260,39 @@ export default function ExperimentDetail({ id }: { id: number }) {
     return acc;
   }, [] as dailyData[]);
 
+  const colorPalette = [
+    "hsl(240, 10%, 50%)", // Slate Gray
+    "hsl(0, 0%, 41%)", // Dim Gray
+    "hsl(120, 6%, 75%)", // Ash Gray
+    "hsl(0, 0%, 83%)", // Light Gray
+    "hsl(0, 0%, 25%)", // Charcoal Gray
+  ];
+  const colorPaletteConversions = [
+    "hsl(270, 50%, 40%)", // Royal Purple
+    "hsl(270, 100%, 90%)", // Lavender Mist
+    "hsl(280, 60%, 70%)", // Orchid Purple
+    "hsl(300, 30%, 40%)", // Plum
+    "hsl(270, 50%, 60%)", // Amethyst
+  ];
+
   const chartConfig =
-    variantsData
-      ?.flatMap((variant) => {
-        if (variant?.details?.name) {
+    combinedData
+      ?.flatMap((variantData, index) => {
+        const colorImpressions = colorPalette[index % colorPalette.length];
+        const colorConversions =
+          colorPaletteConversions[index % colorPaletteConversions.length];
+
+        if (variantData.details?.name) {
           return [
             {
-              id: variant?.details?.id + "_impressions",
-              label: variant?.details?.name,
-              color: "hsl(var(--chart-1))",
+              id: variantData?.id + "_impressions",
+              label: variantData.details?.name,
+              color: colorImpressions,
             },
             {
-              id: variant?.details?.id + "_conversions",
-              label: variant?.details?.name,
-              color: "hsl(var(--chart-2))",
+              id: variantData?.id + "_conversions",
+              label: variantData.details?.name,
+              color: colorConversions,
             },
           ];
         }
@@ -345,7 +315,9 @@ export default function ExperimentDetail({ id }: { id: number }) {
         >
       ) ?? ({} satisfies ChartConfig);
 
-  console.log(chartData, chartConfig);
+      console.log(combinedData)
+  console.log(chartConfig);
+  console.log(chartData);
 
   return (
     <div className="container mx-auto py-6">
@@ -422,25 +394,74 @@ export default function ExperimentDetail({ id }: { id: number }) {
                 <h3 className="text-lg font-semibold mb-2">
                   Experiment Results
                 </h3>
-                <ExperimentChart
-                  isLoading={variantsDataLoading}
-                  variants={variantsData}
-                />
+                <ResponsiveContainer width="100%" height={300}>
+                  <RechartsBarChart data={data ?? undefined}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="Conversion Rate" fill="#8884d8" />
+                  </RechartsBarChart>
+                </ResponsiveContainer>
               </div>
               <div className="mt-6">
                 <h3 className="text-lg font-semibold mb-2">Detailed Metrics</h3>
-                <ExperimentTable
-                  isLoading={variantsDataLoading}
-                  variants={variantsData}
-                />
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Variant</TableHead>
+                      <TableHead>Traffic Split</TableHead>
+                      <TableHead>Impressions</TableHead>
+                      <TableHead>Conversions</TableHead>
+                      <TableHead>Conversion Rate</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {combinedData?.map((variant) => (
+                      <TableRow key={variant?.id}>
+                        <TableCell className="font-medium">
+                          {variant?.details?.name}
+                        </TableCell>
+                        <TableCell>
+                          {variant?.percentage
+                            ? variant?.percentage.toFixed(2)
+                            : "-"}
+                          %
+                        </TableCell>
+                        <TableCell>
+                          {variant?.results?.totalImpressions}
+                        </TableCell>
+                        <TableCell>
+                          {variant.results?.totalConversions}
+                        </TableCell>
+                        <TableCell>
+                          {variant.results?.totalImpressions &&
+                          variant.results?.totalConversions
+                            ? (
+                                (variant.results?.totalConversions /
+                                  variant.results?.totalImpressions) *
+                                100
+                              ).toFixed(2)
+                            : 0}
+                          %
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             </>
           ) : (
             <div className="mt-6">
-              <h3 className="text-lg mb-2">
-                No data available. Are you sure that the pixel is properly
-                integrated in the selected domains?
-              </h3>
+              {!loadingVariants ? (
+                <h3 className="text-lg mb-2">
+                  No data available. Are you sure that the pixel is properly
+                  integrated in the selected domains?
+                </h3>
+              ) : (
+                <Skeleton className="h-64" />
+              )}
             </div>
           )}
         </CardContent>{" "}

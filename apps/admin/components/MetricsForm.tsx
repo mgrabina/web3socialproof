@@ -99,14 +99,12 @@ export default function MetricsForm({
   const [isAbiLoading, setIsAbiLoading] = useState(false);
 
   useEffect(() => {
-    console.log("testing", currentEvent.contract_address)
     if (
       currentEvent.chain_id &&
       currentEvent.contract_address &&
       currentEvent.chain_id > 0 &&
       isAddress(currentEvent.contract_address)
     ) {
-      console.log("sending")
       setIsAbiLoading(true);
       const fetchAbi = async () => {
         try {

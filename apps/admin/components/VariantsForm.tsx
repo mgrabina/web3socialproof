@@ -268,8 +268,6 @@ export default function VariantsForm({
       const { config: received } = await response.json();
       const config = JSON.parse(received) as configResponse;
 
-      console.log("Config:", config);
-
       setFormData((prev) => ({
         ...prev,
         message: prev?.message?.length ? prev.message : config?.title,
