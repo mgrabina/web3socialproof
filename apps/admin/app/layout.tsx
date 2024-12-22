@@ -3,15 +3,15 @@ import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
-import { env, getPixelServerByEnvironment } from "@/lib/constants";
-import "./globals.css";
 import { OnboardingProvider } from "@/components/OnboardingProvider";
 import { Onboarding } from "@/components/OnboardingStep";
 import StatusBarWrapper from "@/components/StatusBarWrapper";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { env, getPixelServerByEnvironment } from "@/lib/constants";
 import { getServerContext } from "@/lib/context/serverContext";
 import { generateStripeBillingPortalFromProtocolServerSide } from "@/utils/stripe/api";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -50,20 +50,20 @@ export default async function RootLayout({
       </head>
       <body className={inter.className}>
         <Analytics />
-        {/* <TooltipProvider> */}
-          <OnboardingProvider>
-            <div>
+        <OnboardingProvider>
+          <div>
+            <TooltipProvider>
               <DashboardHeader billingPortalLink={billingPortalLink} />
               <StatusBarWrapper />
+            </TooltipProvider>
 
-              {/* Content */}
-              {children}
-            </div>
+            {/* Content */}
+            {children}
+          </div>
 
-            <Toaster />
-            <Onboarding />
-          </OnboardingProvider>
-        {/* </TooltipProvider> */}
+          <Toaster />
+          <Onboarding />
+        </OnboardingProvider>
       </body>
     </html>
   );

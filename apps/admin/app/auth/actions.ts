@@ -153,34 +153,6 @@ export async function logout() {
   redirect("/login");
 }
 
-export async function signInWithGoogle() {
-  console.log("signInWithGoogle");
-  console.log(`${PUBLIC_URL()}/auth/callback`);
-
-  const supabase = createSupabaseClientForServerSide();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: `${PUBLIC_URL()}/auth/callback`,
-    },
-  });
-
-  if (error) {
-    console.error(
-      "error on login:",
-      error.message,
-      error.code,
-      error.stack,
-      error.status
-    );
-  }
-
-  if (data.url) {
-    console.log("redirecting to", data.url);
-    redirect(data.url); // use the redirect API for your server framework
-  }
-}
-
 export async function signInWithGithub() {
   const supabase = createSupabaseClientForServerSide();
   const { data, error } = await supabase.auth.signInWithOAuth({
