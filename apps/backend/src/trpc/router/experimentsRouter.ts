@@ -43,6 +43,7 @@ export const experimentsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       await trackImpression({
+        protocolId: ctx.protocol.id,
         experimentId: input.experimentId,
         variantId: input.variantId,
         session: input.session,

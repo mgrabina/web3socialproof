@@ -1,6 +1,7 @@
 import { saveImpressionInDb } from "../sources/database";
 
 export const trackImpression = async (input: {
+  protocolId: number;
   experimentId: number;
   variantId?: number;
   session: string;
@@ -8,6 +9,7 @@ export const trackImpression = async (input: {
   address?: string;
 }) => {
   await saveImpressionInDb({
+    protocolId: input.protocolId,
     experimentId: input.experimentId,
     variantId: input.variantId,
     address: input.address,
