@@ -133,7 +133,7 @@ export const experimentSchema = z.object({
 export type Experiment = z.infer<typeof experimentSchema>;
 
 export const herdSchema = z.object({
-  subscriptionPlan: subscriptionPlanSchema,
+  subscriptionPlan: z.string(), // todo use plans
   variant: variantSchema.optional(),
   experiment: experimentSchema,
 });
