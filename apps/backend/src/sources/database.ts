@@ -85,6 +85,7 @@ export const getApiKey = async (apiKey: string) => {
 };
 
 export const saveImpressionInDb = async (input: {
+  protocolId: number;
   experimentId: number;
   variantId?: number;
   user: string;
@@ -94,6 +95,7 @@ export const saveImpressionInDb = async (input: {
   const inserted = await db
     .insert(impressionsTable)
     .values({
+      protocol: input.protocolId,
       session: input.session,
       user: input.user,
       variant_id: input.variantId,
