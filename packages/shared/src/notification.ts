@@ -20,7 +20,7 @@ export const createNotification = (
   }
 
   if (!params.variant) {
-    console.error("[Herd] Empty variant.");
+    console.info("[Herd] Empty variant.");
     return null;
   }
 

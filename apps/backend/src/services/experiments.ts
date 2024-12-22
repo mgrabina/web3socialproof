@@ -10,7 +10,6 @@ import {
 } from "@web3socialproof/db";
 import {
   isIconName,
-  isSubscriptionPlan,
   NotificationOptions,
   NotificationStylingOptional,
 } from "@web3socialproof/shared/constants/notification";
@@ -29,12 +28,13 @@ export const getExperimentVariant = async ({
     });
   }
 
-  if (!isSubscriptionPlan(protocol.plan)) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Invalid subscription plan.",
-    });
-  }
+  // Todo replace planID for plan name
+  // if (!isSubscriptionPlan(protocol.plan)) {
+  //   throw new TRPCError({
+  //     code: "BAD_REQUEST",
+  //     message: "Invalid subscription plan.",
+  //   });
+  // }
 
   // Check if there are experiments
   let experiments = await db
@@ -54,7 +54,15 @@ export const getExperimentVariant = async ({
       return true;
     }
 
-    return experiment.hostnames?.includes(hostname);
+    const hostsWithoutSchema = experiment.hostnames.map((host) =>
+      host.replace("https://", "").replace("http://", "")
+    );
+
+    const hostnameWithoutSchema = hostname
+      .replace("https://", "")
+      .replace("http://", "");
+
+    return hostsWithoutSchema?.includes(hostnameWithoutSchema);
   });
 
   if (experimentsForHost.length === 0) {
@@ -73,7 +81,7 @@ export const getExperimentVariant = async ({
 
   if (variantsWithPercentages.length === 0) {
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
+      code: "NOT_FOUND",
       message: "No variants found for the experiment.",
     });
   }
@@ -84,8 +92,10 @@ export const getExperimentVariant = async ({
     0
   );
   const randomPercentage = Math.floor(Math.random() * totalPercentage);
-  let selectedVariantFromExperiment;
+  
+  console.log("totalPercentage", totalPercentage, "randomPercentage", randomPercentage, "variantsWithPercentages", variantsWithPercentages);
 
+  let selectedVariantFromExperiment;
   // Select the variant based on the random number
   let cumulativePercentage = 0;
   for (const variant of variantsWithPercentages) {
@@ -95,6 +105,9 @@ export const getExperimentVariant = async ({
       break;
     }
   }
+
+  console.log("selectedVariantFromExperiment", selectedVariantFromExperiment);
+
   if (!selectedVariantFromExperiment) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
