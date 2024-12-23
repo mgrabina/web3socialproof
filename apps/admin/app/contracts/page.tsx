@@ -21,6 +21,7 @@ import {
 } from "@web3socialproof/shared/constants/chains";
 import { shortenAddress } from "@web3socialproof/shared/utils/evm";
 import { AlertTriangle, CheckCircle } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function ContractsVerificationManager() {
@@ -115,9 +116,20 @@ export default function ContractsVerificationManager() {
                         : ""}
                     </TableCell>
                     <TableCell>
-                      <code className="bg-muted px-2 py-1 rounded text-xs">
-                        {shortenAddress(contract.contract_address)}
-                      </code>
+                      {isChainIdSupported(contract.chain_id) ? (
+                        <Link
+                          className="text-blue-500 hover:text-blue-800 hover:underline transition-all cursor-pointer"
+                          href={addressToExplorerUrl(
+                            contract.chain_id,
+                            contract.contract_address
+                          )}
+                          target="_blank"
+                        >
+                          {shortenAddress(contract.contract_address)}
+                        </Link>
+                      ) : (
+                        shortenAddress(contract.contract_address)
+                      )}
                     </TableCell>
                     <TableCell>
                       {contract.ownership_verified ? (
@@ -142,9 +154,9 @@ export default function ContractsVerificationManager() {
                           Verify
                         </Button>
                       )}
-                      {/* View on scanner */}
+                      {/* View on scanner
                       {isChainIdSupported(contract.chain_id) && (
-                        <a
+                        <Link
                           href={addressToExplorerUrl(
                             contract.chain_id,
                             contract.contract_address
@@ -152,10 +164,10 @@ export default function ContractsVerificationManager() {
                           target="_blank"
                         >
                           <Button variant="outline" size="sm" className="ml-2">
-                            View
+                            View on Scanner
                           </Button>
-                        </a>
-                      )}
+                        </Link>
+                      )} */}
                     </TableCell>
                   </TableRow>
                 ))}

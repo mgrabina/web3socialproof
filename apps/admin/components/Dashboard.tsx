@@ -111,8 +111,8 @@ export default function Dashboard() {
     ]);
   }, [protocol, supabase]);
 
-  const hasIntegrated =
-    !totalImpressionsLoading && totalImpressions && totalImpressions > 0;
+  const hasNotIntegrated =
+    !totalImpressionsLoading && (!totalImpressions || totalImpressions == 0);
 
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(
     Boolean(localStorage.getItem(OnboardingName))
@@ -187,7 +187,7 @@ export default function Dashboard() {
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-navy-900 to-navy-950">
       <div className="flex-1 p-8">
-        {hasIntegrated ? (
+        {!hasNotIntegrated ? (
           <div className="mx-auto max-w-6xl space-y-8">
             {/* Header */}
             <div className="flex items-center justify-between">
@@ -242,7 +242,6 @@ export default function Dashboard() {
                     (totalConversionsWithoutHerdLoading && (
                       <Skeleton className="h-6 w-12" />
                     ))}
-
                   {totalConversionsWithHerd && totalConversionsWithoutHerd ? (
                     <p className="text-2xl font-bold">
                       {totalConversionsWithoutHerd !== 0
@@ -254,6 +253,9 @@ export default function Dashboard() {
                           ).toFixed(2)
                         : "∞" + "%"}
                     </p>
+                  ) : totalConversionsWithHerd ||
+                    totalConversionsWithoutHerd ? (
+                    <span className="text-xl font-bold">Waiting more data</span>
                   ) : (
                     <Link
                       className="
@@ -280,7 +282,7 @@ export default function Dashboard() {
                     Impressions and Conversions
                   </label>
                   <br />
-                  <ChartContainer config={chartConfig}>
+                  <ChartContainer className="mt-4" config={chartConfig}>
                     <LineChart
                       data={chartData}
                       margin={{
