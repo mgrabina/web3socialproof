@@ -8,7 +8,7 @@ Sentry.init({
     process.env.NODE_ENV ||
     "development",
 
-  dsn: "https://54a8566323640fcbd4813b89b2ffaabb@o4508520360378368.ingest.us.sentry.io/4508520385282048",
+  dsn: "https://11333ba21a2105b9f7e2d5a85ed7a5c6@o4508520360378368.ingest.us.sentry.io/4508520517861376",
   integrations: [nodeProfilingIntegration()],
   // Tracing
   tracesSampleRate: 1.0, //  Capture 100% of the transactions
