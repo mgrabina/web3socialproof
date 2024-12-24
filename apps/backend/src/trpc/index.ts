@@ -1,8 +1,9 @@
+import * as Sentry from "@sentry/node";
 import { inferAsyncReturnType, initTRPC, TRPCError } from "@trpc/server";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { SelectProtocol, SelectUser } from "@web3socialproof/db";
-import { verifyApiKey, verifySupabaseToken } from "../services/auth";
 import superjson from "superjson";
+import { verifyApiKey, verifySupabaseToken } from "../services/auth";
 
 export const createContext = ({
   req,
@@ -74,9 +75,19 @@ export const userAuthMiddleware = t.middleware(async ({ input, ctx, next }) => {
 
 export const middleware = t.middleware;
 
+const sentryMiddleware = t.middleware(
+  Sentry.trpcMiddleware({
+    attachRpcInput: true,
+  })
+);
+
 export const router = t.router;
 export type AppRouter = typeof t.router;
-export const publicProcedure = t.procedure;
 
-export const pixelProcedure = t.procedure.use(pixelAuthMiddleware);
-export const userProcedure = t.procedure.use(userAuthMiddleware);
+export const publicProcedure = t.procedure.use(sentryMiddleware);
+export const pixelProcedure = t.procedure
+  .use(sentryMiddleware)
+  .use(pixelAuthMiddleware);
+export const userProcedure = t.procedure
+  .use(sentryMiddleware)
+  .use(userAuthMiddleware);

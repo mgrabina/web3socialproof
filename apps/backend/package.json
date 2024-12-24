@@ -25,6 +25,8 @@
     "semantic-release": "semantic-release --branches main"
   },
   "dependencies": {
+    "@sentry/node": "^8.47.0",
+    "@sentry/profiling-node": "^8.47.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "2.46.1",
     "@trpc/server": "^11.0.0-rc.608",

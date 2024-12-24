@@ -26,6 +26,8 @@
   },
   "dependencies": {
     "@envio-dev/hypersync-client": "^0.6.2",
+    "@sentry/node": "^8.47.0",
+    "@sentry/profiling-node": "^8.47.0",
     "cors": "2.8.5",
     "crypto": "^1.0.1",
     "drizzle-orm": "^0.36.1",
