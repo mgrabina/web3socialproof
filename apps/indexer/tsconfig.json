@@ -3,9 +3,11 @@
   "compilerOptions": {
     "outDir": "build",
     "baseUrl": ".",
+
     "paths": {
       "@web3socialproof/db": ["../../services/db/index.ts"]
     },
+
     "allowJs": true,
     "strict": true,
     "strictNullChecks": true,
@@ -20,7 +22,14 @@
     "moduleResolution": "Node",
     "target": "ES2022",
     "lib": ["dom", "es2022"],
-    "moduleDetection": "force"
+    "moduleDetection": "force",
+    "sourceMap": true,
+    "inlineSources": true,
+
+    // Set `sourceRoot` to  "/" to strip the build path prefix
+    // from generated source code references.
+    // This improves issue grouping in Sentry.
+    "sourceRoot": "/"
   },
 
   "include": ["src", ".eslintrc.cjs", ".commitlintrc.ts"],

@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "prepare": "husky",
-    "build": "shx rm -rf build && tsc -p tsconfig.json",
+    "build": "shx rm -rf build && tsc -p tsconfig.json && npm run sentry:sourcemaps",
     "dev": "tsx watch src/api/server.ts",
     "watch": "tsx watch src/api/server.ts",
     "start": "tsx src/api/server.ts",
@@ -22,10 +22,12 @@
     "tsc": "tsc -p tsconfig.json",
     "format-lint": "prettier --config .prettierrc --check --ignore-unknown .",
     "format-fix": "prettier --config .prettierrc --write --ignore-unknown -l .",
-    "semantic-release": "semantic-release --branches main"
+    "semantic-release": "semantic-release --branches main",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org targecy --project indexer ./build && sentry-cli sourcemaps upload --org targecy --project indexer ./build"
   },
   "dependencies": {
     "@envio-dev/hypersync-client": "^0.6.2",
+    "@sentry/cli": "^2.39.1",
     "@sentry/node": "^8.47.0",
     "@sentry/profiling-node": "^8.47.0",
     "cors": "2.8.5",

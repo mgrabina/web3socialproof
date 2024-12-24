@@ -4850,7 +4850,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/cli@npm:2.39.1":
+"@sentry/cli@npm:2.39.1, @sentry/cli@npm:^2.39.1":
   version: 2.39.1
   resolution: "@sentry/cli@npm:2.39.1"
   dependencies:
@@ -6959,6 +6959,7 @@ __metadata:
   dependencies:
     "@commitlint/cli": "npm:19.5.0"
     "@commitlint/config-conventional": "npm:19.5.0"
+    "@sentry/cli": "npm:^2.39.1"
     "@sentry/node": "npm:^8.47.0"
     "@sentry/profiling-node": "npm:^8.47.0"
     "@supabase/ssr": "npm:^0.5.2"
@@ -7014,6 +7015,7 @@ __metadata:
     "@commitlint/cli": "npm:19.5.0"
     "@commitlint/config-conventional": "npm:19.5.0"
     "@envio-dev/hypersync-client": "npm:^0.6.2"
+    "@sentry/cli": "npm:^2.39.1"
     "@sentry/node": "npm:^8.47.0"
     "@sentry/profiling-node": "npm:^8.47.0"
     "@types/cors": "npm:2.8.17"

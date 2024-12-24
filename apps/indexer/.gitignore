@@ -2,3 +2,5 @@ build
 .env
 build/tsconfig.tsbuildinfo
 logs
+# Sentry Config File
+.sentryclirc

@@ -1,7 +1,21 @@
+import * as Sentry from "@sentry/node";
+import { nodeProfilingIntegration } from "@sentry/profiling-node";
+
+Sentry.init({
+  environment:
+    process.env.RAILWAY_ENVIRONMENT_NAME ||
+    process.env.NODE_ENV ||
+    "development",
+
+  dsn: "https://11333ba21a2105b9f7e2d5a85ed7a5c6@o4508520360378368.ingest.us.sentry.io/4508520517861376",
+  integrations: [nodeProfilingIntegration()],
+  // Tracing
+  tracesSampleRate: 1.0, //  Capture 100% of the transactions
+});
+
 import express from "express";
 import { fetchAndSaveNewEvents } from "../service/indexer";
 import logger from "../utils/logger";
-import { db, eq, logsTable } from "@web3socialproof/db";
 
 const app = express();
 app.use(express.json());
@@ -97,6 +111,8 @@ app.post("/indexer/reindex", async (req: any, res: any) => {
     res.status(500).json({ error: "Failed to re-index variables" });
   }
 });
+
+Sentry.setupExpressErrorHandler(app);
 
 app.listen(3002, () => {
   logger.info("API server running on port: 3002");
