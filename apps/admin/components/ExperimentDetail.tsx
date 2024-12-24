@@ -97,42 +97,42 @@ export default function ExperimentDetail({ id }: { id: number }) {
     fetchExperiment();
   }, [id, supabase]);
 
-  async function fetchVariants() {
-    try {
-      setLoadingVariants(true);
-      const { data, error } = await supabase
-        .from("variants_per_experiment_table")
-        .select("*")
-        .eq("experiment_id", id);
-
-      if (error || !data) {
-        throw error;
-      }
-
-      const { data: variants } = await supabase
-        .from("variants_table")
-        .select("*")
-        .in(
-          "id",
-          data.map((v) => v.variant_id).filter((v) => !!v)
-        );
-
-      if (error || !variants) {
-        throw error;
-      }
-
-      setVariantsPerExperiment(data);
-      setVariants(variants);
-    } catch (error) {
-      console.error("Failed to fetch variants:", error);
-    } finally {
-      setLoadingVariants(false);
-    }
-  }
-
+  
   useEffect(() => {
-    if (!id) return;
+    async function fetchVariants() {
+      try {
+        setLoadingVariants(true);
+        const { data, error } = await supabase
+          .from("variants_per_experiment_table")
+          .select("*")
+          .eq("experiment_id", id);
+  
+        if (error || !data) {
+          throw error;
+        }
+  
+        const { data: variants } = await supabase
+          .from("variants_table")
+          .select("*")
+          .in(
+            "id",
+            data.map((v) => v.variant_id).filter((v) => !!v)
+          );
+  
+        if (error || !variants) {
+          throw error;
+        }
+  
+        setVariantsPerExperiment(data);
+        setVariants(variants);
+      } catch (error) {
+        console.error("Failed to fetch variants:", error);
+      } finally {
+        setLoadingVariants(false);
+      }
+    }
 
+    if (!id) return;
     fetchVariants();
   }, [id, supabase]);
 

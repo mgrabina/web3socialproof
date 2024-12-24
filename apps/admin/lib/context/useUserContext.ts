@@ -16,10 +16,6 @@ export const useUserContext = () => {
       const supabase = createSupabaseClientForClientSide();
       setIsContextLoading(true);
 
-      if (!isContextLoading) {
-        return; // Avoid re-fetching data
-      }
-
       const {
         data: { session: auxSession },
       } = await supabase.auth.getSession();

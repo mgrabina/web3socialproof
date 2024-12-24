@@ -135,6 +135,13 @@ export const verifyContract = async (input: {
     address: input.address,
   });
 
+  if (!code) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Verification code not found",
+    });
+  }
+
   // Check if signature matches
   const creator = creatorAndCreationTx.contractCreator;
   const signer = ethers.verifyMessage(code.code, input.signature);

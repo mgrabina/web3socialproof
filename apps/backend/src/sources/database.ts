@@ -277,16 +277,9 @@ export const getVerificationCode = async ({
         gt(verificationCodesTable.expiration, new Date().toISOString())
       )
     )
-    .orderBy(desc(verificationCodesTable.expiration));
+    .orderBy(desc(verificationCodesTable.expiration)).limit(1);
 
-  if (codes.length === 0) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Verification code not found",
-    });
-  }
-
-  return codes[0];
+  return codes.length ? codes[0] : undefined;
 };
 
 export const setCodeVerification = async ({
