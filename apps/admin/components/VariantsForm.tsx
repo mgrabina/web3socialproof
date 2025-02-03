@@ -97,7 +97,7 @@ export default function VariantsForm({
           .order("created_at", { ascending: false }) // Get the latest variant
           .limit(1);
 
-        if (!error && data.length) {
+        if (!error && data.length && !formData) {
           setFormData({
             styling: {
               ...defaultStyling,
